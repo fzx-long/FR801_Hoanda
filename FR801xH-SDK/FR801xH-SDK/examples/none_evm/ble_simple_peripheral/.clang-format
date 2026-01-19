@@ -1,0 +1,30 @@
+# .clang-format
+BasedOnStyle: LLVM
+Language: C
+
+# 一行最大宽度
+ColumnLimit: 80
+
+# 对齐连续的宏定义（#define）
+AlignConsecutiveMacros: true
+
+# 常见配套：让连续声明/赋值也更整齐（可按需保留）
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true
+
+# 缩进与常见风格（可按需调整）
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# 宏定义通常不强制二次缩进
+IndentPPDirectives: None
+
+# 换行与括号（保持相对常规的 C 习惯）
+BreakBeforeBraces: Attach
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+
+# 避免把 include 排序搞乱（有些项目不希望自动重排）
+SortIncludes: Never

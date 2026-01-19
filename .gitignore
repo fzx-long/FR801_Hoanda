@@ -1,0 +1,26 @@
+# build outputs
+build/
+out/
+*.o
+*.obj
+*.elf
+*.bin
+*.hex
+*.map
+*.d
+*.a
+*.lib
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db

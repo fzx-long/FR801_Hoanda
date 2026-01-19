@@ -1,0 +1,105 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.24.2.0
+Copyright (C) 2017 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: fan 1456925916@qq.com, null, LIC=TIVNB-20098-QD5KD-85BEU-9UMXU-9644Y
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.24.1
+Toolchain Path:  D:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 5 (build 528)
+Assembler:       Armasm.exe V5.06 update 5 (build 528)
+Linker/Locator:  ArmLink.exe V5.06 update 5 (build 528)
+Library Manager: ArmAr.exe V5.06 update 5 (build 528)
+Hex Converter:   FromElf.exe V5.06 update 5 (build 528)
+CPU DLL:         SARMCM3.DLL V5.24.1
+Dialog DLL:      DCM.DLL V1.16.0.0
+Target DLL:      Segger\JL2CM3.dll V2.99.26.0
+Dialog DLL:      TCM.DLL V1.32.0.0
+ 
+<h2>Project:</h2>
+c:\Users\14569\Desktop\五羊本田\software\FR801xH-SDK\FR801xH-SDK - 副本\examples\none_evm\ble_simple_peripheral\keil\ble_simple_peripheral.uvprojx
+Project File Date:  01/09/2026
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'ble_simple_peripheral'
+compiling proj_main.c...
+"no source": Error:  #5: cannot open source input file "code\proj_main.c": No such file or directory
+code\proj_main.c: 0 warnings, 1 error
+compiling base_ble.c...
+"no source": Error:  #5: cannot open source input file "code\base_ble.c": No such file or directory
+code\base_ble.c: 0 warnings, 1 error
+compiling ble_simple_peripheral.c...
+"no source": Error:  #5: cannot open source input file "code\ble_simple_peripheral.c": No such file or directory
+code\ble_simple_peripheral.c: 0 warnings, 1 error
+compiling scanner.c...
+"no source": Error:  #5: cannot open source input file "code\scanner.c": No such file or directory
+code\scanner.c: 0 warnings, 1 error
+compiling user_task.c...
+"no source": Error:  #5: cannot open source input file "code\user_task.c": No such file or directory
+code\user_task.c: 0 warnings, 1 error
+compiling usart_device.c...
+"no source": Error:  #5: cannot open source input file "code\usart_device.c": No such file or directory
+code\usart_device.c: 0 warnings, 1 error
+compiling rssi_check.c...
+"no source": Error:  #5: cannot open source input file "code\rssi_check.c": No such file or directory
+code\rssi_check.c: 0 warnings, 1 error
+compiling ble_function.c...
+"no source": Error:  #5: cannot open source input file "code\ble_function.c": No such file or directory
+code\ble_function.c: 0 warnings, 1 error
+compiling aes_cbc.c...
+"no source": Error:  #5: cannot open source input file "components\modules\aes_cbc\aes_cbc.c": No such file or directory
+components\modules\aes_cbc\aes_cbc.c: 0 warnings, 1 error
+compiling phone_reply.c...
+"no source": Error:  #5: cannot open source input file "code\phone_reply.c": No such file or directory
+code\phone_reply.c: 0 warnings, 1 error
+compiling protocol_fd.c...
+"no source": Error:  #5: cannot open source input file "code\protocol_fd.c": No such file or directory
+code\protocol_fd.c: 0 warnings, 1 error
+compiling TPMS.c...
+"no source": Error:  #5: cannot open source input file "code\TPMS.c": No such file or directory
+code\TPMS.c: 0 warnings, 1 error
+compiling protocol_fe.c...
+"no source": Error:  #5: cannot open source input file "code\protocol_fe.c": No such file or directory
+code\protocol_fe.c: 0 warnings, 1 error
+compiling protocol.c...
+"no source": Error:  #5: cannot open source input file "code\protocol.c": No such file or directory
+code\protocol.c: 0 warnings, 1 error
+compiling en_de_algo.c...
+..\code\en_de_algo.c(17): error:  #5: cannot open source input file "../keil/components/modules/aes_cbc/aes_cbc.h": No such file or directory
+  #include "../keil/components/modules/aes_cbc/aes_cbc.h"
+..\code\en_de_algo.c: 0 warnings, 1 error
+compiling simple_gatt_service.c...
+"no source": Error:  #5: cannot open source input file "components\ble\profiles\ble_simple_profile\simple_gatt_service.c": No such file or directory
+components\ble\profiles\ble_simple_profile\simple_gatt_service.c: 0 warnings, 1 error
+compiling scanner_example.c...
+..\code\scanner_example.c(51): error:  #136: struct "ble_central_ops_v2_t"  has no field "connect"
+      g_ble_scanner.ops.connect(target_mac);
+..\code\scanner_example.c(54): error:  #136: struct "ble_central_ops_v2_t"  has no field "disconnect"
+      g_ble_scanner.ops.disconnect();
+..\code\scanner_example.c(69): warning:  #223-D: function "co_printf" declared implicitly
+          co_printf("Scanned MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+..\code\scanner_example.c: 1 warning, 2 errors
+".\Objects\ble_simple_peripheral.axf" - 3 Error(s), 1 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.0.1.pack
+                ARM.CMSIS.5.0.1
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_ble_simple_peripheral
+  D:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\Device\ARM\ARMCM3\Include
+
+<h2>Collection of Component Files used:</h2>
+Target not created.
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>

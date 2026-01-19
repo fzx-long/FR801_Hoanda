@@ -1,0 +1,143 @@
+{
+  "categories": {
+    "bluetooth": {
+      "name": "蓝牙相关命令",
+      "commands": [
+        {"id": 1, "hex": "0x01", "name": "蓝牙连接命令", "description": "蓝牙连接后主动向MCU端发送(当蓝牙鉴权完成之后发送)"},
+        {"id": 22, "hex": "0x16", "name": "蓝牙恢复出厂设置命令", "description": "恢复蓝牙模块到出厂设置"},
+        {"id": 23, "hex": "0x17", "name": "取消蓝牙配对命令", "description": "取消当前蓝牙配对"},
+        {"id": 66, "hex": "0x42", "name": "读取蓝牙MAC地址命令", "description": "读取设备的蓝牙MAC地址"},
+        {"id": 280, "hex": "0x118", "name": "读取蓝牙RSSI值命令", "description": "读取蓝牙RSSI值(Data: 无; Resp: RSSI值1B+MAC地址6B)"},
+        {"id": 281, "hex": "0x119", "name": "蓝牙无感解锁灵敏度命令", "description": "设置蓝牙无感解锁灵敏度，前2B 最小距离，后2B是最大距离"},
+        {"id": 289, "hex": "0x120", "name": "蓝牙无感解锁开命令", "description": "开启蓝牙无感解锁功能 DATA段 0x01"},
+        {"id": 290, "hex": "0x121", "name": "蓝牙无感解锁关命令", "description": "关闭蓝牙无感解锁功能 DATA段 0x00"}
+      ]
+    },
+    "nfc": {
+      "name": "NFC相关命令",
+      "commands": [
+        {"id": 32, "hex": "0x20", "name": "添加NFC钥匙命令", "description": "基于不同的NFC模块进行定义"},
+        {"id": 33, "hex": "0x21", "name": "删除NFC钥匙命令", "description": "删除指定的NFC钥匙"},
+        {"id": 34, "hex": "0x22", "name": "查找NFC钥匙命令", "description": "查找已配对的NFC钥匙"},
+        {"id": 35, "hex": "0x23", "name": "NFC解锁命令", "description": "通过NFC解锁车辆"},
+        {"id": 36, "hex": "0x24", "name": "NFC锁车命令", "description": "通过NFC锁车辆"},
+        {"id": 37, "hex": "0x25", "name": "NFC开关命令", "description": "开启或关闭NFC功能 00-关闭 01-开启"}
+      ]
+    },
+    "vehicle": {
+      "name": "车辆控制命令",
+      "commands": [
+        {"id": 48, "hex": "0x30", "name": "油车解防命令", "description": "解除油车防盗状态"},
+        {"id": 49, "hex": "0x31", "name": "油车防盗命令", "description": "设置油车防盗状态"},
+        {"id": 50, "hex": "0x32", "name": "油车寻车状态查询命令", "description": "查询油车寻车状态（带DATA段，用于音量大小设置）"},
+        {"id": 51, "hex": "0x33", "name": "油车尾箱解锁命令", "description": "解锁油车尾箱"},
+        {"id": 52, "hex": "0x34", "name": "油车尾箱锁车命令", "description": "锁油车尾箱"},
+        {"id": 53, "hex": "0x35", "name": "座桶解锁命令", "description": "解锁座桶"},
+        {"id": 54, "hex": "0x36", "name": "座桶锁车命令", "description": "锁座桶"},
+        {"id": 55, "hex": "0x37", "name": "静音设置命令", "description": "设置静音模式 DATA段 00-关闭静音 01-开启静音"},
+        {"id": 56, "hex": "0x38", "name": "中箱锁解锁命令", "description": "解锁中箱锁"},
+        {"id": 57, "hex": "0x39", "name": "中箱锁锁车命令", "description": "锁中箱锁"},
+        {"id": 64, "hex": "0x40", "name": "紧急模式打开命令", "description": "打开紧急模式"},
+        {"id": 65, "hex": "0x41", "name": "紧急模式关闭命令", "description": "关闭紧急模式"},
+        {"id": 67, "hex": "0x43", "name": "单控开锁命令", "description": "单控开锁命令（尾箱锁）"},
+        {"id": 160, "hex": "0xA0", "name": "防盗设置灵敏度读取命令", "description": "读取当前防盗灵敏度设置"},
+        {"id": 161, "hex": "0xA1", "name": "防盗设置灵敏度设置命令", "description": "设置防盗灵敏度 DATA段 00-低 01-中 02-高"}
+      ]
+    },
+    "intelligent": {
+      "name": "智能设置命令",
+      "commands": [
+        {"id": 68, "hex": "0x44", "name": "助力推车模式开启命令", "description": "开启助力推车模式"},
+        {"id": 69, "hex": "0x45", "name": "助力推车模式关闭命令", "description": "关闭助力推车模式"},
+        {"id": 70, "hex": "0x46", "name": "默认助力推车模式命令", "description": "恢复助力推车模式默认设置"},
+        {"id": 71, "hex": "0x47", "name": "延时大灯开启命令", "description": "开启延时大灯功能"},
+        {"id": 72, "hex": "0x48", "name": "延时大灯关闭命令", "description": "关闭延时大灯功能"},
+        {"id": 73, "hex": "0x49", "name": "默认延时大灯命令", "description": "恢复延时大灯默认设置"},
+        {"id": 80, "hex": "0x50", "name": "延时大灯时间设置命令", "description": "设置延时大灯时间 DATA段 范围5-120秒 默认1"},
+        {"id": 81, "hex": "0x51", "name": "充电功率设置命令", "description": "设置充电功率 DATA段 档位：30 22 16 6 单位KW 默认30"},
+        {"id": 82, "hex": "0x52", "name": "自动P档开启命令", "description": "开启自动P档功能"},
+        {"id": 83, "hex": "0x53", "name": "自动P档关闭命令", "description": "关闭自动P档功能"},
+        {"id": 84, "hex": "0x54", "name": "自动P档默认命令", "description": "恢复自动P档默认设置"},
+        {"id": 85, "hex": "0x55", "name": "自动P档时间设置命令", "description": "设置自动P档时间 DATA段 范围、10-120 单位s"},
+        {"id": 86, "hex": "0x56", "name": "和弦喇叭开启命令", "description": "开启和弦喇叭"},
+        {"id": 87, "hex": "0x57", "name": "和弦喇叭关闭命令", "description": "关闭和弦喇叭"},
+        {"id": 88, "hex": "0x58", "name": "和弦喇叭默认命令", "description": "恢复和弦喇叭默认设置"},
+        {"id": 89, "hex": "0x59", "name": "和弦喇叭音源设置命令", "description": "设置和弦喇叭音源 data段1"},
+        {"id": 96, "hex": "0x60", "name": "和弦喇叭音量设置命令", "description": "设置和弦喇叭音量 data段1"},
+        {"id": 97, "hex": "0x61", "name": "三射灯氛围灯开启命令", "description": "开启三射灯氛围灯"},
+        {"id": 98, "hex": "0x62", "name": "三射灯氛围灯关闭命令", "description": "关闭三射灯氛围灯"},
+        {"id": 99, "hex": "0x63", "name": "三射灯氛围灯默认命令", "description": "恢复三射灯氛围灯默认设置"},
+        {"id": 100, "hex": "0x64", "name": "三射灯氛围灯模式设置命令", "description": "设置三射灯氛围灯模式 data段 1字节灯光效果 1字节渐变模式 3字节颜色值"},
+        {"id": 101, "hex": "0x65", "name": "辅助倒车档位开启命令", "description": "开启辅助倒车档位"},
+        {"id": 102, "hex": "0x66", "name": "辅助倒车档位关闭命令", "description": "关闭辅助倒车档位"},
+        {"id": 103, "hex": "0x67", "name": "辅助倒车档位默认命令", "description": "恢复辅助倒车档位默认设置"},
+        {"id": 117, "hex": "0x75", "name": "自动转向回位开启命令", "description": "开启自动转向回位功能"},
+        {"id": 118, "hex": "0x76", "name": "自动转向回位关闭命令", "description": "关闭自动转向回位功能"},
+        {"id": 119, "hex": "0x77", "name": "自动转向回位默认命令", "description": "恢复自动转向回位默认设置"},
+        {"id": 120, "hex": "0x78", "name": "EBS开启命令", "description": "开启EBS功能 DATA段：EBS类型 1字节"},
+        {"id": 121, "hex": "0x79", "name": "低速档位开启命令", "description": "开启低速档位"},
+        {"id": 128, "hex": "0x80", "name": "低速档位关闭命令", "description": "关闭低速档位"},
+        {"id": 129, "hex": "0x81", "name": "低速档位默认命令", "description": "恢复低速档位默认设置"},
+        {"id": 130, "hex": "0x82", "name": "低速档位速度设置命令", "description": "设置低速档位速度 00 01 10 11"},
+        {"id": 131, "hex": "0x83", "name": "中速档位开启命令", "description": "开启中速档位"},
+        {"id": 132, "hex": "0x84", "name": "中速档位关闭命令", "description": "关闭中速档位"},
+        {"id": 133, "hex": "0x85", "name": "中速档位默认命令", "description": "恢复中速档位默认设置"},
+        {"id": 134, "hex": "0x86", "name": "中速档位速度设置命令", "description": "设置中速档位速度 00 01 10 11"},
+        {"id": 135, "hex": "0x87", "name": "高速档位开启命令", "description": "开启高速档位"},
+        {"id": 136, "hex": "0x88", "name": "高速档位关闭命令", "description": "关闭高速档位"},
+        {"id": 137, "hex": "0x89", "name": "高速档位默认命令", "description": "恢复高速档位默认设置"},
+        {"id": 144, "hex": "0x90", "name": "高速档位速度设置命令", "description": "设置高速档位速度 00 01 10 11"},
+        {"id": 145, "hex": "0x91", "name": "丢失模式开启命令", "description": "开启丢失模式"},
+        {"id": 146, "hex": "0x92", "name": "丢失模式关闭命令", "description": "关闭丢失模式（默认）"},
+        {"id": 147, "hex": "0x93", "name": "TCS开启命令", "description": "开启TCS功能"},
+        {"id": 148, "hex": "0x94", "name": "TCS关闭命令", "description": "关闭TCS功能"},
+        {"id": 149, "hex": "0x95", "name": "侧支架开启命令", "description": "开启侧支架功能"},
+        {"id": 150, "hex": "0x96", "name": "侧支架关闭命令", "description": "关闭侧支架功能"},
+        {"id": 151, "hex": "0x97", "name": "电池模式设置命令", "description": "设置电池模式 DATA段 0x00-铅酸电池 0x01-锂电池"},
+        {"id": 152, "hex": "0x98", "name": "电池容量设置命令", "description": "设置电池容量 DATA段 单位Ah"},
+        {"id": 153, "hex": "0x99", "name": "KFA、2KGA、2MQA数据同步命令", "description": "KFA、2KGA、2MQA数据同步命令 DATA段 根据不同车型定义"},
+        {"id": 256, "hex": "0x100", "name": "HDC开启命令", "description": "开启HDC功能"},
+        {"id": 257, "hex": "0x101", "name": "HDC关闭命令", "description": "关闭HDC功能"},
+        {"id": 258, "hex": "0x102", "name": "HHC开启命令", "description": "开启HHC功能"},
+        {"id": 259, "hex": "0x103", "name": "HHC关闭命令", "description": "关闭HHC功能"},
+        {"id": 260, "hex": "0x104", "name": "起步强度设置命令", "description": "设置起步强度 DATA段 0x00-低 0x01-中 0x02-高 + 车类型"},
+        {"id": 261, "hex": "0x105", "name": "SPORT模式开启命令", "description": "开启SPORT模式"},
+        {"id": 262, "hex": "0x106", "name": "SPORT模式关闭命令", "description": "关闭SPORT模式"},
+        {"id": 263, "hex": "0x107", "name": "SPORT模式默认命令", "description": "恢复SPORT模式默认设置"},
+        {"id": 264, "hex": "0x108", "name": "SPORT模式类型设置命令", "description": "设置SPORT模式类型 范围30~65 单位Km/h 精度 偏移量 * + 车类型"},
+        {"id": 265, "hex": "0x109", "name": "ECO模式开启命令", "description": "开启ECO模式"},
+        {"id": 272, "hex": "0x110", "name": "ECO模式关闭命令", "description": "关闭ECO模式"},
+        {"id": 273, "hex": "0x111", "name": "ECO模式默认命令", "description": "恢复ECO模式默认设置"},
+        {"id": 274, "hex": "0x112", "name": "ECO模式类型设置命令", "description": "设置ECO模式类型"},
+        {"id": 275, "hex": "0x113", "name": "雷达开启命令", "description": "开启雷达功能"},
+        {"id": 276, "hex": "0x114", "name": "雷达关闭命令", "description": "关闭雷达功能"},
+        {"id": 277, "hex": "0x115", "name": "雷达默认命令", "description": "恢复雷达默认设置"},
+        {"id": 278, "hex": "0x116", "name": "雷达灵敏度设置命令", "description": "设置雷达灵敏度 DATA段 0x00-低 0x01-中 0x02-高"},
+        {"id": 512, "hex": "0x200", "name": "充电显示器开命令", "description": "充电显示器开"},
+        {"id": 513, "hex": "0x201", "name": "充电显示器关命令", "description": "充电显示器关"},
+        {"id": 514, "hex": "0x202", "name": "动力回收开命令(EBS)", "description": "动力回收开 1开"},
+        {"id": 515, "hex": "0x203", "name": "动力回收关命令(EBS)", "description": "动力回收关 0关"},
+        {"id": 520, "hex": "0x208", "name": "设备主动同步数据命令", "description": "每次蓝牙连接上后，设备主动向APP同步一次，包含User档设置、助力推车设置、延时大灯设置、充电功率、自动P档设置、和弦喇叭设置、三色氛围灯设置、智能开关集、倒车设置、防盗器设置、EBS设置等"},
+        {"id": 521, "hex": "0x209", "name": "设备状态查询命令", "description": "查询设备当前状态信息"}
+      ]
+    },
+    "sensor": {
+      "name": "传感器相关命令",
+      "commands": [
+        {"id": 279, "hex": "0x117", "name": "胎压监测获取命令", "description": "获取胎压监测数据"},
+        {"id": 288, "hex": "0x120", "name": "胎压传感器删除命令", "description": "删除胎压传感器"},
+        {"id": 281, "hex": "0x11B", "name": "胎压传感器配对命令", "description": "配对新的胎压传感器"},
+        {"id": 282, "hex": "0x11A", "name": "胎压传感器状态获取命令", "description": "获取胎压传感器状态"}
+      ]
+    },
+    "ble": {
+      "name": "BLE协议命令",
+      "commands": [
+        {"id": 0, "hex": "0x0000", "name": "ACK命令", "description": "确认命令"},
+        {"id": 257, "hex": "0x0101", "name": "鉴权结果", "description": "BLE鉴权结果反馈"},
+        {"id": 510, "hex": "0x01FE", "name": "FE连接命令", "description": "FE连接命令"},
+        {"id": 509, "hex": "0x01FD", "name": "FD命令", "description": "FD命令"}
+      ]
+    }
+  }
+}
