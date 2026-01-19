@@ -24,3 +24,9 @@ Makefile
 # OS
 .DS_Store
 Thumbs.db
+
+# zip
+.zip
+*.tar.gz
+*.rar
+*.7z
