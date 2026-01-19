@@ -142,9 +142,9 @@ static const uint8_t TBOX_KEY[24] = {'1', '2', '3', '4', '5', '6', '7', '8',
 #define BLEFUNC_MCU_CHAIN_RADAR_SET_FD    (3u)
 
 typedef struct {
-    bool active;
-    bool timer_inited;
-    uint8_t conidx;
+    bool     active;
+    bool     timer_inited;
+    uint8_t  conidx;
     uint16_t reply_cmd;
     uint16_t req_feature;
     uint16_t resp_feature;
@@ -175,9 +175,10 @@ static uint8_t s_rssi_near_latched[RSSI_MAX_CONN] = {0};
 #define BLEFUNC_CMD_RSSI_NEAR_CONFIRM (0x0118u)
 #endif
 
-void BleFunc_RSSI_RawInd(uint8_t conidx, int8_t raw_rssi)
-{
-    if (conidx >= RSSI_MAX_CONN) { return; }
+void BleFunc_RSSI_RawInd(uint8_t conidx, int8_t raw_rssi) {
+    if (conidx >= RSSI_MAX_CONN) {
+        return;
+    }
 
     /*
      * @why
@@ -186,8 +187,10 @@ void BleFunc_RSSI_RawInd(uint8_t conidx, int8_t raw_rssi)
      *   这里直接读取 EMA 滤波后的值作为下发值�?
      */
     int16_t flt16 = RSSI_Check_Get_Filtered(conidx);
-    if (flt16 > 127) flt16 = 127;
-    if (flt16 < -127) flt16 = -127;
+    if (flt16 > 127)
+        flt16 = 127;
+    if (flt16 < -127)
+        flt16 = -127;
     int8_t flt_rssi = (int8_t)flt16;
 
     /*
@@ -210,9 +213,10 @@ void BleFunc_RSSI_RawInd(uint8_t conidx, int8_t raw_rssi)
 }
 
 void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx, uint8_t new_distance,
-                                   int16_t filtered_rssi, int8_t raw_rssi)
-{
-    if (conidx >= RSSI_MAX_CONN) { return; }
+                                   int16_t filtered_rssi, int8_t raw_rssi) {
+    if (conidx >= RSSI_MAX_CONN) {
+        return;
+    }
     (void)new_distance;
     (void)filtered_rssi;
     (void)raw_rssi;
@@ -223,7 +227,9 @@ void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx, uint8_t new_distance,
      * - 这里仅在“距离状态变化”时触发；并且进�?NEAR 只下发一次，避免重复刷串口�?
      */
     if (new_distance == (uint8_t)RSSI_DIST_NEAR) {
-        if (s_rssi_near_latched[conidx]) { return; }
+        if (s_rssi_near_latched[conidx]) {
+            return;
+        }
         s_rssi_near_latched[conidx] = 1;
 
         /*
@@ -255,14 +261,12 @@ void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx, uint8_t new_distance,
  * @param cmd {placeholder}
  * @retval {placeholder}
  */
-static uint16_t BleFunc_MakeReplyCmd_FE(uint16_t cmd)
-{
+static uint16_t BleFunc_MakeReplyCmd_FE(uint16_t cmd) {
     /* FE 类指�?APP->Dev)通常回复 0xXX01 */
     return (cmd & 0xFF00) | 0x01;
 }
 
-static uint16_t BleFunc_MakeReplyCmd_FD(uint16_t cmd)
-{
+static uint16_t BleFunc_MakeReplyCmd_FD(uint16_t cmd) {
     /* FD 类指�?Dev->APP)通常回复 0xXX02 */
     return (cmd & 0xFF00) | 0x02;
 }
@@ -336,7 +340,7 @@ static uint16_t BleFunc_MakeReplyCmd_FD(uint16_t cmd)
 #define BLEFUNC_U32_BE_B1(v) ((uint8_t)(((uint32_t)(v) >> 16) & 0xFFu))
 #define BLEFUNC_U32_BE_B2(v) ((uint8_t)(((uint32_t)(v) >> 8) & 0xFFu))
 #define BLEFUNC_U32_BE_B3(v) ((uint8_t)((uint32_t)(v) & 0xFFu))
-
+/*创建tpms_sim的负载*/
 static const uint8_t s_tpms_sim_payload_0117[17] = {
     (uint8_t)BLEFUNC_TPMS_SIM_WHEEL,
     BLEFUNC_U32_BE_B0(BLEFUNC_TPMS_SIM_SENSOR_ID),
@@ -359,8 +363,7 @@ static const uint8_t s_tpms_sim_payload_0117[17] = {
 
 static void BleFunc_PushMcuFrameToAuthedApp(uint16_t feature, uint16_t id,
                                             const uint8_t *data,
-                                            uint16_t data_len)
-{
+                                            uint16_t       data_len) {
     /* payload = feature(2) + id(2) + data_len(2) + data(n) */
     /*
      * [稳定性] 该函数可能在 UART 任务/回调中被频繁调用，栈空间通常较小�?
@@ -368,8 +371,8 @@ static void BleFunc_PushMcuFrameToAuthedApp(uint16_t feature, uint16_t id,
      * 注意：该缓冲非可重入；但当前转发路径为串行处理（单线程任务）�?
      */
     static uint8_t payload[240];
-    const uint16_t hdr_len = 6u;
-    uint16_t copy_len      = data_len;
+    const uint16_t hdr_len  = 6u;
+    uint16_t       copy_len = data_len;
     if (copy_len > (uint16_t)(sizeof(payload) - hdr_len)) {
         copy_len = (uint16_t)(sizeof(payload) - hdr_len);
     }
@@ -386,16 +389,19 @@ static void BleFunc_PushMcuFrameToAuthedApp(uint16_t feature, uint16_t id,
 
     for (uint8_t conidx = 0; conidx < (uint8_t)BLEFUNC_MAX_CONN; conidx++) {
         /* 只推送给已鉴权连接，避免未登录的连接收到业务上报 */
-        if (!Protocol_Auth_IsOk(conidx)) { continue; }
-        if (gap_get_connect_status(conidx) == 0) { continue; }
+        if (!Protocol_Auth_IsOk(conidx)) {
+            continue;
+        }
+        if (gap_get_connect_status(conidx) == 0) {
+            continue;
+        }
         (void)Protocol_Send_Unicast(conidx, (uint16_t)BLEFUNC_MCU_PUSH_CMD,
                                     payload, (uint16_t)(hdr_len + copy_len));
     }
 }
 
 static void BleFunc_SendResultToConidx(uint8_t conidx, uint16_t reply_cmd,
-                                       uint8_t result_code)
-{
+                                       uint8_t result_code) {
     uint8_t resp_payload[1];
     resp_payload[0] = result_code;
     (void)Protocol_Send_Unicast(conidx, reply_cmd, resp_payload,
@@ -413,293 +419,308 @@ static void BleFunc_SendResultToConidx(uint8_t conidx, uint16_t reply_cmd,
  *   B) MCU 不回�?-> BLE 事务超时
  */
 static void BleFunc_StripTime6_ForMcu(const uint8_t **payload,
-                                      uint16_t *payload_len)
-{
-    if (payload == NULL || payload_len == NULL) { return; }
-    if (*payload == NULL || *payload_len < 6u) { return; }
+                                      uint16_t       *payload_len) {
+    if (payload == NULL || payload_len == NULL) {
+        return;
+    }
+    if (*payload == NULL || *payload_len < 6u) {
+        return;
+    }
     *payload     = &((*payload)[6]);
     *payload_len = (uint16_t)(*payload_len - 6u);
 }
 
-static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t ble_cmd,
+static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t       ble_cmd,
                                          const uint8_t *payload,
-                                         uint16_t payload_len)
-{
+                                         uint16_t       payload_len) {
     /*
      * 关键点：BLE 下行�?cmd(�?0x0FFE/0x12FE) 不等�?MCU UART �?id�?
      * MCU 侧命令号�?usart_cmd.h 里的 CMD_* 为准�?
      */
     switch (ble_cmd) {
-        case 0x63FDu:
-            /*
-             * 6.9 智能开关设置：BLE payload = Time6 + control(1) +
-             * controlType(1) 优先识别 controlType，处理已知类型：
-             * - controlType==0x01 -> EBS开�?动力回收)
-             * - controlType==0x04 -> 充电显示器（CMD_CHARGE_DISPLAY_ON/OFF�?
-             * - controlType==0x0A -> 三色氛围灯（CMD_Three_shooting_lamp_*�?
-             * - controlType==0x02 ->
-             * 鞍座感应开关（CMD_Saddle_sensing_on/off/default�?
-             * - controlType==0x03 -> ABS（CMD_ABS_on/off/default�?
-             * - controlType==0x05 ->
-             * 位置灯（CMD_Position_light_on/off/default�?
-             * 其它未识别的类型则按“动力回收（Power Recover）”的开/关映射�?
-             */
-            if (payload_len >= 8u && payload != NULL) {
-                uint8_t control     = payload[6];
-                uint8_t controlType = payload[7];
-                if (controlType == 0x04u) {
-                    return (control == 0x01u)
-                               ? (uint16_t)CMD_CHARGE_DISPLAY_ON
-                               : (uint16_t)CMD_CHARGE_DISPLAY_OFF;
-                }
-                if (controlType == 0x0Au) {
-                    if (control == 0x01u)
-                        return (uint16_t)CMD_Three_shooting_lamp_on;
-                    if (control == 0x00u)
-                        return (uint16_t)CMD_Three_shooting_lamp_off;
-                    if (control == 0x02u)
-                        return (uint16_t)CMD_Three_shooting_lamp_default;
-                    return 0u;
-                }
+    case 0x63FDu:
+        /*
+         * 6.9 智能开关设置：BLE payload = Time6 + control(1) +
+         * controlType(1) 优先识别 controlType，处理已知类型：
+         * - controlType==0x01 -> EBS开�?动力回收)
+         * - controlType==0x04 -> 充电显示器（CMD_CHARGE_DISPLAY_ON/OFF�?
+         * - controlType==0x0A -> 三色氛围灯（CMD_Three_shooting_lamp_*�?
+         * - controlType==0x02 ->
+         * 鞍座感应开关（CMD_Saddle_sensing_on/off/default�?
+         * - controlType==0x03 -> ABS（CMD_ABS_on/off/default�?
+         * - controlType==0x05 ->
+         * 位置灯（CMD_Position_light_on/off/default�?
+         * 其它未识别的类型则按“动力回收（Power Recover）”的开/关映射�?
+         */
+        if (payload_len >= 8u && payload != NULL) {
+            uint8_t control     = payload[6];
+            uint8_t controlType = payload[7];
+            if (controlType == 0x04u) {
+                return (control == 0x01u) ? (uint16_t)CMD_CHARGE_DISPLAY_ON
+                                          : (uint16_t)CMD_CHARGE_DISPLAY_OFF;
             }
-            /* 兜底：按 control 映射为动力回收开�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                uint8_t control = payload[6];
-                if (control == 0x01u) return (uint16_t)CMD_POWER_RECOVER_ON;
-                if (control == 0x00u) return (uint16_t)CMD_POWER_RECOVER_OFF;
-            }
-            return 0u;
-        case 0x09FDu: /* 6.13 车辆防盗告警设置：MCU 侧复用油车设防命�?0x31 */
-            (void)payload;
-            (void)payload_len;
-            return (uint16_t)CMD_OIL_VEHICLE_PREVENTION;
-        case 0x02FDu: /* 助力推车模式 */
-            if (payload_len >= 7u && payload != NULL) {
-                uint8_t control = payload[6];
+            if (controlType == 0x0Au) {
                 if (control == 0x01u)
-                    return (uint16_t)CMD_Assistive_trolley_mode_on;
+                    return (uint16_t)CMD_Three_shooting_lamp_on;
                 if (control == 0x00u)
-                    return (uint16_t)CMD_Assistive_trolley_mode_off;
+                    return (uint16_t)CMD_Three_shooting_lamp_off;
                 if (control == 0x02u)
-                    return (uint16_t)CMD_Assistive_trolley_mode_default;
+                    return (uint16_t)CMD_Three_shooting_lamp_default;
+                return 0u;
             }
-            return 0u;
-        case 0x03FEu: /* 5.3 设防/撤防 (复用油车设防指令) */
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x00u)
-                           ? (uint16_t)CMD_OIL_VEHICLE_UNPREVENTION
-                           : (uint16_t)CMD_OIL_VEHICLE_PREVENTION;
-            }
-            return 0u;
-        case 0x07FEu: /* 5.7 RSSI 范围设置 */
-            return (uint16_t)CMD_BLE_RSSI_RANGE_SET;
-        case 0x03FDu: /* 延时大灯 */
-            if (payload_len >= 7u && payload != NULL) {
-                uint8_t control = payload[6];
-                if (control == 0x01u) return (uint16_t)CMD_Delayed_headlight_on;
-                if (control == 0x00u)
-                    return (uint16_t)CMD_Delayed_headlight_off;
-                if (control == 0x02u)
-                    return (uint16_t)CMD_Delayed_headlight_default;
-                if (control == 0x03u)
-                    return (uint16_t)CMD_Delayed_headlight_time_set;
-            }
-            return 0u;
-        case 0x04FDu: /* 充电功率 */
-            return (uint16_t)CMD_Charging_power_set;
-        case 0x05FDu: /* 自动 P �?*/
-            if (payload_len >= 7u && payload != NULL) {
-                uint8_t control = payload[6];
-                if (control == 0x01u) return (uint16_t)CMD_AUTO_P_GEAR_on;
-                if (control == 0x00u) return (uint16_t)CMD_AUTO_P_GEAR_off;
-                if (control == 0x02u) return (uint16_t)CMD_AUTO_P_GEAR_default;
-                if (control == 0x03u) return (uint16_t)CMD_AUTO_P_GEAR_time_set;
-            }
-            return 0u;
-        case 0x06FDu:
-            /*
-             * 6.6 和弦喇叭：BLE payload=Time6+soundSource+volume�?
-             * MCU
-             * 协议：CMD_Chord_horn_type_set(0x59)/CMD_Chord_horn_volume_set(0x60)
-             * 均为 data 1B�? 因此�?BLE
-             * 命令不能在这里“单条映射”，必须�?BleFunc_FD_SetChordHornMode()
-             * 内拆分处理�?
-             */
-            (void)payload;
-            (void)payload_len;
-            return 0u;
-        case 0x07FDu: /* 三色氛围灯：模式设置 */
-            return (uint16_t)CMD_Three_shooting_lamp_mode_set;
-        case 0x08FDu: /* 辅助倒车�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                uint8_t control = payload[6];
-                if (control == 0x01u)
-                    return (uint16_t)CMD_Assistive_reversing_gear_on;
-                if (control == 0x00u)
-                    return (uint16_t)CMD_Assistive_reversing_gear_off;
-                if (control == 0x02u)
-                    return (uint16_t)CMD_Assistive_reversing_gear_default;
-            }
-            return 0u;
-        case 0x0AFDu: /* 自动转向回位 */
-            if (payload_len >= 7u && payload != NULL) {
-                uint8_t control = payload[6];
-                if (control == 0x01u)
-                    return (uint16_t)CMD_Automatic_steering_reset_on;
-                if (control == 0x00u)
-                    return (uint16_t)CMD_Automatic_steering_reset_off;
-                if (control == 0x02u)
-                    return (uint16_t)CMD_Automatic_steering_reset_default;
-            }
-            return 0u;
-        case 0x0BFEu: /* 添加 NFC 钥匙 */
-            return (uint16_t)CMD_ADD_NFC_KEY;
-        case 0x0CFEu: /* 删除 NFC 钥匙 */
-            return (uint16_t)CMD_DELETE_NFC_KEY;
-        case 0x0BFDu: /* EBS：开�?类型（data 段由 payload 透传�?*/
-            return (uint16_t)CMD_EBS_switch_on;
-        case 0x0CFDu: /* 低速档�?*/
-            if (payload_len >= 1u && payload != NULL) {
-                uint8_t control = payload[0];
-                if (control == 0x01u) return (uint16_t)CMD_Low_speed_gear_on;
-                if (control == 0x00u) return (uint16_t)CMD_Low_speed_gear_off;
-                if (control == 0x02u)
-                    return (uint16_t)CMD_Low_speed_gear_default;
-            }
-            return 0u;
-        case 0x0DFDu: /* 中速档�?*/
-            if (payload_len >= 1u && payload != NULL) {
-                uint8_t control = payload[0];
-                if (control == 0x01u) return (uint16_t)CMD_Medium_speed_gear_on;
-                if (control == 0x00u)
-                    return (uint16_t)CMD_Medium_speed_gear_off;
-                if (control == 0x02u)
-                    return (uint16_t)CMD_Medium_speed_gear_default;
-            }
-            return 0u;
-        case 0x0EFDu: /* 高速档�?*/
-            if (payload_len >= 1u && payload != NULL) {
-                uint8_t control = payload[0];
-                if (control == 0x01u) return (uint16_t)CMD_High_speed_gear_on;
-                if (control == 0x00u) return (uint16_t)CMD_High_speed_gear_off;
-                if (control == 0x02u)
-                    return (uint16_t)CMD_High_speed_gear_default;
-            }
-            return 0u;
-        case 0x0FFDu: /* 丢失模式 */
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u) ? (uint16_t)CMD_Lost_mode_on
-                                             : (uint16_t)CMD_Lost_mode_off;
-            }
-            return 0u;
-        case 0x10FDu: /* TCS */
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u) ? (uint16_t)CMD_TCS_switch_on
-                                             : (uint16_t)CMD_TCS_switch_off;
-            }
-            return 0u;
-        case 0x11FDu: /* 侧支�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u)
-                           ? (uint16_t)CMD_Side_stand_switch_on
-                           : (uint16_t)CMD_Side_stand_switch_off;
-            }
-            return 0u;
-        case 0x12FDu: /* 电池类型与容量（先按 type_set 下发，data 段由 payload
-                         透传�?*/
-            return (uint16_t)CMD_Battery_type_set;
-        case 0x14FDu: /* HDC 开�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u) ? (uint16_t)CMD_HDC_switch_on
-                                             : (uint16_t)CMD_HDC_switch_off;
-            }
-            return 0u;
-        case 0x15FDu: /* HHC 开�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u) ? (uint16_t)CMD_HHC_switch_on
-                                             : (uint16_t)CMD_HHC_switch_off;
-            }
-            return 0u;
-        case 0x0FFEu: /* 油车设防/解防 */
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x00u)
-                           ? (uint16_t)CMD_OIL_VEHICLE_UNPREVENTION
-                           : (uint16_t)CMD_OIL_VEHICLE_PREVENTION;
-            }
-            return 0u;
-        case 0x08FEu: /* 5.8 手机蓝牙寻车 */
-            /*
-             * MCU 命令号未单独定义“电车寻车”，目前沿用油车寻车状态查询命令�?
-             * payload(�?Time6) 原样透传�?MCU，由 MCU
-             * 侧决定如何触发鸣�?双闪等动作�?
-             */
-            return (uint16_t)CMD_OIL_VEHICLE_FIND_STATUS;
-        case 0x11FEu: /* 油车寻车声音/音量（沿�?MCU �?0x32，data 带音量） */
-            return (uint16_t)CMD_OIL_VEHICLE_FIND_STATUS;
-        case 0x12FEu: /* 尾箱�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x00u)
-                           ? (uint16_t)CMD_OIL_VEHICLE_UNLOCK_TRUNK
-                           : (uint16_t)CMD_OIL_VEHICLE_LOCK_TRUNK;
-            }
-            return 0u;
-        case 0x13FEu: /* NFC 开�?*/
-            return (uint16_t)CMD_NFC_SWITCH;
-        case 0x14FEu: /* 座桶�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x00u) ? (uint16_t)CMD_VEHICLE_UNLOCK_SEAT
-                                             : (uint16_t)CMD_VEHICLE_LOCK_SEAT;
-            }
-            return 0u;
-        case 0x15FEu: /* 静音设置 */
-            return (uint16_t)CMD_VEHICLE_MUTE_SETTING;
-        case 0x16FEu: /* 中箱�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x00u)
-                           ? (uint16_t)CMD_VEHICLE_UNLOCK_MIDDLE_BOX
-                           : (uint16_t)CMD_VEHICLE_LOCK_MIDDLE_BOX;
-            }
-            return 0u;
-        case 0x17FEu: /* 紧急模�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u)
-                           ? (uint16_t)CMD_VEHICLE_EMERGENCY_MODE_LOCK
-                           : (uint16_t)CMD_VEHICLE_EMERGENCY_MODE_UNLOCK;
-            }
-            return 0u;
-        case 0x18FEu: /* len==6 获取 MAC；len==7 单控开�?*/
-            if (payload_len == 6u) { return (uint16_t)CMD_BLE_MAC_READ; }
-            if (payload_len == 7u) {
-                return (uint16_t)CMD_SINGLE_CONTROL_UNLOCK;
-            }
-            return 0u;
-        case 0x1AFEu: /* 充电显示器开�?*/
-            if (payload_len >= 7u && payload != NULL) {
-                return (payload[6] == 0x01u) ? (uint16_t)CMD_CHARGE_DISPLAY_ON
-                                             : (uint16_t)CMD_CHARGE_DISPLAY_OFF;
-            }
-            return 0u;
-        case 0x04FEu: { /* 蓝牙感应解锁开关 -> MCU BLE RSSI lock on/off */
-            uint8_t status = 0u;
-            if (payload != NULL) {
-                if (payload_len >= 7u) {
-                    status = payload[6]; /* Time6 + status */
-                } else if (payload_len >= 1u) {
-                    status = payload[payload_len - 1u]; /* fallback: last byte */
-                }
-            }
-            return (status == 0x01u) ? (uint16_t)CMD_BLE_RSSI_LOCK_ON
-                                     : (uint16_t)CMD_BLE_RSSI_LOCK_OFF;
         }
-        default:
-            return 0u;
+        /* 兜底：按 control 映射为动力回收开�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            uint8_t control = payload[6];
+            if (control == 0x01u)
+                return (uint16_t)CMD_POWER_RECOVER_ON;
+            if (control == 0x00u)
+                return (uint16_t)CMD_POWER_RECOVER_OFF;
+        }
+        return 0u;
+    case 0x09FDu: /* 6.13 车辆防盗告警设置：MCU 侧复用油车设防命�?0x31 */
+        (void)payload;
+        (void)payload_len;
+        return (uint16_t)CMD_OIL_VEHICLE_PREVENTION;
+    case 0x02FDu: /* 助力推车模式 */
+        if (payload_len >= 7u && payload != NULL) {
+            uint8_t control = payload[6];
+            if (control == 0x01u)
+                return (uint16_t)CMD_Assistive_trolley_mode_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_Assistive_trolley_mode_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_Assistive_trolley_mode_default;
+        }
+        return 0u;
+    case 0x03FEu: /* 5.3 设防/撤防 (复用油车设防指令) */
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x00u)
+                       ? (uint16_t)CMD_OIL_VEHICLE_UNPREVENTION
+                       : (uint16_t)CMD_OIL_VEHICLE_PREVENTION;
+        }
+        return 0u;
+    case 0x07FEu: /* 5.7 RSSI 范围设置 */
+        return (uint16_t)CMD_BLE_RSSI_RANGE_SET;
+    case 0x03FDu: /* 延时大灯 */
+        if (payload_len >= 7u && payload != NULL) {
+            uint8_t control = payload[6];
+            if (control == 0x01u)
+                return (uint16_t)CMD_Delayed_headlight_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_Delayed_headlight_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_Delayed_headlight_default;
+            if (control == 0x03u)
+                return (uint16_t)CMD_Delayed_headlight_time_set;
+        }
+        return 0u;
+    case 0x04FDu: /* 充电功率 */
+        return (uint16_t)CMD_Charging_power_set;
+    case 0x05FDu: /* 自动 P �?*/
+        if (payload_len >= 7u && payload != NULL) {
+            uint8_t control = payload[6];
+            if (control == 0x01u)
+                return (uint16_t)CMD_AUTO_P_GEAR_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_AUTO_P_GEAR_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_AUTO_P_GEAR_default;
+            if (control == 0x03u)
+                return (uint16_t)CMD_AUTO_P_GEAR_time_set;
+        }
+        return 0u;
+    case 0x06FDu:
+        /*
+         * 6.6 和弦喇叭：BLE payload=Time6+soundSource+volume�?
+         * MCU
+         * 协议：CMD_Chord_horn_type_set(0x59)/CMD_Chord_horn_volume_set(0x60)
+         * 均为 data 1B�? 因此�?BLE
+         * 命令不能在这里“单条映射”，必须�?BleFunc_FD_SetChordHornMode()
+         * 内拆分处理�?
+         */
+        (void)payload;
+        (void)payload_len;
+        return 0u;
+    case 0x07FDu: /* 三色氛围灯：模式设置 */
+        return (uint16_t)CMD_Three_shooting_lamp_mode_set;
+    case 0x08FDu: /* 辅助倒车�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            uint8_t control = payload[6];
+            if (control == 0x01u)
+                return (uint16_t)CMD_Assistive_reversing_gear_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_Assistive_reversing_gear_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_Assistive_reversing_gear_default;
+        }
+        return 0u;
+    case 0x0AFDu: /* 自动转向回位 */
+        if (payload_len >= 7u && payload != NULL) {
+            uint8_t control = payload[6];
+            if (control == 0x01u)
+                return (uint16_t)CMD_Automatic_steering_reset_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_Automatic_steering_reset_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_Automatic_steering_reset_default;
+        }
+        return 0u;
+    case 0x0BFEu: /* 添加 NFC 钥匙 */
+        return (uint16_t)CMD_ADD_NFC_KEY;
+    case 0x0CFEu: /* 删除 NFC 钥匙 */
+        return (uint16_t)CMD_DELETE_NFC_KEY;
+    case 0x0BFDu: /* EBS：开�?类型（data 段由 payload 透传�?*/
+        return (uint16_t)CMD_EBS_switch_on;
+    case 0x0CFDu: /* 低速档�?*/
+        if (payload_len >= 1u && payload != NULL) {
+            uint8_t control = payload[0];
+            if (control == 0x01u)
+                return (uint16_t)CMD_Low_speed_gear_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_Low_speed_gear_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_Low_speed_gear_default;
+        }
+        return 0u;
+    case 0x0DFDu: /* 中速档�?*/
+        if (payload_len >= 1u && payload != NULL) {
+            uint8_t control = payload[0];
+            if (control == 0x01u)
+                return (uint16_t)CMD_Medium_speed_gear_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_Medium_speed_gear_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_Medium_speed_gear_default;
+        }
+        return 0u;
+    case 0x0EFDu: /* 高速档�?*/
+        if (payload_len >= 1u && payload != NULL) {
+            uint8_t control = payload[0];
+            if (control == 0x01u)
+                return (uint16_t)CMD_High_speed_gear_on;
+            if (control == 0x00u)
+                return (uint16_t)CMD_High_speed_gear_off;
+            if (control == 0x02u)
+                return (uint16_t)CMD_High_speed_gear_default;
+        }
+        return 0u;
+    case 0x0FFDu: /* 丢失模式 */
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u) ? (uint16_t)CMD_Lost_mode_on
+                                         : (uint16_t)CMD_Lost_mode_off;
+        }
+        return 0u;
+    case 0x10FDu: /* TCS */
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u) ? (uint16_t)CMD_TCS_switch_on
+                                         : (uint16_t)CMD_TCS_switch_off;
+        }
+        return 0u;
+    case 0x11FDu: /* 侧支�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u) ? (uint16_t)CMD_Side_stand_switch_on
+                                         : (uint16_t)CMD_Side_stand_switch_off;
+        }
+        return 0u;
+    case 0x12FDu: /* 电池类型与容量（先按 type_set 下发，data 段由 payload
+                     透传�?*/
+        return (uint16_t)CMD_Battery_type_set;
+    case 0x14FDu: /* HDC 开�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u) ? (uint16_t)CMD_HDC_switch_on
+                                         : (uint16_t)CMD_HDC_switch_off;
+        }
+        return 0u;
+    case 0x15FDu: /* HHC 开�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u) ? (uint16_t)CMD_HHC_switch_on
+                                         : (uint16_t)CMD_HHC_switch_off;
+        }
+        return 0u;
+    case 0x0FFEu: /* 油车设防/解防 */
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x00u)
+                       ? (uint16_t)CMD_OIL_VEHICLE_UNPREVENTION
+                       : (uint16_t)CMD_OIL_VEHICLE_PREVENTION;
+        }
+        return 0u;
+    case 0x08FEu: /* 5.8 手机蓝牙寻车 */
+        /*
+         * MCU 命令号未单独定义“电车寻车”，目前沿用油车寻车状态查询命令�?
+         * payload(�?Time6) 原样透传�?MCU，由 MCU
+         * 侧决定如何触发鸣�?双闪等动作�?
+         */
+        return (uint16_t)CMD_OIL_VEHICLE_FIND_STATUS;
+    case 0x11FEu: /* 油车寻车声音/音量（沿�?MCU �?0x32，data 带音量） */
+        return (uint16_t)CMD_OIL_VEHICLE_FIND_STATUS;
+    case 0x12FEu: /* 尾箱�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x00u)
+                       ? (uint16_t)CMD_OIL_VEHICLE_UNLOCK_TRUNK
+                       : (uint16_t)CMD_OIL_VEHICLE_LOCK_TRUNK;
+        }
+        return 0u;
+    case 0x13FEu: /* NFC 开�?*/
+        return (uint16_t)CMD_NFC_SWITCH;
+    case 0x14FEu: /* 座桶�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x00u) ? (uint16_t)CMD_VEHICLE_UNLOCK_SEAT
+                                         : (uint16_t)CMD_VEHICLE_LOCK_SEAT;
+        }
+        return 0u;
+    case 0x15FEu: /* 静音设置 */
+        return (uint16_t)CMD_VEHICLE_MUTE_SETTING;
+    case 0x16FEu: /* 中箱�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x00u)
+                       ? (uint16_t)CMD_VEHICLE_UNLOCK_MIDDLE_BOX
+                       : (uint16_t)CMD_VEHICLE_LOCK_MIDDLE_BOX;
+        }
+        return 0u;
+    case 0x17FEu: /* 紧急模�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u)
+                       ? (uint16_t)CMD_VEHICLE_EMERGENCY_MODE_LOCK
+                       : (uint16_t)CMD_VEHICLE_EMERGENCY_MODE_UNLOCK;
+        }
+        return 0u;
+    case 0x18FEu: /* len==6 获取 MAC；len==7 单控开�?*/
+        if (payload_len == 6u) {
+            return (uint16_t)CMD_BLE_MAC_READ;
+        }
+        if (payload_len == 7u) {
+            return (uint16_t)CMD_SINGLE_CONTROL_UNLOCK;
+        }
+        return 0u;
+    case 0x1AFEu: /* 充电显示器开�?*/
+        if (payload_len >= 7u && payload != NULL) {
+            return (payload[6] == 0x01u) ? (uint16_t)CMD_CHARGE_DISPLAY_ON
+                                         : (uint16_t)CMD_CHARGE_DISPLAY_OFF;
+        }
+        return 0u;
+    case 0x04FEu: { /* 蓝牙感应解锁开关 -> MCU BLE RSSI lock on/off */
+        uint8_t status = 0u;
+        if (payload != NULL) {
+            if (payload_len >= 7u) {
+                status = payload[6]; /* Time6 + status */
+            } else if (payload_len >= 1u) {
+                status = payload[payload_len - 1u]; /* fallback: last byte */
+            }
+        }
+        return (status == 0x01u) ? (uint16_t)CMD_BLE_RSSI_LOCK_ON
+                                 : (uint16_t)CMD_BLE_RSSI_LOCK_OFF;
+    }
+    default:
+        return 0u;
     }
 }
 
-static void BleFunc_McuTxn_Timeout(void *parg)
-{
+static void BleFunc_McuTxn_Timeout(void *parg) {
     (void)parg;
-    if (!s_mcu_pending.active) { return; }
+    if (!s_mcu_pending.active) {
+        return;
+    }
 
     co_printf("[MCU_TXN] timeout: conidx=%u req_feature=0x%04X "
               "resp_feature=0x%04X id=0x%04X reply=0x%04X\\r\\n",
@@ -751,8 +772,7 @@ static void BleFunc_McuTxn_Timeout(void *parg)
  */
 static void BleFunc_McuTxn_Start(uint8_t conidx, uint16_t reply_cmd,
                                  uint16_t feature, uint16_t id,
-                                 const uint8_t *payload, uint16_t payload_len)
-{
+                                 const uint8_t *payload, uint16_t payload_len) {
     /* 1. 忙检测：确保上一个指令已经结束，避免串口并发冲突 */
     if (s_mcu_pending.active) {
         co_printf("[MCU_TXN] busy, reject new cmd\\r\\n");
@@ -832,8 +852,7 @@ static void BleFunc_McuTxn_Start(uint8_t conidx, uint16_t reply_cmd,
  */
 static void BleFunc_McuUart_SendOnly(uint16_t feature, uint16_t ble_cmd,
                                      const uint8_t *payload,
-                                     uint16_t payload_len)
-{
+                                     uint16_t       payload_len) {
     uint16_t mcu_id = ble_cmd;
     if (((ble_cmd & 0x00FFu) == 0x00FEu) || ((ble_cmd & 0x00FFu) == 0x00FDu)) {
         mcu_id = BleFunc_MapBleCmdToMcuId(ble_cmd, payload, payload_len);
@@ -869,21 +888,20 @@ static void BleFunc_McuUart_SendOnly(uint16_t feature, uint16_t ble_cmd,
 #define BLEFUNC_MCU_ID_VEHICLE_GEAR          (0x0202u)
 #define BLEFUNC_MCU_ID_PARAM_SYNC_64FD       (0x0208u)
 
-#define BLEFUNC_VS_VALID_PREADY              (0x01u)
-#define BLEFUNC_VS_VALID_GEAR                (0x02u)
-#define BLEFUNC_VS_VALID_SPEED               (0x04u)
-#define BLEFUNC_PARAM_SYNC_64FD_LEN          (43u)
-static uint8_t s_vs_acc         = 0u;
-static uint8_t s_vs_pready      = 0u;
-static uint8_t s_vs_gear        = 0u;
-static uint16_t s_vs_speed      = 0u;
-static uint8_t s_vs_valid_mask  = 0u;
-static uint8_t s_vs_sent_once   = 0u;
-static uint8_t s_vs_last_status = 0u;
-static uint16_t s_vs_last_speed = 0u;
+#define BLEFUNC_VS_VALID_PREADY     (0x01u)
+#define BLEFUNC_VS_VALID_GEAR       (0x02u)
+#define BLEFUNC_VS_VALID_SPEED      (0x04u)
+#define BLEFUNC_PARAM_SYNC_64FD_LEN (43u)
+static uint8_t  s_vs_acc         = 0u;
+static uint8_t  s_vs_pready      = 0u;
+static uint8_t  s_vs_gear        = 0u;
+static uint16_t s_vs_speed       = 0u;
+static uint8_t  s_vs_valid_mask  = 0u;
+static uint8_t  s_vs_sent_once   = 0u;
+static uint8_t  s_vs_last_status = 0u;
+static uint16_t s_vs_last_speed  = 0u;
 
-static uint8_t BleFunc_BuildVehicleStatusByte(void)
-{
+static uint8_t BleFunc_BuildVehicleStatusByte(void) {
     uint8_t status = 0u;
     status |= (uint8_t)((s_vs_acc & 0x01u) << 7);
     status |= (uint8_t)((s_vs_pready & 0x03u) << 5);
@@ -891,12 +909,13 @@ static uint8_t BleFunc_BuildVehicleStatusByte(void)
     return status;
 }
 
-static void BleFunc_ParamSync_MaybeNotify(void)
-{
+static void BleFunc_ParamSync_MaybeNotify(void) {
     const uint8_t need =
         (uint8_t)(BLEFUNC_VS_VALID_PREADY | BLEFUNC_VS_VALID_GEAR |
                   BLEFUNC_VS_VALID_SPEED);
-    if ((s_vs_valid_mask & need) != need) { return; }
+    if ((s_vs_valid_mask & need) != need) {
+        return;
+    }
     uint8_t status = BleFunc_BuildVehicleStatusByte();
     if (!s_vs_sent_once || status != s_vs_last_status ||
         s_vs_speed != s_vs_last_speed) {
@@ -907,8 +926,7 @@ static void BleFunc_ParamSync_MaybeNotify(void)
     }
 }
 
-static void BleFunc_ParamSync_RequestVehicleStatusFromMcu(void)
-{
+static void BleFunc_ParamSync_RequestVehicleStatusFromMcu(void) {
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                              (uint16_t)BLEFUNC_MCU_ID_VEHICLE_STATUS_PREADY,
                              NULL, 0u);
@@ -918,15 +936,13 @@ static void BleFunc_ParamSync_RequestVehicleStatusFromMcu(void)
                              (uint16_t)BLEFUNC_MCU_ID_VEHICLE_GEAR, NULL, 0u);
 }
 
-static void BleFunc_ParamSync_Request64FDFromMcu(void)
-{
+static void BleFunc_ParamSync_Request64FDFromMcu(void) {
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                              (uint16_t)BLEFUNC_MCU_ID_PARAM_SYNC_64FD, NULL,
                              0u);
 }
 
-static bool BleFunc_PrintTime6(const uint8_t *time6)
-{
+static bool BleFunc_PrintTime6(const uint8_t *time6) {
     char time_str[13];
     if (proto_time6_bcd_to_str12(time6, time_str)) {
         co_printf("    time_bcd=%s\\r\\n", time_str);
@@ -936,223 +952,222 @@ static bool BleFunc_PrintTime6(const uint8_t *time6)
     return false;
 }
 
-static const char *BleFunc_McuCmdName(uint16_t id)
-{
+static const char *BleFunc_McuCmdName(uint16_t id) {
     if (id == BLEFUNC_MCU_ID_VEHICLE_STATUS_PREADY)
         return "BLEFUNC_MCU_ID_VEHICLE_STATUS_PREADY";
     if (id == BLEFUNC_MCU_ID_VEHICLE_SPEED)
         return "BLEFUNC_MCU_ID_VEHICLE_SPEED";
-    if (id == BLEFUNC_MCU_ID_VEHICLE_GEAR) return "BLEFUNC_MCU_ID_VEHICLE_GEAR";
+    if (id == BLEFUNC_MCU_ID_VEHICLE_GEAR)
+        return "BLEFUNC_MCU_ID_VEHICLE_GEAR";
     if (id == BLEFUNC_MCU_ID_PARAM_SYNC_64FD)
         return "BLEFUNC_MCU_ID_PARAM_SYNC_64FD";
     switch (id) {
-        case CMD_CONNECT:
-            return "CMD_CONNECT";
-        case CMD_BLE_FACTORY_RESET:
-            return "CMD_BLE_FACTORY_RESET";
-        case CMD_BLE_CANCEL_PAIRING:
-            return "CMD_BLE_CANCEL_PAIRING";
-        case CMD_ADD_NFC_KEY:
-            return "CMD_ADD_NFC_KEY";
-        case CMD_DELETE_NFC_KEY:
-            return "CMD_DELETE_NFC_KEY";
-        case CMD_FIND_NFC_KEY:
-            return "CMD_FIND_NFC_KEY";
-        case CMD_NFC_UNLOCK:
-            return "CMD_NFC_UNLOCK";
-        case CMD_NFC_LOCK:
-            return "CMD_NFC_LOCK";
-        case CMD_NFC_SWITCH:
-            return "CMD_NFC_SWITCH";
-        case CMD_OIL_VEHICLE_UNPREVENTION:
-            return "CMD_OIL_VEHICLE_UNPREVENTION";
-        case CMD_OIL_VEHICLE_PREVENTION:
-            return "CMD_OIL_VEHICLE_PREVENTION";
-        case CMD_OIL_VEHICLE_FIND_STATUS:
-            return "CMD_OIL_VEHICLE_FIND_STATUS";
-        case CMD_OIL_VEHICLE_UNLOCK_TRUNK:
-            return "CMD_OIL_VEHICLE_UNLOCK_TRUNK";
-        case CMD_OIL_VEHICLE_LOCK_TRUNK:
-            return "CMD_OIL_VEHICLE_LOCK_TRUNK";
-        case CMD_VEHICLE_UNLOCK_SEAT:
-            return "CMD_VEHICLE_UNLOCK_SEAT";
-        case CMD_VEHICLE_LOCK_SEAT:
-            return "CMD_VEHICLE_LOCK_SEAT";
-        case CMD_VEHICLE_MUTE_SETTING:
-            return "CMD_VEHICLE_MUTE_SETTING";
-        case CMD_VEHICLE_UNLOCK_MIDDLE_BOX:
-            return "CMD_VEHICLE_UNLOCK_MIDDLE_BOX";
-        case CMD_VEHICLE_LOCK_MIDDLE_BOX:
-            return "CMD_VEHICLE_LOCK_MIDDLE_BOX";
-        case CMD_VEHICLE_EMERGENCY_MODE_LOCK:
-            return "CMD_VEHICLE_EMERGENCY_MODE_LOCK";
-        case CMD_VEHICLE_EMERGENCY_MODE_UNLOCK:
-            return "CMD_VEHICLE_EMERGENCY_MODE_UNLOCK";
-        case CMD_BLE_MAC_READ:
-            return "CMD_BLE_MAC_READ";
-        case CMD_SINGLE_CONTROL_UNLOCK:
-            return "CMD_SINGLE_CONTROL_UNLOCK";
-        case CMD_Assistive_trolley_mode_on:
-            return "CMD_Assistive_trolley_mode_on";
-        case CMD_Assistive_trolley_mode_off:
-            return "CMD_Assistive_trolley_mode_off";
-        case CMD_Assistive_trolley_mode_default:
-            return "CMD_Assistive_trolley_mode_default";
-        case CMD_Delayed_headlight_on:
-            return "CMD_Delayed_headlight_on";
-        case CMD_Delayed_headlight_off:
-            return "CMD_Delayed_headlight_off";
-        case CMD_Delayed_headlight_default:
-            return "CMD_Delayed_headlight_default";
-        case CMD_Delayed_headlight_time_set:
-            return "CMD_Delayed_headlight_time_set";
-        case CMD_Charging_power_set:
-            return "CMD_Charging_power_set";
-        case CMD_AUTO_P_GEAR_on:
-            return "CMD_AUTO_P_GEAR_on";
-        case CMD_AUTO_P_GEAR_off:
-            return "CMD_AUTO_P_GEAR_off";
-        case CMD_AUTO_P_GEAR_default:
-            return "CMD_AUTO_P_GEAR_default";
-        case CMD_AUTO_P_GEAR_time_set:
-            return "CMD_AUTO_P_GEAR_time_set";
-        case CMD_Chord_horn_on:
-            return "CMD_Chord_horn_on";
-        case CMD_Chord_horn_off:
-            return "CMD_Chord_horn_off";
-        case CMD_Chord_horn_default:
-            return "CMD_Chord_horn_default";
-        case CMD_Chord_horn_type_set:
-            return "CMD_Chord_horn_type_set";
-        case CMD_Chord_horn_volume_set:
-            return "CMD_Chord_horn_volume_set";
-        case CMD_Three_shooting_lamp_on:
-            return "CMD_Three_shooting_lamp_on";
-        case CMD_Three_shooting_lamp_off:
-            return "CMD_Three_shooting_lamp_off";
-        case CMD_Three_shooting_lamp_default:
-            return "CMD_Three_shooting_lamp_default";
-        case CMD_Three_shooting_lamp_mode_set:
-            return "CMD_Three_shooting_lamp_mode_set";
-        case CMD_Assistive_reversing_gear_on:
-            return "CMD_Assistive_reversing_gear_on";
-        case CMD_Assistive_reversing_gear_off:
-            return "CMD_Assistive_reversing_gear_off";
-        case CMD_Assistive_reversing_gear_default:
-            return "CMD_Assistive_reversing_gear_default";
-        case CMD_Automatic_steering_reset_on:
-            return "CMD_Automatic_steering_reset_on";
-        case CMD_Automatic_steering_reset_off:
-            return "CMD_Automatic_steering_reset_off";
-        case CMD_Automatic_steering_reset_default:
-            return "CMD_Automatic_steering_reset_default";
-        case CMD_EBS_switch_on:
-            return "CMD_EBS_switch_on";
-        case CMD_Low_speed_gear_on:
-            return "CMD_Low_speed_gear_on";
-        case CMD_Low_speed_gear_off:
-            return "CMD_Low_speed_gear_off";
-        case CMD_Low_speed_gear_default:
-            return "CMD_Low_speed_gear_default";
-        case CMD_Low_speed_gear_speed_set:
-            return "CMD_Low_speed_gear_speed_set";
-        case CMD_Medium_speed_gear_on:
-            return "CMD_Medium_speed_gear_on";
-        case CMD_Medium_speed_gear_off:
-            return "CMD_Medium_speed_gear_off";
-        case CMD_Medium_speed_gear_default:
-            return "CMD_Medium_speed_gear_default";
-        case CMD_Medium_speed_gear_speed_set:
-            return "CMD_Medium_speed_gear_speed_set";
-        case CMD_High_speed_gear_on:
-            return "CMD_High_speed_gear_on";
-        case CMD_High_speed_gear_off:
-            return "CMD_High_speed_gear_off";
-        case CMD_High_speed_gear_default:
-            return "CMD_High_speed_gear_default";
-        case CMD_High_speed_gear_speed_set:
-            return "CMD_High_speed_gear_speed_set";
-        case CMD_Lost_mode_on:
-            return "CMD_Lost_mode_on";
-        case CMD_Lost_mode_off:
-            return "CMD_Lost_mode_off";
-        case CMD_TCS_switch_on:
-            return "CMD_TCS_switch_on";
-        case CMD_TCS_switch_off:
-            return "CMD_TCS_switch_off";
-        case CMD_Side_stand_switch_on:
-            return "CMD_Side_stand_switch_on";
-        case CMD_Side_stand_switch_off:
-            return "CMD_Side_stand_switch_off";
-        case CMD_Battery_type_set:
-            return "CMD_Battery_type_set";
-        case CMD_Battery_capacity_set:
-            return "CMD_Battery_capacity_set";
-        case CMD_KFA_2KGA_2MQA_data_sync:
-            return "CMD_KFA_2KGA_2MQA_data_sync";
-        case CMD_HDC_switch_on:
-            return "CMD_HDC_switch_on";
-        case CMD_HDC_switch_off:
-            return "CMD_HDC_switch_off";
-        case CMD_HHC_switch_on:
-            return "CMD_HHC_switch_on";
-        case CMD_HHC_switch_off:
-            return "CMD_HHC_switch_off";
-        case CMD_Starting_strength_set:
-            return "CMD_Starting_strength_set";
-        case CMD_SPORT_mode_on:
-            return "CMD_SPORT_mode_on";
-        case CMD_SPORT_mode_off:
-            return "CMD_SPORT_mode_off";
-        case CMD_SPORT_mode_default:
-            return "CMD_SPORT_mode_default";
-        case CMD_SPORT_mode_type_set:
-            return "CMD_SPORT_mode_type_set";
-        case CMD_ECO_mode_on:
-            return "CMD_ECO_mode_on";
-        case CMD_ECO_mode_off:
-            return "CMD_ECO_mode_off";
-        case CMD_ECO_mode_default:
-            return "CMD_ECO_mode_default";
-        case CMD_ECO_mode_type_set:
-            return "CMD_ECO_mode_type_set";
-        case CMD_POWER_RECOVER_ON:
-            return "CMD_POWER_RECOVER_ON";
-        case CMD_POWER_RECOVER_OFF:
-            return "CMD_POWER_RECOVER_OFF";
-        case CMD_ABS_ON_OFF:
-            return "CMD_ABS_ON_OFF";
-        case CMD_POWER_LED:
-            return "CMD_POWER_LED";
-        case CMD_SADDLE_ON_OFF:
-            return "CMD_SADDLE_ON_OFF";
-        case CMD_Position_light_on_off:
-            return "CMD_Position_light_on_off";
-        case CMD_Radar_switch_on:
-            return "CMD_Radar_switch_on";
-        case CMD_Radar_switch_off:
-            return "CMD_Radar_switch_off";
-        case CMD_Radar_switch_default:
-            return "CMD_Radar_switch_default";
-        case CMD_Radar_sensitivity_set:
-            return "CMD_Radar_sensitivity_set";
-        case CMD_Tire_pressure_monitoring_get:
-            return "CMD_Tire_pressure_monitoring_get";
-        case CMD_BLE_RSSI_READ:
-            return "CMD_BLE_RSSI_READ";
-        case CMD_BLE_RSSI_RANGE_SET:
-            return "CMD_BLE_RSSI_RANGE_SET";
-        case CMD_CHARGE_DISPLAY_ON:
-            return "CMD_CHARGE_DISPLAY_ON";
-        case CMD_CHARGE_DISPLAY_OFF:
-            return "CMD_CHARGE_DISPLAY_OFF";
-        default:
-            return "UNKNOWN";
+    case CMD_CONNECT:
+        return "CMD_CONNECT";
+    case CMD_BLE_FACTORY_RESET:
+        return "CMD_BLE_FACTORY_RESET";
+    case CMD_BLE_CANCEL_PAIRING:
+        return "CMD_BLE_CANCEL_PAIRING";
+    case CMD_ADD_NFC_KEY:
+        return "CMD_ADD_NFC_KEY";
+    case CMD_DELETE_NFC_KEY:
+        return "CMD_DELETE_NFC_KEY";
+    case CMD_FIND_NFC_KEY:
+        return "CMD_FIND_NFC_KEY";
+    case CMD_NFC_UNLOCK:
+        return "CMD_NFC_UNLOCK";
+    case CMD_NFC_LOCK:
+        return "CMD_NFC_LOCK";
+    case CMD_NFC_SWITCH:
+        return "CMD_NFC_SWITCH";
+    case CMD_OIL_VEHICLE_UNPREVENTION:
+        return "CMD_OIL_VEHICLE_UNPREVENTION";
+    case CMD_OIL_VEHICLE_PREVENTION:
+        return "CMD_OIL_VEHICLE_PREVENTION";
+    case CMD_OIL_VEHICLE_FIND_STATUS:
+        return "CMD_OIL_VEHICLE_FIND_STATUS";
+    case CMD_OIL_VEHICLE_UNLOCK_TRUNK:
+        return "CMD_OIL_VEHICLE_UNLOCK_TRUNK";
+    case CMD_OIL_VEHICLE_LOCK_TRUNK:
+        return "CMD_OIL_VEHICLE_LOCK_TRUNK";
+    case CMD_VEHICLE_UNLOCK_SEAT:
+        return "CMD_VEHICLE_UNLOCK_SEAT";
+    case CMD_VEHICLE_LOCK_SEAT:
+        return "CMD_VEHICLE_LOCK_SEAT";
+    case CMD_VEHICLE_MUTE_SETTING:
+        return "CMD_VEHICLE_MUTE_SETTING";
+    case CMD_VEHICLE_UNLOCK_MIDDLE_BOX:
+        return "CMD_VEHICLE_UNLOCK_MIDDLE_BOX";
+    case CMD_VEHICLE_LOCK_MIDDLE_BOX:
+        return "CMD_VEHICLE_LOCK_MIDDLE_BOX";
+    case CMD_VEHICLE_EMERGENCY_MODE_LOCK:
+        return "CMD_VEHICLE_EMERGENCY_MODE_LOCK";
+    case CMD_VEHICLE_EMERGENCY_MODE_UNLOCK:
+        return "CMD_VEHICLE_EMERGENCY_MODE_UNLOCK";
+    case CMD_BLE_MAC_READ:
+        return "CMD_BLE_MAC_READ";
+    case CMD_SINGLE_CONTROL_UNLOCK:
+        return "CMD_SINGLE_CONTROL_UNLOCK";
+    case CMD_Assistive_trolley_mode_on:
+        return "CMD_Assistive_trolley_mode_on";
+    case CMD_Assistive_trolley_mode_off:
+        return "CMD_Assistive_trolley_mode_off";
+    case CMD_Assistive_trolley_mode_default:
+        return "CMD_Assistive_trolley_mode_default";
+    case CMD_Delayed_headlight_on:
+        return "CMD_Delayed_headlight_on";
+    case CMD_Delayed_headlight_off:
+        return "CMD_Delayed_headlight_off";
+    case CMD_Delayed_headlight_default:
+        return "CMD_Delayed_headlight_default";
+    case CMD_Delayed_headlight_time_set:
+        return "CMD_Delayed_headlight_time_set";
+    case CMD_Charging_power_set:
+        return "CMD_Charging_power_set";
+    case CMD_AUTO_P_GEAR_on:
+        return "CMD_AUTO_P_GEAR_on";
+    case CMD_AUTO_P_GEAR_off:
+        return "CMD_AUTO_P_GEAR_off";
+    case CMD_AUTO_P_GEAR_default:
+        return "CMD_AUTO_P_GEAR_default";
+    case CMD_AUTO_P_GEAR_time_set:
+        return "CMD_AUTO_P_GEAR_time_set";
+    case CMD_Chord_horn_on:
+        return "CMD_Chord_horn_on";
+    case CMD_Chord_horn_off:
+        return "CMD_Chord_horn_off";
+    case CMD_Chord_horn_default:
+        return "CMD_Chord_horn_default";
+    case CMD_Chord_horn_type_set:
+        return "CMD_Chord_horn_type_set";
+    case CMD_Chord_horn_volume_set:
+        return "CMD_Chord_horn_volume_set";
+    case CMD_Three_shooting_lamp_on:
+        return "CMD_Three_shooting_lamp_on";
+    case CMD_Three_shooting_lamp_off:
+        return "CMD_Three_shooting_lamp_off";
+    case CMD_Three_shooting_lamp_default:
+        return "CMD_Three_shooting_lamp_default";
+    case CMD_Three_shooting_lamp_mode_set:
+        return "CMD_Three_shooting_lamp_mode_set";
+    case CMD_Assistive_reversing_gear_on:
+        return "CMD_Assistive_reversing_gear_on";
+    case CMD_Assistive_reversing_gear_off:
+        return "CMD_Assistive_reversing_gear_off";
+    case CMD_Assistive_reversing_gear_default:
+        return "CMD_Assistive_reversing_gear_default";
+    case CMD_Automatic_steering_reset_on:
+        return "CMD_Automatic_steering_reset_on";
+    case CMD_Automatic_steering_reset_off:
+        return "CMD_Automatic_steering_reset_off";
+    case CMD_Automatic_steering_reset_default:
+        return "CMD_Automatic_steering_reset_default";
+    case CMD_EBS_switch_on:
+        return "CMD_EBS_switch_on";
+    case CMD_Low_speed_gear_on:
+        return "CMD_Low_speed_gear_on";
+    case CMD_Low_speed_gear_off:
+        return "CMD_Low_speed_gear_off";
+    case CMD_Low_speed_gear_default:
+        return "CMD_Low_speed_gear_default";
+    case CMD_Low_speed_gear_speed_set:
+        return "CMD_Low_speed_gear_speed_set";
+    case CMD_Medium_speed_gear_on:
+        return "CMD_Medium_speed_gear_on";
+    case CMD_Medium_speed_gear_off:
+        return "CMD_Medium_speed_gear_off";
+    case CMD_Medium_speed_gear_default:
+        return "CMD_Medium_speed_gear_default";
+    case CMD_Medium_speed_gear_speed_set:
+        return "CMD_Medium_speed_gear_speed_set";
+    case CMD_High_speed_gear_on:
+        return "CMD_High_speed_gear_on";
+    case CMD_High_speed_gear_off:
+        return "CMD_High_speed_gear_off";
+    case CMD_High_speed_gear_default:
+        return "CMD_High_speed_gear_default";
+    case CMD_High_speed_gear_speed_set:
+        return "CMD_High_speed_gear_speed_set";
+    case CMD_Lost_mode_on:
+        return "CMD_Lost_mode_on";
+    case CMD_Lost_mode_off:
+        return "CMD_Lost_mode_off";
+    case CMD_TCS_switch_on:
+        return "CMD_TCS_switch_on";
+    case CMD_TCS_switch_off:
+        return "CMD_TCS_switch_off";
+    case CMD_Side_stand_switch_on:
+        return "CMD_Side_stand_switch_on";
+    case CMD_Side_stand_switch_off:
+        return "CMD_Side_stand_switch_off";
+    case CMD_Battery_type_set:
+        return "CMD_Battery_type_set";
+    case CMD_Battery_capacity_set:
+        return "CMD_Battery_capacity_set";
+    case CMD_KFA_2KGA_2MQA_data_sync:
+        return "CMD_KFA_2KGA_2MQA_data_sync";
+    case CMD_HDC_switch_on:
+        return "CMD_HDC_switch_on";
+    case CMD_HDC_switch_off:
+        return "CMD_HDC_switch_off";
+    case CMD_HHC_switch_on:
+        return "CMD_HHC_switch_on";
+    case CMD_HHC_switch_off:
+        return "CMD_HHC_switch_off";
+    case CMD_Starting_strength_set:
+        return "CMD_Starting_strength_set";
+    case CMD_SPORT_mode_on:
+        return "CMD_SPORT_mode_on";
+    case CMD_SPORT_mode_off:
+        return "CMD_SPORT_mode_off";
+    case CMD_SPORT_mode_default:
+        return "CMD_SPORT_mode_default";
+    case CMD_SPORT_mode_type_set:
+        return "CMD_SPORT_mode_type_set";
+    case CMD_ECO_mode_on:
+        return "CMD_ECO_mode_on";
+    case CMD_ECO_mode_off:
+        return "CMD_ECO_mode_off";
+    case CMD_ECO_mode_default:
+        return "CMD_ECO_mode_default";
+    case CMD_ECO_mode_type_set:
+        return "CMD_ECO_mode_type_set";
+    case CMD_POWER_RECOVER_ON:
+        return "CMD_POWER_RECOVER_ON";
+    case CMD_POWER_RECOVER_OFF:
+        return "CMD_POWER_RECOVER_OFF";
+    case CMD_ABS_ON_OFF:
+        return "CMD_ABS_ON_OFF";
+    case CMD_POWER_LED:
+        return "CMD_POWER_LED";
+    case CMD_SADDLE_ON_OFF:
+        return "CMD_SADDLE_ON_OFF";
+    case CMD_Position_light_on_off:
+        return "CMD_Position_light_on_off";
+    case CMD_Radar_switch_on:
+        return "CMD_Radar_switch_on";
+    case CMD_Radar_switch_off:
+        return "CMD_Radar_switch_off";
+    case CMD_Radar_switch_default:
+        return "CMD_Radar_switch_default";
+    case CMD_Radar_sensitivity_set:
+        return "CMD_Radar_sensitivity_set";
+    case CMD_Tire_pressure_monitoring_get:
+        return "CMD_Tire_pressure_monitoring_get";
+    case CMD_BLE_RSSI_READ:
+        return "CMD_BLE_RSSI_READ";
+    case CMD_BLE_RSSI_RANGE_SET:
+        return "CMD_BLE_RSSI_RANGE_SET";
+    case CMD_CHARGE_DISPLAY_ON:
+        return "CMD_CHARGE_DISPLAY_ON";
+    case CMD_CHARGE_DISPLAY_OFF:
+        return "CMD_CHARGE_DISPLAY_OFF";
+    default:
+        return "UNKNOWN";
     }
 }
 static void BleFunc_LogMcuUartFrame(uint16_t feature, uint16_t id,
-                                    const uint8_t *data, uint16_t data_len)
-{
+                                    const uint8_t *data, uint16_t data_len) {
     const char *name = BleFunc_McuCmdName(id);
     co_printf("[MCU_UART] feature=0x%04X id=0x%04X (%s) len=%u\\r\\n",
               (unsigned)feature, (unsigned)id, name, (unsigned)data_len);
@@ -1161,7 +1176,9 @@ static void BleFunc_LogMcuUartFrame(uint16_t feature, uint16_t id,
         return;
     }
     co_printf("    data:");
-    for (uint16_t i = 0; i < data_len; i++) { co_printf(" %02X", data[i]); }
+    for (uint16_t i = 0; i < data_len; i++) {
+        co_printf(" %02X", data[i]);
+    }
     co_printf("\\r\\n");
 }
 /*********************************************************************
@@ -1169,8 +1186,7 @@ static void BleFunc_LogMcuUartFrame(uint16_t feature, uint16_t id,
  * @param reply_cmd {placeholder}
  * @param result_code {placeholder}
  */
-static void BleFunc_SendResultToRx(uint16_t reply_cmd, uint8_t result_code)
-{
+static void BleFunc_SendResultToRx(uint16_t reply_cmd, uint8_t result_code) {
     uint8_t conidx = Protocol_Get_Rx_Conidx();
     uint8_t resp_payload[1];
     resp_payload[0] = result_code;
@@ -1185,15 +1201,13 @@ static void BleFunc_SendResultToRx(uint16_t reply_cmd, uint8_t result_code)
 #if defined(__CC_ARM)
 #pragma diag_suppress 177 /* function was declared but never referenced */
 #endif
-static void BleFunc_SendResultToRx_Default(uint16_t reply_cmd)
-{
+static void BleFunc_SendResultToRx_Default(uint16_t reply_cmd) {
     /* 默认回失�?(0x01) */
     BleFunc_SendResultToRx(reply_cmd, 0x01);
 }
 
-static void BleFunc_SendResultToRx_WithData(uint16_t reply_cmd,
-                                            const uint8_t *data, uint16_t len)
-{
+static void BleFunc_SendResultToRx_WithData(uint16_t       reply_cmd,
+                                            const uint8_t *data, uint16_t len) {
     uint8_t conidx = Protocol_Get_Rx_Conidx();
     (void)Protocol_Send_Unicast(conidx, reply_cmd, data, len);
 }
@@ -1203,10 +1217,11 @@ static void BleFunc_SendResultToRx_WithData(uint16_t reply_cmd,
  * @retval {placeholder}
  * @retval {placeholder}
  */
-static bool BleFunc_EnsureAuthed(uint16_t reply_cmd)
-{
+static bool BleFunc_EnsureAuthed(uint16_t reply_cmd) {
     uint8_t conidx = Protocol_Get_Rx_Conidx();
-    if (Protocol_Auth_IsOk(conidx)) { return true; }
+    if (Protocol_Auth_IsOk(conidx)) {
+        return true;
+    }
     co_printf("    auth not ok, reject cmd\\r\\n");
     BleFunc_SendResultToRx_Default(reply_cmd);
     return false;
@@ -1216,34 +1231,34 @@ static bool BleFunc_EnsureAuthed(uint16_t reply_cmd)
  * @param payload {placeholder}
  * @param len {placeholder}
  */
-static void BleFunc_DumpPayload(const uint8_t *payload, uint8_t len)
-{
+static void BleFunc_DumpPayload(const uint8_t *payload, uint8_t len) {
     if (payload == NULL || len == 0) {
         co_printf("    payload: <empty>\\r\\n");
         return;
     }
     co_printf("    payload(%d):\\r\\n", (int)len);
-    for (uint8_t i = 0; i < len; i++) { co_printf(" %02X\\r\\n", payload[i]); }
+    for (uint8_t i = 0; i < len; i++) {
+        co_printf(" %02X\\r\\n", payload[i]);
+    }
     co_printf("\\r\\n");
 }
 
 /* ====== 5.1 Connect(0x01FE) 辅助函数 ======
  * 说明：这些是“工具函数”，放在文件级以满足标准 C（禁止函数嵌套定义）�?
  */
-static uint8_t BleFunc_ToUpper(uint8_t c)
-{
-    if (c >= 'a' && c <= 'z') { return (uint8_t)(c - 'a' + 'A'); }
+static uint8_t BleFunc_ToUpper(uint8_t c) {
+    if (c >= 'a' && c <= 'z') {
+        return (uint8_t)(c - 'a' + 'A');
+    }
     return c;
 }
 
-static bool BleFunc_IsHexAscii(uint8_t c)
-{
+static bool BleFunc_IsHexAscii(uint8_t c) {
     c = BleFunc_ToUpper(c);
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
 }
 
-static void BleFunc_DumpHexInline(const uint8_t *data, uint16_t dump_len)
-{
+static void BleFunc_DumpHexInline(const uint8_t *data, uint16_t dump_len) {
     if (data == NULL || dump_len == 0) {
         co_printf("<empty>\\r\\n");
         return;
@@ -1253,24 +1268,28 @@ static void BleFunc_DumpHexInline(const uint8_t *data, uint16_t dump_len)
     }
 }
 
-static bool BleFunc_IsAllZero(const uint8_t *data, uint16_t len)
-{
-    if (data == NULL || len == 0u) { return true; }
+static bool BleFunc_IsAllZero(const uint8_t *data, uint16_t len) {
+    if (data == NULL || len == 0u) {
+        return true;
+    }
     for (uint16_t i = 0; i < len; i++) {
-        if (data[i] != 0u) { return false; }
+        if (data[i] != 0u) {
+            return false;
+        }
     }
     return true;
 }
 
 void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
                             const uint8_t *data, uint16_t data_len,
-                            uint8_t crc_ok)
-{
+                            uint8_t crc_ok) {
     if (!crc_ok) {
         co_printf("[MCU_TXN] drop frame: crc bad\\r\\n");
         return;
     }
-    if (sync != SOC_MCU_SYNC_MCU_TO_SOC) { return; }
+    if (sync != SOC_MCU_SYNC_MCU_TO_SOC) {
+        return;
+    }
 
     /* 1) 如果是正在等待的 MCU 应答，则按事务回包到 APP（reply_cmd�?*/
     if (s_mcu_pending.active && id == s_mcu_pending.id &&
@@ -1291,7 +1310,9 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
         if (s_mcu_pending.chain_kind == BLEFUNC_MCU_CHAIN_CHORD_HORN_06FD &&
             s_mcu_pending.chain_step == 0u) {
             uint8_t result = 0x00u;
-            if (data != NULL && data_len >= 1u) { result = data[0]; }
+            if (data != NULL && data_len >= 1u) {
+                result = data[0];
+            }
             /* �?1 步失败：直接回复 APP（保持和现有事务一致，优先透传 MCU
              * payload�?*/
             if (result != 0x00u) {
@@ -1326,7 +1347,9 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
         if (s_mcu_pending.chain_kind == BLEFUNC_MCU_CHAIN_GEAR_SET_FD &&
             s_mcu_pending.chain_step == 0u) {
             uint8_t result = 0x00u;
-            if (data != NULL && data_len >= 1u) { result = data[0]; }
+            if (data != NULL && data_len >= 1u) {
+                result = data[0];
+            }
             /* �?1 步失败：直接回复 APP（优先透传 MCU payload�?*/
             if (result != 0x00u) {
                 s_mcu_pending.chain_kind  = BLEFUNC_MCU_CHAIN_NONE;
@@ -1344,7 +1367,7 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
             }
 
             /* �?1 步成功：触发�?2 步（speed_set），等待其回包后再回�?BLE */
-            uint8_t speed            = s_mcu_pending.chain_u8_0;
+            uint8_t  speed           = s_mcu_pending.chain_u8_0;
             uint16_t step2_id        = s_mcu_pending.chain_u16_0;
             s_mcu_pending.chain_step = 1u;
             co_printf("[MCU_TXN] chain(GEAR) step1 ok, send step2 id=0x%04X "
@@ -1362,7 +1385,9 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
         if (s_mcu_pending.chain_kind == BLEFUNC_MCU_CHAIN_RADAR_SET_FD &&
             s_mcu_pending.chain_step == 0u) {
             uint8_t result = 0x00u;
-            if (data != NULL && data_len >= 1u) { result = data[0]; }
+            if (data != NULL && data_len >= 1u) {
+                result = data[0];
+            }
             if (result != 0x00u) {
                 s_mcu_pending.chain_kind  = BLEFUNC_MCU_CHAIN_NONE;
                 s_mcu_pending.chain_step  = 0u;
@@ -1378,7 +1403,7 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
                 return;
             }
 
-            uint8_t sensitivity      = s_mcu_pending.chain_u8_0;
+            uint8_t  sensitivity     = s_mcu_pending.chain_u8_0;
             uint16_t step2_id        = s_mcu_pending.chain_u16_0;
             s_mcu_pending.chain_step = 1u;
             co_printf("[MCU_TXN] chain(RADAR) step1 ok, send step2 id=0x%04X "
@@ -1462,8 +1487,7 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
  * @param len {placeholder}
  * @note 该指令用�?APP 端登录鉴权，payload 包含时间戳、Token 等信息�?
  */
-void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     (void)cmd;
     co_printf("  -> Connect\\r\\n");
 
@@ -1484,10 +1508,10 @@ void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len)
         return;
     }
 
-    const uint8_t *time6     = &payload[0];
-    const uint8_t *token_ptr = &payload[6];
-    uint8_t token_len        = 0;
-    uint8_t mobileSystem     = 0xFF;
+    const uint8_t *time6        = &payload[0];
+    const uint8_t *token_ptr    = &payload[6];
+    uint8_t        token_len    = 0;
+    uint8_t        mobileSystem = 0xFF;
 
     bool token32_is_ascii_hex = true;
     for (uint8_t i = 0; i < 32; i++) {
@@ -1542,7 +1566,7 @@ void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len)
     Algo_MD5_Calc(TBOX_KEY, sizeof(TBOX_KEY), target_digest);
 
     // Convert Digest to Hex String (upper case)
-    char calculated_token[33];
+    char       calculated_token[33];
     const char hex_map[] = "0123456789ABCDEF";
     for (int i = 0; i < 16; i++) {
         calculated_token[i * 2]     = hex_map[(target_digest[i] >> 4) & 0x0F];
@@ -1578,10 +1602,14 @@ void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len)
         uint8_t rx_up[32];
         for (uint8_t i = 0; i < 32; i++)
             rx_up[i] = BleFunc_ToUpper(token_ptr[i]);
-        if (memcmp(rx_up, expected_token_up, 32) == 0) { auth_ok = true; }
+        if (memcmp(rx_up, expected_token_up, 32) == 0) {
+            auth_ok = true;
+        }
     } else if (token_len == 16) {
         /* 16 字节原始 MD5 */
-        if (memcmp(token_ptr, target_digest, 16) == 0) { auth_ok = true; }
+        if (memcmp(token_ptr, target_digest, 16) == 0) {
+            auth_ok = true;
+        }
     }
 #endif
 
@@ -1626,12 +1654,12 @@ void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - 该指令通常会涉�?IO/继电器动作（电门锁）�?
  * - 当前实现做协议解析与回包框架；硬件动作未接入时默认回失败，避免误控�?
  */
-void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Defences (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd); // 0x0301
 
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x03FE: Time(6) + DefendStatus(1) = 7 bytes */
     if (payload == NULL || len < 7) {
@@ -1641,8 +1669,8 @@ void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len)
         return;
     }
 
-    const uint8_t *time6 = &payload[0];
-    uint8_t defendStatus = payload[6];
+    const uint8_t *time6        = &payload[0];
+    uint8_t        defendStatus = payload[6];
 
     BleFunc_PrintTime6(time6);
     co_printf("    DefendStatus=0x%02X\\r\\n", defendStatus);
@@ -1684,11 +1712,11 @@ void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0401
  * - Response Payload: ResultCode(1)�?x00 成功�?x01 失败�?
  */
-void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Anti-Theft (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x04FE: Time(6) + InductionStatus(1) = 7 bytes */
     if (payload == NULL || len < 7) {
@@ -1728,11 +1756,12 @@ void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1)
  * @note 该指令通常不涉及危险硬件动作，默认回成功以保证 APP 流程联调�?
  */
-void BleFunc_FE_PhoneMessage(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_PhoneMessage(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> Phone Message (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x05FE: Time(6) + MessageType(1) = 7 bytes */
     if (payload == NULL || len < 7) {
@@ -1771,11 +1800,12 @@ void BleFunc_FE_PhoneMessage(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0701
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> RSSI Strength (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x07FE: Time(6) + min(2) + max(2) = 10 bytes */
     if (payload == NULL || len < 10) {
@@ -1789,8 +1819,8 @@ void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload, uint8_t len)
     /* 解析 min_raw �?max_raw 的值（APP 发送大端序�?*/
     uint16_t min_raw = ((uint16_t)payload[6] << 8) | (uint16_t)payload[7];
     uint16_t max_raw = ((uint16_t)payload[8] << 8) | (uint16_t)payload[9];
-    int16_t min_dbm  = -(int16_t)min_raw; /* 协议因子 -1，转换为�?dBm */
-    int16_t max_dbm  = -(int16_t)max_raw;
+    int16_t  min_dbm = -(int16_t)min_raw; /* 协议因子 -1，转换为�?dBm */
+    int16_t  max_dbm = -(int16_t)max_raw;
     co_printf("    min_raw=%u -> %d dBm\\r\\n", (unsigned)min_raw,
               (int)min_dbm);
     co_printf("    max_raw=%u -> %d dBm\\r\\n", (unsigned)max_raw,
@@ -1823,11 +1853,11 @@ void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1)
  * @note 通常会触发鸣�?双闪等动作，未接入硬件前默认回失败�?
  */
-void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Car Search (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x08FE: Time(6) = 6 bytes */
     if (payload == NULL || len < 6) {
@@ -1866,11 +1896,11 @@ void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * 属于破坏性操作，未接入持久化/清理流程前默认回失败。soc端不用做处理，让vcu端进行处理即可�?
  */
 void BleFunc_FE_FactorySettings(uint16_t cmd, const uint8_t *payload,
-                                uint8_t len)
-{
+                                uint8_t len) {
     co_printf("  -> Factory Settings (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x09FE: Time(6) = 6 bytes */
     if (payload == NULL || len < 6) {
@@ -1907,11 +1937,11 @@ void BleFunc_FE_FactorySettings(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  *   - 0x00 成功�?x01 失败�?x02 操作失败：无效卡（协议文档给出的扩展含义�?
  */
-void BleFunc_FE_BleUnpair(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_BleUnpair(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> BLE Unpair (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x0AFE: Time(6) = 6 bytes */
     if (payload == NULL || len < 6) {
@@ -1950,11 +1980,11 @@ void BleFunc_FE_BleUnpair(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - 该功能涉�?NFC 识别/加密/卡池存储/超时流程�?
  * - 当前实现仅解析与回包框架；未接入卡池时默认回失败�?
  */
-void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Add NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -1992,11 +2022,11 @@ void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0C01
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Delete NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (min 7)\\r\\n", (int)len);
@@ -2060,11 +2090,11 @@ void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1) + (uuid/key 列表，可选，最�?6 �?
  * @note 未接入卡池时默认�?0x01（暂无卡）�?
  */
-void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Search NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 6) {
         co_printf("    invalid payload len=%d (expect 6)\\r\\n", (int)len);
@@ -2097,11 +2127,11 @@ void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
  *   - 0x00 油车解防�?x01 油车设防
  * - Response Cmd: 0x0F01
  */
-void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Oil Defence (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2137,11 +2167,12 @@ void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t *payload, uint8_t len)
  *   - 0x01 低档�?x02 中档�?x03 高档�?x04 关闭
  * - Response Cmd: 0x1101
  */
-void BleFunc_FE_OilCarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_OilCarSearch(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> Oil Car Search (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2177,11 +2208,11 @@ void BleFunc_FE_OilCarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len)
  *   - 0x00 开锁；0x01 关锁
  * - Response Cmd: 0x1201
  */
-void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Set Boot Lock (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2216,11 +2247,11 @@ void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Payload: Time(6) + control(1)�?x00 关；0x01 开�?
  * - Response Cmd: 0x1301
  */
-void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Set NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2255,11 +2286,11 @@ void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Payload: Time(6) + control(1)�?x00 开�?x01 关）
  * - Response Cmd: 0x1401
  */
-void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Set Seat Lock (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2280,7 +2311,7 @@ void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
 #else
     {
         /* 调试模式：根�?control 字段发送不�?MCU 命令 */
-        uint8_t ctrl     = payload[6]; /* 0x00 开/0x01 �?*/
+        uint8_t  ctrl    = payload[6]; /* 0x00 开/0x01 �?*/
         uint16_t mcu_cmd = (ctrl == 0x00u) ? (uint16_t)CMD_VEHICLE_UNLOCK_SEAT
                                            : (uint16_t)CMD_VEHICLE_LOCK_SEAT;
         BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, mcu_cmd, &ctrl, 1u);
@@ -2301,11 +2332,11 @@ void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x1501
  * - Response ResultCode: 0x00 成功�?x01 失败�?x02 acc 状态拒绝（协议文档扩展�?
  */
-void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> Set Car Mute (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2340,11 +2371,12 @@ void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Payload: Time(6) + control(1)�?x00 开�?x01 关）
  * - Response Cmd: 0x1601
  */
-void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload,
+                              uint8_t len) {
     co_printf("  -> Set Mid Box Lock (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2365,7 +2397,7 @@ void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
 #else
     {
         /* 调试模式：根�?control 字段发送不�?MCU 命令 */
-        uint8_t ctrl     = payload[6]; /* 0x00 开/0x01 �?*/
+        uint8_t  ctrl    = payload[6]; /* 0x00 开/0x01 �?*/
         uint16_t mcu_cmd = (ctrl == 0x00u)
                                ? (uint16_t)CMD_VEHICLE_UNLOCK_MIDDLE_BOX
                                : (uint16_t)CMD_VEHICLE_LOCK_MIDDLE_BOX;
@@ -2386,11 +2418,11 @@ void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x1701
  */
 void BleFunc_FE_SetEmergencyMode(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len)
-{
+                                 uint8_t len) {
     co_printf("  -> Set Emergency Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2411,7 +2443,7 @@ void BleFunc_FE_SetEmergencyMode(uint16_t cmd, const uint8_t *payload,
 #else
     {
         /* 调试模式：根�?control 字段发送对�?MCU 命令 */
-        uint8_t ctrl = payload[6]; /* 0x00 关闭/0x01 打开 */
+        uint8_t  ctrl = payload[6]; /* 0x00 关闭/0x01 打开 */
         uint16_t mcu_cmd =
             (ctrl == 0x00u) ? 0x41u : 0x40u; /* 0x40=打开, 0x41=关闭 */
         BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, mcu_cmd, &ctrl, 1u);
@@ -2437,11 +2469,11 @@ void BleFunc_FE_SetEmergencyMode(uint16_t cmd, const uint8_t *payload,
  *       - len==7 按“单控开锁”处理（controlType=payload[6]），回包仍按
  * 0x1801+ResultCode(1)
  */
-void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> 0x18FE Handler (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || (len != 6 && len != 7)) {
         co_printf("    invalid payload len=%d (expect 6 or 7)\\r\\n", (int)len);
@@ -2497,11 +2529,12 @@ void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - 你提供的文档里该功能曾写�?0x18FE，但本工程已�?0x18FE 用作“获取手�?MAC”�?
  * - 为避免命令号冲突导致路由/回包错误，这里按 0x19FE 实现�?
  */
-void BleFunc_FE_SetUnlockMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_SetUnlockMode(uint16_t cmd, const uint8_t *payload,
+                              uint8_t len) {
     co_printf("  -> Set Unlock Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd); /* 0x1901 */
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 5.22 单控开锁：Time(6) + controlType(1) */
     if (payload == NULL || len != 7) {
@@ -2539,11 +2572,12 @@ void BleFunc_FE_SetUnlockMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1)
  * - MCU 命令: 0x200 开�?/ 0x201 关闭
  */
-void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload,
+                              uint8_t len) {
     co_printf("  -> Charge Display (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd); /* 0x1A01 */
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /* 0x1AFE: Time(6) + control(1) = 7 bytes */
     if (payload == NULL || len < 7) {
@@ -2591,11 +2625,11 @@ void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_AssistiveTrolley(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len)
-{
+                                 uint8_t len) {
     co_printf("  -> FD Assistive Trolley (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -2630,11 +2664,11 @@ void BleFunc_FD_AssistiveTrolley(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_DelayedHeadlight(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len)
-{
+                                 uint8_t len) {
     co_printf("  -> FD Delayed Headlight (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -2669,11 +2703,11 @@ void BleFunc_FD_DelayedHeadlight(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetChargingPower(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len)
-{
+                                 uint8_t len) {
     co_printf("  -> FD Set Charging Power (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -2706,11 +2740,12 @@ void BleFunc_FD_SetChargingPower(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0502
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetPGearMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetPGearMode(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Set P Gear Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -2745,11 +2780,11 @@ void BleFunc_FD_SetPGearMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len)
-{
+                                 uint8_t len) {
     co_printf("  -> FD Set Chord Horn Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -2812,11 +2847,11 @@ void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
-                                uint8_t len)
-{
+                                uint8_t len) {
     co_printf("  -> FD Set RGB Light Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /*
      * 兼容�?
@@ -2835,7 +2870,9 @@ void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
     co_printf("    effects=%u gradual=%u rgb=(%u,%u,%u)\\r\\n",
               (unsigned)payload[6], (unsigned)payload[7], (unsigned)payload[8],
               (unsigned)payload[9], (unsigned)payload[10]);
-    if (len >= 12) { co_printf("    ext=0x%02X\\r\\n", (unsigned)payload[11]); }
+    if (len >= 12) {
+        co_printf("    ext=0x%02X\\r\\n", (unsigned)payload[11]);
+    }
     BleFunc_DumpPayload(payload, len);
 /* 下发�?MCU，并等待回包/超时再回 0x0702 */
 #if (!ENABLE_NFC_ADD_SIMULATION)
@@ -2860,11 +2897,11 @@ void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetAuxiliaryParking(uint16_t cmd, const uint8_t *payload,
-                                    uint8_t len)
-{
+                                    uint8_t len) {
     co_printf("  -> FD Set Auxiliary Parking (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -2899,11 +2936,11 @@ void BleFunc_FD_SetAuxiliaryParking(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
-                                     uint8_t len)
-{
+                                     uint8_t len) {
     co_printf("  -> FD Set Intelligent Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (expect >= 7)\\r\\n", (int)len);
@@ -2928,23 +2965,23 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
      */
     const char *controlTypeStr = "unknown";
     switch (controlType) {
-        case 0x02u:
-            controlTypeStr = "saddle_switch";
-            break;
-        case 0x03u:
-            controlTypeStr = "abs_switch";
-            break;
-        case 0x04u:
-            controlTypeStr = "power_led";
-            break;
-        case 0x05u:
-            controlTypeStr = "position_light";
-            break;
-        case 0x0Au:
-            controlTypeStr = "three_color_ambient";
-            break;
-        default:
-            break;
+    case 0x02u:
+        controlTypeStr = "saddle_switch";
+        break;
+    case 0x03u:
+        controlTypeStr = "abs_switch";
+        break;
+    case 0x04u:
+        controlTypeStr = "power_led";
+        break;
+    case 0x05u:
+        controlTypeStr = "position_light";
+        break;
+    case 0x0Au:
+        controlTypeStr = "three_color_ambient";
+        break;
+    default:
+        break;
     }
     co_printf("    strip %u->%u control=0x%02X controlType=0x%02X(%s)\\r\\n",
               (unsigned)payload_len_before_strip, (unsigned)len, control,
@@ -2961,7 +2998,7 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
         if (controlType == 0x0Au) {
-            uint16_t mcu_id       = 0u;
+            uint16_t    mcu_id    = 0u;
             const char *actionStr = "invalid";
             if (control == 0x01u)
                 mcu_id = (uint16_t)CMD_Three_shooting_lamp_on;
@@ -2994,20 +3031,20 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
             }
             uint16_t mcu_id = 0u;
             switch (controlType) {
-                case 0x02u:
-                    mcu_id = (uint16_t)CMD_SADDLE_ON_OFF;
-                    break;
-                case 0x03u:
-                    mcu_id = (uint16_t)CMD_ABS_ON_OFF;
-                    break;
-                case 0x04u:
-                    mcu_id = (uint16_t)CMD_POWER_LED;
-                    break;
-                case 0x05u:
-                    mcu_id = (uint16_t)CMD_Position_light_on_off;
-                    break;
-                default:
-                    break;
+            case 0x02u:
+                mcu_id = (uint16_t)CMD_SADDLE_ON_OFF;
+                break;
+            case 0x03u:
+                mcu_id = (uint16_t)CMD_ABS_ON_OFF;
+                break;
+            case 0x04u:
+                mcu_id = (uint16_t)CMD_POWER_LED;
+                break;
+            case 0x05u:
+                mcu_id = (uint16_t)CMD_Position_light_on_off;
+                break;
+            default:
+                break;
             }
             uint8_t ctrl = control;
             BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE, mcu_id,
@@ -3019,7 +3056,7 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
     }
 #else
     if (controlType == 0x0Au) {
-        uint16_t mcu_id       = 0u;
+        uint16_t    mcu_id    = 0u;
         const char *actionStr = "invalid";
         if (control == 0x01u)
             mcu_id = (uint16_t)CMD_Three_shooting_lamp_on;
@@ -3050,20 +3087,20 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
         }
         uint16_t mcu_id = 0u;
         switch (controlType) {
-            case 0x02u:
-                mcu_id = (uint16_t)CMD_SADDLE_ON_OFF;
-                break;
-            case 0x03u:
-                mcu_id = (uint16_t)CMD_ABS_ON_OFF;
-                break;
-            case 0x04u:
-                mcu_id = (uint16_t)CMD_POWER_LED;
-                break;
-            case 0x05u:
-                mcu_id = (uint16_t)CMD_Position_light_on_off;
-                break;
-            default:
-                break;
+        case 0x02u:
+            mcu_id = (uint16_t)CMD_SADDLE_ON_OFF;
+            break;
+        case 0x03u:
+            mcu_id = (uint16_t)CMD_ABS_ON_OFF;
+            break;
+        case 0x04u:
+            mcu_id = (uint16_t)CMD_POWER_LED;
+            break;
+        case 0x05u:
+            mcu_id = (uint16_t)CMD_Position_light_on_off;
+            break;
+        default:
+            break;
         }
         if (mcu_id != 0u) {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, mcu_id, &control, 1u);
@@ -3086,11 +3123,11 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_ParamSynchronize(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len)
-{
+                                 uint8_t len) {
     co_printf("  -> FD Param Synchronize (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 6) {
         co_printf("    invalid payload len=%d (min 6)\\r\\n", (int)len);
@@ -3112,11 +3149,11 @@ void BleFunc_FD_ParamSynchronize(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_ParamSynchronizeChange(uint16_t cmd, const uint8_t *payload,
-                                       uint8_t len)
-{
+                                       uint8_t len) {
     co_printf("  -> FD Param Sync Change (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 6) {
         co_printf("    invalid payload len=%d (min 6)\\r\\n", (int)len);
@@ -3138,11 +3175,11 @@ void BleFunc_FD_ParamSynchronizeChange(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetDefaultMode(uint16_t cmd, const uint8_t *payload,
-                               uint8_t len)
-{
+                               uint8_t len) {
     co_printf("  -> FD Set Default Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -3176,11 +3213,11 @@ void BleFunc_FD_SetDefaultMode(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t *payload,
-                                  uint8_t len)
-{
+                                  uint8_t len) {
     co_printf("  -> FD Set Vehicle Guard Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 9) {
         co_printf("    invalid payload len=%d (expect 9)\\r\\n", (int)len);
@@ -3217,11 +3254,11 @@ void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t *payload,
-                                  uint8_t len)
-{
+                                  uint8_t len) {
     co_printf("  -> FD Set Auto Return Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -3254,11 +3291,12 @@ void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0B02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Set EBS Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -3293,11 +3331,12 @@ void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0C02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Set E-SAVE Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 1) {
         co_printf("    invalid payload len=%d (expect >= 1)\\r\\n", (int)len);
@@ -3305,9 +3344,9 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    const uint8_t *mcu_payload        = payload;
-    uint16_t payload_len_before_strip = len;
-    uint16_t temp_len                 = len;
+    const uint8_t *mcu_payload              = payload;
+    uint16_t       payload_len_before_strip = len;
+    uint16_t       temp_len                 = len;
     if (len >= 7) {
         BleFunc_PrintTime6(&payload[0]);
         BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
@@ -3434,11 +3473,11 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0D02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> FD Set DYN Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 1) {
         co_printf("    invalid payload len=%d (expect >= 1)\\r\\n", (int)len);
@@ -3446,9 +3485,9 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    const uint8_t *mcu_payload        = payload;
-    uint16_t payload_len_before_strip = len;
-    uint16_t temp_len                 = len;
+    const uint8_t *mcu_payload              = payload;
+    uint16_t       payload_len_before_strip = len;
+    uint16_t       temp_len                 = len;
     if (len >= 7) {
         BleFunc_PrintTime6(&payload[0]);
         BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
@@ -3577,11 +3616,12 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0E02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Set SPORT Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 1) {
         co_printf("    invalid payload len=%d (expect >= 1)\\r\\n", (int)len);
@@ -3589,9 +3629,9 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    const uint8_t *mcu_payload        = payload;
-    uint16_t payload_len_before_strip = len;
-    uint16_t temp_len                 = len;
+    const uint8_t *mcu_payload              = payload;
+    uint16_t       payload_len_before_strip = len;
+    uint16_t       temp_len                 = len;
     if (len >= 7) {
         BleFunc_PrintTime6(&payload[0]);
         BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
@@ -3718,11 +3758,11 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x0F02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> FD Set Lost Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -3755,11 +3795,12 @@ void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x1002
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetTcsSwitch(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetTcsSwitch(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Set TCS Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -3792,11 +3833,12 @@ void BleFunc_FD_SetTcsSwitch(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x1102
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetSideStand(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetSideStand(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Set Side Stand (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 7) {
         co_printf("    invalid payload len=%d (expect 7)\\r\\n", (int)len);
@@ -3830,11 +3872,11 @@ void BleFunc_FD_SetSideStand(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Payload: ResultCode(1)
  */
 void BleFunc_FD_SetBatteryParameter(uint16_t cmd, const uint8_t *payload,
-                                    uint8_t len)
-{
+                                    uint8_t len) {
     co_printf("  -> FD Set Battery Param (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len != 8) {
         co_printf("    invalid payload len=%d (expect 8)\\r\\n", (int)len);
@@ -3866,11 +3908,12 @@ void BleFunc_FD_SetBatteryParameter(uint16_t cmd, const uint8_t *payload,
  * - 工程保留了解析入口，这里做兜底：解析 Time(6) 并回 ACK 风格 ResultCode�?
  * - Response Cmd: 0x1302
  */
-void BleFunc_FD_SetUpdataApp(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetUpdataApp(uint16_t cmd, const uint8_t *payload,
+                             uint8_t len) {
     co_printf("  -> FD Update APP / Data Sync (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     if (payload == NULL || len < 6) {
         co_printf("    invalid payload len=%d (min 6)\\r\\n", (int)len);
@@ -3890,11 +3933,11 @@ void BleFunc_FD_SetUpdataApp(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1402
  */
-void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> FD Set HDC Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (expect >= 7)\\r\\n", (int)len);
         BleFunc_DumpPayload(payload, len);
@@ -3932,11 +3975,11 @@ void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1502
  */
-void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> FD Set HHC Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (expect >= 7)\\r\\n", (int)len);
         BleFunc_DumpPayload(payload, len);
@@ -3975,11 +4018,11 @@ void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x1602
  */
 void BleFunc_FD_SetStartAbility(uint16_t cmd, const uint8_t *payload,
-                                uint8_t len)
-{
+                                uint8_t len) {
     co_printf("  -> FD Set Start Ability (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
 
     /*
      * 按“通用蓝牙协议”常规格式实现（APP->SOC->MCU）：
@@ -4032,11 +4075,11 @@ void BleFunc_FD_SetStartAbility(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x1702
  */
 void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
-                                   uint8_t len)
-{
+                                   uint8_t len) {
     co_printf("  -> FD Set Sport Power Speed (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (expect >= 7)\\r\\n", (int)len);
         BleFunc_DumpPayload(payload, len);
@@ -4045,7 +4088,7 @@ void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
     }
     BleFunc_PrintTime6(&payload[0]);
     const uint8_t *mcu_payload = payload;
-    uint16_t temp_len          = len;
+    uint16_t       temp_len    = len;
     BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
     len = (uint8_t)temp_len;
     if (len < 1u) {
@@ -4079,11 +4122,11 @@ void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1802
  */
-void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
-{
+void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     co_printf("  -> FD Set ECO Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (expect >= 7)\\r\\n", (int)len);
         BleFunc_DumpPayload(payload, len);
@@ -4092,7 +4135,7 @@ void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
     }
     BleFunc_PrintTime6(&payload[0]);
     const uint8_t *mcu_payload = payload;
-    uint16_t temp_len          = len;
+    uint16_t       temp_len    = len;
     BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
     len = (uint8_t)temp_len;
     if (len < 1u) {
@@ -4127,11 +4170,11 @@ void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len)
  * - Response Cmd: 0x1902
  */
 void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
-                               uint8_t len)
-{
+                               uint8_t len) {
     co_printf("  -> FD Set Radar Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
-    if (!BleFunc_EnsureAuthed(reply_cmd)) return;
+    if (!BleFunc_EnsureAuthed(reply_cmd))
+        return;
     if (payload == NULL || len < 7) {
         co_printf("    invalid payload len=%d (expect >= 7)\\r\\n", (int)len);
         BleFunc_DumpPayload(payload, len);
@@ -4140,7 +4183,7 @@ void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
     }
     BleFunc_PrintTime6(&payload[0]);
     const uint8_t *mcu_payload = payload;
-    uint16_t temp_len          = len;
+    uint16_t       temp_len    = len;
     BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
     len = (uint8_t)temp_len;
     if (len < 1u) {
@@ -4150,9 +4193,9 @@ void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    uint8_t control      = mcu_payload[0];
-    bool has_sensitivity = (len >= 2u);
-    uint8_t sensitivity  = has_sensitivity ? mcu_payload[1] : 0u;
+    uint8_t control         = mcu_payload[0];
+    bool    has_sensitivity = (len >= 2u);
+    uint8_t sensitivity     = has_sensitivity ? mcu_payload[1] : 0u;
     co_printf("    control=0x%02X sensitivity=0x%02X%s\\r\\n",
               (unsigned)control, (unsigned)sensitivity,
               has_sensitivity ? "" : " (n/a)");
