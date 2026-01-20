@@ -160,7 +160,8 @@ typedef struct {
     uint8_t chain_step; /* 0=等待�?步回包，1=等待�?步回�?*/
     uint8_t
         chain_u8_0; /* 预留：当前用于保�?0x06FD �?volume�?B）或档位 speed(1B) */
-    uint16_t chain_u16_0; /* 预留：当前用于保存“第 2 步”的 MCU 命令
+    uint16_t
+        chain_u16_0; /* 预留：当前用于保存“第 2 步”的 MCU 命令
                              ID（例�?speed_set�?*/
     os_timer_t timer;
 } blefunc_mcu_pending_t;
@@ -205,15 +206,18 @@ void BleFunc_RSSI_RawInd(uint8_t conidx, int8_t raw_rssi) {
     mcu_payload[0] = (uint8_t)flt_rssi;
     memcpy(&mcu_payload[1], mac6, 6);
 
-    uint8_t ok =
-        SocMcu_Frame_Send(SOC_MCU_SYNC_SOC_TO_MCU, SOC_MCU_FEATURE_FF01,
-                          (uint16_t)BLEFUNC_CMD_RSSI_NEAR_CONFIRM, mcu_payload,
-                          (uint16_t)sizeof(mcu_payload));
+    uint8_t ok = SocMcu_Frame_Send(SOC_MCU_SYNC_SOC_TO_MCU,
+                                   SOC_MCU_FEATURE_FF01,
+                                   (uint16_t)BLEFUNC_CMD_RSSI_NEAR_CONFIRM,
+                                   mcu_payload,
+                                   (uint16_t)sizeof(mcu_payload));
     (void)ok;
 }
 
-void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx, uint8_t new_distance,
-                                   int16_t filtered_rssi, int8_t raw_rssi) {
+void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx,
+                                   uint8_t new_distance,
+                                   int16_t filtered_rssi,
+                                   int8_t  raw_rssi) {
     if (conidx >= RSSI_MAX_CONN) {
         return;
     }
@@ -243,10 +247,11 @@ void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx, uint8_t new_distance,
         mcu_payload[0] = (uint8_t)raw_rssi;
         memcpy(&mcu_payload[1], mac6, 6);
 
-        uint8_t ok =
-            SocMcu_Frame_Send(SOC_MCU_SYNC_SOC_TO_MCU, SOC_MCU_FEATURE_FF01,
-                              (uint16_t)BLEFUNC_CMD_RSSI_NEAR_CONFIRM,
-                              mcu_payload, (uint16_t)sizeof(mcu_payload));
+        uint8_t ok = SocMcu_Frame_Send(SOC_MCU_SYNC_SOC_TO_MCU,
+                                       SOC_MCU_FEATURE_FF01,
+                                       (uint16_t)BLEFUNC_CMD_RSSI_NEAR_CONFIRM,
+                                       mcu_payload,
+                                       (uint16_t)sizeof(mcu_payload));
         (void)ok;
         return;
     }
@@ -361,8 +366,9 @@ static const uint8_t s_tpms_sim_payload_0117[17] = {
     (uint8_t)BLEFUNC_TPMS_SIM_MAC5,
 };
 
-static void BleFunc_PushMcuFrameToAuthedApp(uint16_t feature, uint16_t id,
-                                            const uint8_t *data,
+static void BleFunc_PushMcuFrameToAuthedApp(uint16_t       feature,
+                                            uint16_t       id,
+                                            const uint8_t* data,
                                             uint16_t       data_len) {
     /* payload = feature(2) + id(2) + data_len(2) + data(n) */
     /*
@@ -395,17 +401,20 @@ static void BleFunc_PushMcuFrameToAuthedApp(uint16_t feature, uint16_t id,
         if (gap_get_connect_status(conidx) == 0) {
             continue;
         }
-        (void)Protocol_Send_Unicast(conidx, (uint16_t)BLEFUNC_MCU_PUSH_CMD,
-                                    payload, (uint16_t)(hdr_len + copy_len));
+        (void)Protocol_Send_Unicast(conidx,
+                                    (uint16_t)BLEFUNC_MCU_PUSH_CMD,
+                                    payload,
+                                    (uint16_t)(hdr_len + copy_len));
     }
 }
 
-static void BleFunc_SendResultToConidx(uint8_t conidx, uint16_t reply_cmd,
-                                       uint8_t result_code) {
+static void BleFunc_SendResultToConidx(uint8_t  conidx,
+                                       uint16_t reply_cmd,
+                                       uint8_t  result_code) {
     uint8_t resp_payload[1];
     resp_payload[0] = result_code;
-    (void)Protocol_Send_Unicast(conidx, reply_cmd, resp_payload,
-                                (uint16_t)sizeof(resp_payload));
+    (void)Protocol_Send_Unicast(
+        conidx, reply_cmd, resp_payload, (uint16_t)sizeof(resp_payload));
 }
 
 /*
@@ -418,8 +427,8 @@ static void BleFunc_SendResultToConidx(uint8_t conidx, uint16_t reply_cmd,
  *   A) MCU �?1B/2B 参数解析时错�?
  *   B) MCU 不回�?-> BLE 事务超时
  */
-static void BleFunc_StripTime6_ForMcu(const uint8_t **payload,
-                                      uint16_t       *payload_len) {
+static void BleFunc_StripTime6_ForMcu(const uint8_t** payload,
+                                      uint16_t*       payload_len) {
     if (payload == NULL || payload_len == NULL) {
         return;
     }
@@ -431,7 +440,7 @@ static void BleFunc_StripTime6_ForMcu(const uint8_t **payload,
 }
 
 static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t       ble_cmd,
-                                         const uint8_t *payload,
+                                         const uint8_t* payload,
                                          uint16_t       payload_len) {
     /*
      * 关键点：BLE 下行�?cmd(�?0x0FFE/0x12FE) 不等�?MCU UART �?id�?
@@ -515,8 +524,7 @@ static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t       ble_cmd,
                 return (uint16_t)CMD_Delayed_headlight_time_set;
         }
         return 0u;
-    case 0x04FDu: /* 充电功率 */
-        return (uint16_t)CMD_Charging_power_set;
+    case 0x04FDu: /* 充电功率 */ return (uint16_t)CMD_Charging_power_set;
     case 0x05FDu: /* 自动 P �?*/
         if (payload_len >= 7u && payload != NULL) {
             uint8_t control = payload[6];
@@ -566,10 +574,8 @@ static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t       ble_cmd,
                 return (uint16_t)CMD_Automatic_steering_reset_default;
         }
         return 0u;
-    case 0x0BFEu: /* 添加 NFC 钥匙 */
-        return (uint16_t)CMD_ADD_NFC_KEY;
-    case 0x0CFEu: /* 删除 NFC 钥匙 */
-        return (uint16_t)CMD_DELETE_NFC_KEY;
+    case 0x0BFEu: /* 添加 NFC 钥匙 */ return (uint16_t)CMD_ADD_NFC_KEY;
+    case 0x0CFEu: /* 删除 NFC 钥匙 */ return (uint16_t)CMD_DELETE_NFC_KEY;
     case 0x0BFDu: /* EBS：开�?类型（data 段由 payload 透传�?*/
         return (uint16_t)CMD_EBS_switch_on;
     case 0x0CFDu: /* 低速档�?*/
@@ -661,16 +667,14 @@ static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t       ble_cmd,
                        : (uint16_t)CMD_OIL_VEHICLE_LOCK_TRUNK;
         }
         return 0u;
-    case 0x13FEu: /* NFC 开�?*/
-        return (uint16_t)CMD_NFC_SWITCH;
+    case 0x13FEu: /* NFC 开�?*/ return (uint16_t)CMD_NFC_SWITCH;
     case 0x14FEu: /* 座桶�?*/
         if (payload_len >= 7u && payload != NULL) {
             return (payload[6] == 0x00u) ? (uint16_t)CMD_VEHICLE_UNLOCK_SEAT
                                          : (uint16_t)CMD_VEHICLE_LOCK_SEAT;
         }
         return 0u;
-    case 0x15FEu: /* 静音设置 */
-        return (uint16_t)CMD_VEHICLE_MUTE_SETTING;
+    case 0x15FEu: /* 静音设置 */ return (uint16_t)CMD_VEHICLE_MUTE_SETTING;
     case 0x16FEu: /* 中箱�?*/
         if (payload_len >= 7u && payload != NULL) {
             return (payload[6] == 0x00u)
@@ -711,12 +715,11 @@ static uint16_t BleFunc_MapBleCmdToMcuId(uint16_t       ble_cmd,
         return (status == 0x01u) ? (uint16_t)CMD_BLE_RSSI_LOCK_ON
                                  : (uint16_t)CMD_BLE_RSSI_LOCK_OFF;
     }
-    default:
-        return 0u;
+    default: return 0u;
     }
 }
 
-static void BleFunc_McuTxn_Timeout(void *parg) {
+static void BleFunc_McuTxn_Timeout(void* parg) {
     (void)parg;
     if (!s_mcu_pending.active) {
         return;
@@ -726,11 +729,12 @@ static void BleFunc_McuTxn_Timeout(void *parg) {
               "resp_feature=0x%04X id=0x%04X reply=0x%04X\\r\\n",
               (unsigned)s_mcu_pending.conidx,
               (unsigned)s_mcu_pending.req_feature,
-              (unsigned)s_mcu_pending.resp_feature, (unsigned)s_mcu_pending.id,
+              (unsigned)s_mcu_pending.resp_feature,
+              (unsigned)s_mcu_pending.id,
               (unsigned)s_mcu_pending.reply_cmd);
 
-    BleFunc_SendResultToConidx(s_mcu_pending.conidx, s_mcu_pending.reply_cmd,
-                               0x01);
+    BleFunc_SendResultToConidx(
+        s_mcu_pending.conidx, s_mcu_pending.reply_cmd, 0x01);
     s_mcu_pending.active      = false;
     s_mcu_pending.chain_kind  = BLEFUNC_MCU_CHAIN_NONE;
     s_mcu_pending.chain_step  = 0u;
@@ -770,9 +774,12 @@ static void BleFunc_McuTxn_Timeout(void *parg) {
  * @param payload     透传的数据内�?
  * @param payload_len 数据长度
  */
-static void BleFunc_McuTxn_Start(uint8_t conidx, uint16_t reply_cmd,
-                                 uint16_t feature, uint16_t id,
-                                 const uint8_t *payload, uint16_t payload_len) {
+static void BleFunc_McuTxn_Start(uint8_t        conidx,
+                                 uint16_t       reply_cmd,
+                                 uint16_t       feature,
+                                 uint16_t       id,
+                                 const uint8_t* payload,
+                                 uint16_t       payload_len) {
     /* 1. 忙检测：确保上一个指令已经结束，避免串口并发冲突 */
     if (s_mcu_pending.active) {
         co_printf("[MCU_TXN] busy, reject new cmd\\r\\n");
@@ -812,14 +819,16 @@ static void BleFunc_McuTxn_Start(uint8_t conidx, uint16_t reply_cmd,
         uint8_t b0 = (payload != NULL && payload_len > 0u) ? payload[0] : 0u;
         uint8_t b1 = (payload != NULL && payload_len > 1u) ? payload[1] : 0u;
         co_printf("[MCU_TXN] 0x63FD strip %u->%u data=%02X %02X%s\\r\\n",
-                  (unsigned)payload_len_before_strip, (unsigned)payload_len,
-                  (unsigned)b0, (unsigned)b1,
+                  (unsigned)payload_len_before_strip,
+                  (unsigned)payload_len,
+                  (unsigned)b0,
+                  (unsigned)b1,
                   (payload_len == 2u) ? "" : " (warn:expect 2B)");
     }
 
     /* 3. 发送串口数据给 MCU */
-    uint8_t ok = SocMcu_Frame_Send(SOC_MCU_SYNC_SOC_TO_MCU, feature, mcu_id,
-                                   payload, payload_len);
+    uint8_t ok = SocMcu_Frame_Send(
+        SOC_MCU_SYNC_SOC_TO_MCU, feature, mcu_id, payload, payload_len);
     if (!ok) {
         co_printf("[MCU_TXN] uart send failed\\r\\n");
         BleFunc_SendResultToConidx(conidx, reply_cmd, 0x01);
@@ -850,8 +859,9 @@ static void BleFunc_McuTxn_Start(uint8_t conidx, uint16_t reply_cmd,
  *   但同时“也要把指令直接用串口接口发�?MCU”�?
  * - 生产链路仍建议使�?BleFunc_McuTxn_Start()（带超时/匹配/回包）�?
  */
-static void BleFunc_McuUart_SendOnly(uint16_t feature, uint16_t ble_cmd,
-                                     const uint8_t *payload,
+static void BleFunc_McuUart_SendOnly(uint16_t       feature,
+                                     uint16_t       ble_cmd,
+                                     const uint8_t* payload,
                                      uint16_t       payload_len) {
     uint16_t mcu_id = ble_cmd;
     if (((ble_cmd & 0x00FFu) == 0x00FEu) || ((ble_cmd & 0x00FFu) == 0x00FDu)) {
@@ -870,16 +880,20 @@ static void BleFunc_McuUart_SendOnly(uint16_t feature, uint16_t ble_cmd,
         uint8_t b0 = (payload != NULL && payload_len > 0u) ? payload[0] : 0u;
         uint8_t b1 = (payload != NULL && payload_len > 1u) ? payload[1] : 0u;
         co_printf("[DEBUG_SIM] 0x63FD strip %u->%u data=%02X %02X%s\\r\\n",
-                  (unsigned)payload_len_before_strip, (unsigned)payload_len,
-                  (unsigned)b0, (unsigned)b1,
+                  (unsigned)payload_len_before_strip,
+                  (unsigned)payload_len,
+                  (unsigned)b0,
+                  (unsigned)b1,
                   (payload_len == 2u) ? "" : " (warn:expect 2B)");
     }
 
-    uint8_t ok = SocMcu_Frame_Send(SOC_MCU_SYNC_SOC_TO_MCU, feature, mcu_id,
-                                   payload, payload_len);
+    uint8_t ok = SocMcu_Frame_Send(
+        SOC_MCU_SYNC_SOC_TO_MCU, feature, mcu_id, payload, payload_len);
     co_printf(
         "[DEBUG_SIM] uart send: ble_cmd=0x%04X -> mcu_id=0x%04X ok=%u\\r\\n",
-        (unsigned)ble_cmd, (unsigned)mcu_id, (unsigned)ok);
+        (unsigned)ble_cmd,
+        (unsigned)mcu_id,
+        (unsigned)ok);
 }
 
 /* 6.11 vehicle status sync (0x66FD) */
@@ -929,20 +943,22 @@ static void BleFunc_ParamSync_MaybeNotify(void) {
 static void BleFunc_ParamSync_RequestVehicleStatusFromMcu(void) {
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                              (uint16_t)BLEFUNC_MCU_ID_VEHICLE_STATUS_PREADY,
-                             NULL, 0u);
-    BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                             (uint16_t)BLEFUNC_MCU_ID_VEHICLE_SPEED, NULL, 0u);
-    BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                             (uint16_t)BLEFUNC_MCU_ID_VEHICLE_GEAR, NULL, 0u);
+                             NULL,
+                             0u);
+    BleFunc_McuUart_SendOnly(
+        BLEFUNC_MCU_FEATURE, (uint16_t)BLEFUNC_MCU_ID_VEHICLE_SPEED, NULL, 0u);
+    BleFunc_McuUart_SendOnly(
+        BLEFUNC_MCU_FEATURE, (uint16_t)BLEFUNC_MCU_ID_VEHICLE_GEAR, NULL, 0u);
 }
 
 static void BleFunc_ParamSync_Request64FDFromMcu(void) {
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                             (uint16_t)BLEFUNC_MCU_ID_PARAM_SYNC_64FD, NULL,
+                             (uint16_t)BLEFUNC_MCU_ID_PARAM_SYNC_64FD,
+                             NULL,
                              0u);
 }
 
-static bool BleFunc_PrintTime6(const uint8_t *time6) {
+static bool BleFunc_PrintTime6(const uint8_t* time6) {
     char time_str[13];
     if (proto_time6_bcd_to_str12(time6, time_str)) {
         co_printf("    time_bcd=%s\\r\\n", time_str);
@@ -952,7 +968,7 @@ static bool BleFunc_PrintTime6(const uint8_t *time6) {
     return false;
 }
 
-static const char *BleFunc_McuCmdName(uint16_t id) {
+static const char* BleFunc_McuCmdName(uint16_t id) {
     if (id == BLEFUNC_MCU_ID_VEHICLE_STATUS_PREADY)
         return "BLEFUNC_MCU_ID_VEHICLE_STATUS_PREADY";
     if (id == BLEFUNC_MCU_ID_VEHICLE_SPEED)
@@ -962,90 +978,53 @@ static const char *BleFunc_McuCmdName(uint16_t id) {
     if (id == BLEFUNC_MCU_ID_PARAM_SYNC_64FD)
         return "BLEFUNC_MCU_ID_PARAM_SYNC_64FD";
     switch (id) {
-    case CMD_CONNECT:
-        return "CMD_CONNECT";
-    case CMD_BLE_FACTORY_RESET:
-        return "CMD_BLE_FACTORY_RESET";
-    case CMD_BLE_CANCEL_PAIRING:
-        return "CMD_BLE_CANCEL_PAIRING";
-    case CMD_ADD_NFC_KEY:
-        return "CMD_ADD_NFC_KEY";
-    case CMD_DELETE_NFC_KEY:
-        return "CMD_DELETE_NFC_KEY";
-    case CMD_FIND_NFC_KEY:
-        return "CMD_FIND_NFC_KEY";
-    case CMD_NFC_UNLOCK:
-        return "CMD_NFC_UNLOCK";
-    case CMD_NFC_LOCK:
-        return "CMD_NFC_LOCK";
-    case CMD_NFC_SWITCH:
-        return "CMD_NFC_SWITCH";
-    case CMD_OIL_VEHICLE_UNPREVENTION:
-        return "CMD_OIL_VEHICLE_UNPREVENTION";
-    case CMD_OIL_VEHICLE_PREVENTION:
-        return "CMD_OIL_VEHICLE_PREVENTION";
-    case CMD_OIL_VEHICLE_FIND_STATUS:
-        return "CMD_OIL_VEHICLE_FIND_STATUS";
-    case CMD_OIL_VEHICLE_UNLOCK_TRUNK:
-        return "CMD_OIL_VEHICLE_UNLOCK_TRUNK";
-    case CMD_OIL_VEHICLE_LOCK_TRUNK:
-        return "CMD_OIL_VEHICLE_LOCK_TRUNK";
-    case CMD_VEHICLE_UNLOCK_SEAT:
-        return "CMD_VEHICLE_UNLOCK_SEAT";
-    case CMD_VEHICLE_LOCK_SEAT:
-        return "CMD_VEHICLE_LOCK_SEAT";
-    case CMD_VEHICLE_MUTE_SETTING:
-        return "CMD_VEHICLE_MUTE_SETTING";
-    case CMD_VEHICLE_UNLOCK_MIDDLE_BOX:
-        return "CMD_VEHICLE_UNLOCK_MIDDLE_BOX";
-    case CMD_VEHICLE_LOCK_MIDDLE_BOX:
-        return "CMD_VEHICLE_LOCK_MIDDLE_BOX";
+    case CMD_CONNECT: return "CMD_CONNECT";
+    case CMD_BLE_FACTORY_RESET: return "CMD_BLE_FACTORY_RESET";
+    case CMD_BLE_CANCEL_PAIRING: return "CMD_BLE_CANCEL_PAIRING";
+    case CMD_ADD_NFC_KEY: return "CMD_ADD_NFC_KEY";
+    case CMD_DELETE_NFC_KEY: return "CMD_DELETE_NFC_KEY";
+    case CMD_FIND_NFC_KEY: return "CMD_FIND_NFC_KEY";
+    case CMD_NFC_UNLOCK: return "CMD_NFC_UNLOCK";
+    case CMD_NFC_LOCK: return "CMD_NFC_LOCK";
+    case CMD_NFC_SWITCH: return "CMD_NFC_SWITCH";
+    case CMD_OIL_VEHICLE_UNPREVENTION: return "CMD_OIL_VEHICLE_UNPREVENTION";
+    case CMD_OIL_VEHICLE_PREVENTION: return "CMD_OIL_VEHICLE_PREVENTION";
+    case CMD_OIL_VEHICLE_FIND_STATUS: return "CMD_OIL_VEHICLE_FIND_STATUS";
+    case CMD_OIL_VEHICLE_UNLOCK_TRUNK: return "CMD_OIL_VEHICLE_UNLOCK_TRUNK";
+    case CMD_OIL_VEHICLE_LOCK_TRUNK: return "CMD_OIL_VEHICLE_LOCK_TRUNK";
+    case CMD_VEHICLE_UNLOCK_SEAT: return "CMD_VEHICLE_UNLOCK_SEAT";
+    case CMD_VEHICLE_LOCK_SEAT: return "CMD_VEHICLE_LOCK_SEAT";
+    case CMD_VEHICLE_MUTE_SETTING: return "CMD_VEHICLE_MUTE_SETTING";
+    case CMD_VEHICLE_UNLOCK_MIDDLE_BOX: return "CMD_VEHICLE_UNLOCK_MIDDLE_BOX";
+    case CMD_VEHICLE_LOCK_MIDDLE_BOX: return "CMD_VEHICLE_LOCK_MIDDLE_BOX";
     case CMD_VEHICLE_EMERGENCY_MODE_LOCK:
         return "CMD_VEHICLE_EMERGENCY_MODE_LOCK";
     case CMD_VEHICLE_EMERGENCY_MODE_UNLOCK:
         return "CMD_VEHICLE_EMERGENCY_MODE_UNLOCK";
-    case CMD_BLE_MAC_READ:
-        return "CMD_BLE_MAC_READ";
-    case CMD_SINGLE_CONTROL_UNLOCK:
-        return "CMD_SINGLE_CONTROL_UNLOCK";
-    case CMD_Assistive_trolley_mode_on:
-        return "CMD_Assistive_trolley_mode_on";
+    case CMD_BLE_MAC_READ: return "CMD_BLE_MAC_READ";
+    case CMD_SINGLE_CONTROL_UNLOCK: return "CMD_SINGLE_CONTROL_UNLOCK";
+    case CMD_Assistive_trolley_mode_on: return "CMD_Assistive_trolley_mode_on";
     case CMD_Assistive_trolley_mode_off:
         return "CMD_Assistive_trolley_mode_off";
     case CMD_Assistive_trolley_mode_default:
         return "CMD_Assistive_trolley_mode_default";
-    case CMD_Delayed_headlight_on:
-        return "CMD_Delayed_headlight_on";
-    case CMD_Delayed_headlight_off:
-        return "CMD_Delayed_headlight_off";
-    case CMD_Delayed_headlight_default:
-        return "CMD_Delayed_headlight_default";
+    case CMD_Delayed_headlight_on: return "CMD_Delayed_headlight_on";
+    case CMD_Delayed_headlight_off: return "CMD_Delayed_headlight_off";
+    case CMD_Delayed_headlight_default: return "CMD_Delayed_headlight_default";
     case CMD_Delayed_headlight_time_set:
         return "CMD_Delayed_headlight_time_set";
-    case CMD_Charging_power_set:
-        return "CMD_Charging_power_set";
-    case CMD_AUTO_P_GEAR_on:
-        return "CMD_AUTO_P_GEAR_on";
-    case CMD_AUTO_P_GEAR_off:
-        return "CMD_AUTO_P_GEAR_off";
-    case CMD_AUTO_P_GEAR_default:
-        return "CMD_AUTO_P_GEAR_default";
-    case CMD_AUTO_P_GEAR_time_set:
-        return "CMD_AUTO_P_GEAR_time_set";
-    case CMD_Chord_horn_on:
-        return "CMD_Chord_horn_on";
-    case CMD_Chord_horn_off:
-        return "CMD_Chord_horn_off";
-    case CMD_Chord_horn_default:
-        return "CMD_Chord_horn_default";
-    case CMD_Chord_horn_type_set:
-        return "CMD_Chord_horn_type_set";
-    case CMD_Chord_horn_volume_set:
-        return "CMD_Chord_horn_volume_set";
-    case CMD_Three_shooting_lamp_on:
-        return "CMD_Three_shooting_lamp_on";
-    case CMD_Three_shooting_lamp_off:
-        return "CMD_Three_shooting_lamp_off";
+    case CMD_Charging_power_set: return "CMD_Charging_power_set";
+    case CMD_AUTO_P_GEAR_on: return "CMD_AUTO_P_GEAR_on";
+    case CMD_AUTO_P_GEAR_off: return "CMD_AUTO_P_GEAR_off";
+    case CMD_AUTO_P_GEAR_default: return "CMD_AUTO_P_GEAR_default";
+    case CMD_AUTO_P_GEAR_time_set: return "CMD_AUTO_P_GEAR_time_set";
+    case CMD_Chord_horn_on: return "CMD_Chord_horn_on";
+    case CMD_Chord_horn_off: return "CMD_Chord_horn_off";
+    case CMD_Chord_horn_default: return "CMD_Chord_horn_default";
+    case CMD_Chord_horn_type_set: return "CMD_Chord_horn_type_set";
+    case CMD_Chord_horn_volume_set: return "CMD_Chord_horn_volume_set";
+    case CMD_Three_shooting_lamp_on: return "CMD_Three_shooting_lamp_on";
+    case CMD_Three_shooting_lamp_off: return "CMD_Three_shooting_lamp_off";
     case CMD_Three_shooting_lamp_default:
         return "CMD_Three_shooting_lamp_default";
     case CMD_Three_shooting_lamp_mode_set:
@@ -1062,115 +1041,71 @@ static const char *BleFunc_McuCmdName(uint16_t id) {
         return "CMD_Automatic_steering_reset_off";
     case CMD_Automatic_steering_reset_default:
         return "CMD_Automatic_steering_reset_default";
-    case CMD_EBS_switch_on:
-        return "CMD_EBS_switch_on";
-    case CMD_Low_speed_gear_on:
-        return "CMD_Low_speed_gear_on";
-    case CMD_Low_speed_gear_off:
-        return "CMD_Low_speed_gear_off";
-    case CMD_Low_speed_gear_default:
-        return "CMD_Low_speed_gear_default";
-    case CMD_Low_speed_gear_speed_set:
-        return "CMD_Low_speed_gear_speed_set";
-    case CMD_Medium_speed_gear_on:
-        return "CMD_Medium_speed_gear_on";
-    case CMD_Medium_speed_gear_off:
-        return "CMD_Medium_speed_gear_off";
-    case CMD_Medium_speed_gear_default:
-        return "CMD_Medium_speed_gear_default";
+    case CMD_EBS_switch_on: return "CMD_EBS_switch_on";
+    case CMD_Low_speed_gear_on: return "CMD_Low_speed_gear_on";
+    case CMD_Low_speed_gear_off: return "CMD_Low_speed_gear_off";
+    case CMD_Low_speed_gear_default: return "CMD_Low_speed_gear_default";
+    case CMD_Low_speed_gear_speed_set: return "CMD_Low_speed_gear_speed_set";
+    case CMD_Medium_speed_gear_on: return "CMD_Medium_speed_gear_on";
+    case CMD_Medium_speed_gear_off: return "CMD_Medium_speed_gear_off";
+    case CMD_Medium_speed_gear_default: return "CMD_Medium_speed_gear_default";
     case CMD_Medium_speed_gear_speed_set:
         return "CMD_Medium_speed_gear_speed_set";
-    case CMD_High_speed_gear_on:
-        return "CMD_High_speed_gear_on";
-    case CMD_High_speed_gear_off:
-        return "CMD_High_speed_gear_off";
-    case CMD_High_speed_gear_default:
-        return "CMD_High_speed_gear_default";
-    case CMD_High_speed_gear_speed_set:
-        return "CMD_High_speed_gear_speed_set";
-    case CMD_Lost_mode_on:
-        return "CMD_Lost_mode_on";
-    case CMD_Lost_mode_off:
-        return "CMD_Lost_mode_off";
-    case CMD_TCS_switch_on:
-        return "CMD_TCS_switch_on";
-    case CMD_TCS_switch_off:
-        return "CMD_TCS_switch_off";
-    case CMD_Side_stand_switch_on:
-        return "CMD_Side_stand_switch_on";
-    case CMD_Side_stand_switch_off:
-        return "CMD_Side_stand_switch_off";
-    case CMD_Battery_type_set:
-        return "CMD_Battery_type_set";
-    case CMD_Battery_capacity_set:
-        return "CMD_Battery_capacity_set";
-    case CMD_KFA_2KGA_2MQA_data_sync:
-        return "CMD_KFA_2KGA_2MQA_data_sync";
-    case CMD_HDC_switch_on:
-        return "CMD_HDC_switch_on";
-    case CMD_HDC_switch_off:
-        return "CMD_HDC_switch_off";
-    case CMD_HHC_switch_on:
-        return "CMD_HHC_switch_on";
-    case CMD_HHC_switch_off:
-        return "CMD_HHC_switch_off";
-    case CMD_Starting_strength_set:
-        return "CMD_Starting_strength_set";
-    case CMD_SPORT_mode_on:
-        return "CMD_SPORT_mode_on";
-    case CMD_SPORT_mode_off:
-        return "CMD_SPORT_mode_off";
-    case CMD_SPORT_mode_default:
-        return "CMD_SPORT_mode_default";
-    case CMD_SPORT_mode_type_set:
-        return "CMD_SPORT_mode_type_set";
-    case CMD_ECO_mode_on:
-        return "CMD_ECO_mode_on";
-    case CMD_ECO_mode_off:
-        return "CMD_ECO_mode_off";
-    case CMD_ECO_mode_default:
-        return "CMD_ECO_mode_default";
-    case CMD_ECO_mode_type_set:
-        return "CMD_ECO_mode_type_set";
-    case CMD_POWER_RECOVER_ON:
-        return "CMD_POWER_RECOVER_ON";
-    case CMD_POWER_RECOVER_OFF:
-        return "CMD_POWER_RECOVER_OFF";
-    case CMD_ABS_ON_OFF:
-        return "CMD_ABS_ON_OFF";
-    case CMD_POWER_LED:
-        return "CMD_POWER_LED";
-    case CMD_SADDLE_ON_OFF:
-        return "CMD_SADDLE_ON_OFF";
-    case CMD_Position_light_on_off:
-        return "CMD_Position_light_on_off";
-    case CMD_Radar_switch_on:
-        return "CMD_Radar_switch_on";
-    case CMD_Radar_switch_off:
-        return "CMD_Radar_switch_off";
-    case CMD_Radar_switch_default:
-        return "CMD_Radar_switch_default";
-    case CMD_Radar_sensitivity_set:
-        return "CMD_Radar_sensitivity_set";
+    case CMD_High_speed_gear_on: return "CMD_High_speed_gear_on";
+    case CMD_High_speed_gear_off: return "CMD_High_speed_gear_off";
+    case CMD_High_speed_gear_default: return "CMD_High_speed_gear_default";
+    case CMD_High_speed_gear_speed_set: return "CMD_High_speed_gear_speed_set";
+    case CMD_Lost_mode_on: return "CMD_Lost_mode_on";
+    case CMD_Lost_mode_off: return "CMD_Lost_mode_off";
+    case CMD_TCS_switch_on: return "CMD_TCS_switch_on";
+    case CMD_TCS_switch_off: return "CMD_TCS_switch_off";
+    case CMD_Side_stand_switch_on: return "CMD_Side_stand_switch_on";
+    case CMD_Side_stand_switch_off: return "CMD_Side_stand_switch_off";
+    case CMD_Battery_type_set: return "CMD_Battery_type_set";
+    case CMD_Battery_capacity_set: return "CMD_Battery_capacity_set";
+    case CMD_KFA_2KGA_2MQA_data_sync: return "CMD_KFA_2KGA_2MQA_data_sync";
+    case CMD_HDC_switch_on: return "CMD_HDC_switch_on";
+    case CMD_HDC_switch_off: return "CMD_HDC_switch_off";
+    case CMD_HHC_switch_on: return "CMD_HHC_switch_on";
+    case CMD_HHC_switch_off: return "CMD_HHC_switch_off";
+    case CMD_Starting_strength_set: return "CMD_Starting_strength_set";
+    case CMD_SPORT_mode_on: return "CMD_SPORT_mode_on";
+    case CMD_SPORT_mode_off: return "CMD_SPORT_mode_off";
+    case CMD_SPORT_mode_default: return "CMD_SPORT_mode_default";
+    case CMD_SPORT_mode_type_set: return "CMD_SPORT_mode_type_set";
+    case CMD_ECO_mode_on: return "CMD_ECO_mode_on";
+    case CMD_ECO_mode_off: return "CMD_ECO_mode_off";
+    case CMD_ECO_mode_default: return "CMD_ECO_mode_default";
+    case CMD_ECO_mode_type_set: return "CMD_ECO_mode_type_set";
+    case CMD_POWER_RECOVER_ON: return "CMD_POWER_RECOVER_ON";
+    case CMD_POWER_RECOVER_OFF: return "CMD_POWER_RECOVER_OFF";
+    case CMD_ABS_ON_OFF: return "CMD_ABS_ON_OFF";
+    case CMD_POWER_LED: return "CMD_POWER_LED";
+    case CMD_SADDLE_ON_OFF: return "CMD_SADDLE_ON_OFF";
+    case CMD_Position_light_on_off: return "CMD_Position_light_on_off";
+    case CMD_Radar_switch_on: return "CMD_Radar_switch_on";
+    case CMD_Radar_switch_off: return "CMD_Radar_switch_off";
+    case CMD_Radar_switch_default: return "CMD_Radar_switch_default";
+    case CMD_Radar_sensitivity_set: return "CMD_Radar_sensitivity_set";
     case CMD_Tire_pressure_monitoring_get:
         return "CMD_Tire_pressure_monitoring_get";
-    case CMD_BLE_RSSI_READ:
-        return "CMD_BLE_RSSI_READ";
-    case CMD_BLE_RSSI_RANGE_SET:
-        return "CMD_BLE_RSSI_RANGE_SET";
-    case CMD_CHARGE_DISPLAY_ON:
-        return "CMD_CHARGE_DISPLAY_ON";
-    case CMD_CHARGE_DISPLAY_OFF:
-        return "CMD_CHARGE_DISPLAY_OFF";
-    default:
-        return "UNKNOWN";
+    case CMD_BLE_RSSI_READ: return "CMD_BLE_RSSI_READ";
+    case CMD_BLE_RSSI_RANGE_SET: return "CMD_BLE_RSSI_RANGE_SET";
+    case CMD_CHARGE_DISPLAY_ON: return "CMD_CHARGE_DISPLAY_ON";
+    case CMD_CHARGE_DISPLAY_OFF: return "CMD_CHARGE_DISPLAY_OFF";
+    default: return "UNKNOWN";
     }
 }
-static void BleFunc_LogMcuUartFrame(uint16_t feature, uint16_t id,
-                                    const uint8_t *data, uint16_t data_len) {
-    const char *name = BleFunc_McuCmdName(id);
+static void BleFunc_LogMcuUartFrame(uint16_t       feature,
+                                    uint16_t       id,
+                                    const uint8_t* data,
+                                    uint16_t       data_len) {
+    const char* name = BleFunc_McuCmdName(id);
     co_printf("[MCU_UART] feature=0x%04X id=0x%04X (%s) len=%u\\r\\n",
-              (unsigned)feature, (unsigned)id, name, (unsigned)data_len);
+              (unsigned)feature,
+              (unsigned)id,
+              name,
+              (unsigned)data_len);
     if (data == NULL || data_len == 0u) {
         co_printf("    data: <empty>\\r\\n");
         return;
@@ -1190,8 +1125,8 @@ static void BleFunc_SendResultToRx(uint16_t reply_cmd, uint8_t result_code) {
     uint8_t conidx = Protocol_Get_Rx_Conidx();
     uint8_t resp_payload[1];
     resp_payload[0] = result_code;
-    (void)Protocol_Send_Unicast(conidx, reply_cmd, resp_payload,
-                                (uint16_t)sizeof(resp_payload));
+    (void)Protocol_Send_Unicast(
+        conidx, reply_cmd, resp_payload, (uint16_t)sizeof(resp_payload));
 }
 
 /*********************************************************************
@@ -1207,7 +1142,8 @@ static void BleFunc_SendResultToRx_Default(uint16_t reply_cmd) {
 }
 
 static void BleFunc_SendResultToRx_WithData(uint16_t       reply_cmd,
-                                            const uint8_t *data, uint16_t len) {
+                                            const uint8_t* data,
+                                            uint16_t       len) {
     uint8_t conidx = Protocol_Get_Rx_Conidx();
     (void)Protocol_Send_Unicast(conidx, reply_cmd, data, len);
 }
@@ -1231,7 +1167,7 @@ static bool BleFunc_EnsureAuthed(uint16_t reply_cmd) {
  * @param payload {placeholder}
  * @param len {placeholder}
  */
-static void BleFunc_DumpPayload(const uint8_t *payload, uint8_t len) {
+static void BleFunc_DumpPayload(const uint8_t* payload, uint8_t len) {
     if (payload == NULL || len == 0) {
         co_printf("    payload: <empty>\\r\\n");
         return;
@@ -1258,7 +1194,7 @@ static bool BleFunc_IsHexAscii(uint8_t c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
 }
 
-static void BleFunc_DumpHexInline(const uint8_t *data, uint16_t dump_len) {
+static void BleFunc_DumpHexInline(const uint8_t* data, uint16_t dump_len) {
     if (data == NULL || dump_len == 0) {
         co_printf("<empty>\\r\\n");
         return;
@@ -1268,7 +1204,7 @@ static void BleFunc_DumpHexInline(const uint8_t *data, uint16_t dump_len) {
     }
 }
 
-static bool BleFunc_IsAllZero(const uint8_t *data, uint16_t len) {
+static bool BleFunc_IsAllZero(const uint8_t* data, uint16_t len) {
     if (data == NULL || len == 0u) {
         return true;
     }
@@ -1280,9 +1216,12 @@ static bool BleFunc_IsAllZero(const uint8_t *data, uint16_t len) {
     return true;
 }
 
-void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
-                            const uint8_t *data, uint16_t data_len,
-                            uint8_t crc_ok) {
+void BleFunc_OnMcuUartFrame(uint16_t       sync,
+                            uint16_t       feature,
+                            uint16_t       id,
+                            const uint8_t* data,
+                            uint16_t       data_len,
+                            uint8_t        crc_ok) {
     if (!crc_ok) {
         co_printf("[MCU_TXN] drop frame: crc bad\\r\\n");
         return;
@@ -1301,8 +1240,10 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
 
         co_printf("[MCU_TXN] matched: conidx=%u feature=0x%04X id=0x%04X "
                   "reply=0x%04X data_len=%u\\r\\n",
-                  (unsigned)s_mcu_pending.conidx, (unsigned)feature,
-                  (unsigned)id, (unsigned)s_mcu_pending.reply_cmd,
+                  (unsigned)s_mcu_pending.conidx,
+                  (unsigned)feature,
+                  (unsigned)id,
+                  (unsigned)s_mcu_pending.reply_cmd,
                   (unsigned)data_len);
 
         /* ===== 链式事务�?x06FD 和弦喇叭（先音源0x59后音�?x60，均�?data
@@ -1319,12 +1260,13 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
                 s_mcu_pending.chain_kind = BLEFUNC_MCU_CHAIN_NONE;
                 s_mcu_pending.chain_step = 0u;
                 if (data_len == 0u || data == NULL) {
-                    BleFunc_SendResultToConidx(s_mcu_pending.conidx,
-                                               s_mcu_pending.reply_cmd, 0x01);
+                    BleFunc_SendResultToConidx(
+                        s_mcu_pending.conidx, s_mcu_pending.reply_cmd, 0x01);
                     return;
                 }
                 (void)Protocol_Send_Unicast(s_mcu_pending.conidx,
-                                            s_mcu_pending.reply_cmd, data,
+                                            s_mcu_pending.reply_cmd,
+                                            data,
                                             data_len);
                 return;
             }
@@ -1335,9 +1277,11 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
             co_printf(
                 "[MCU_TXN] chain(06FD) step1 ok, send step2 volume=%u\\r\\n",
                 (unsigned)volume);
-            BleFunc_McuTxn_Start(s_mcu_pending.conidx, s_mcu_pending.reply_cmd,
+            BleFunc_McuTxn_Start(s_mcu_pending.conidx,
+                                 s_mcu_pending.reply_cmd,
                                  s_mcu_pending.req_feature,
-                                 (uint16_t)CMD_Chord_horn_volume_set, &volume,
+                                 (uint16_t)CMD_Chord_horn_volume_set,
+                                 &volume,
                                  1u);
             return;
         }
@@ -1356,12 +1300,13 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
                 s_mcu_pending.chain_step  = 0u;
                 s_mcu_pending.chain_u16_0 = 0u;
                 if (data_len == 0u || data == NULL) {
-                    BleFunc_SendResultToConidx(s_mcu_pending.conidx,
-                                               s_mcu_pending.reply_cmd, 0x01);
+                    BleFunc_SendResultToConidx(
+                        s_mcu_pending.conidx, s_mcu_pending.reply_cmd, 0x01);
                     return;
                 }
                 (void)Protocol_Send_Unicast(s_mcu_pending.conidx,
-                                            s_mcu_pending.reply_cmd, data,
+                                            s_mcu_pending.reply_cmd,
+                                            data,
                                             data_len);
                 return;
             }
@@ -1372,9 +1317,13 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
             s_mcu_pending.chain_step = 1u;
             co_printf("[MCU_TXN] chain(GEAR) step1 ok, send step2 id=0x%04X "
                       "speed=%u\\r\\n",
-                      (unsigned)step2_id, (unsigned)speed);
-            BleFunc_McuTxn_Start(s_mcu_pending.conidx, s_mcu_pending.reply_cmd,
-                                 s_mcu_pending.req_feature, step2_id, &speed,
+                      (unsigned)step2_id,
+                      (unsigned)speed);
+            BleFunc_McuTxn_Start(s_mcu_pending.conidx,
+                                 s_mcu_pending.reply_cmd,
+                                 s_mcu_pending.req_feature,
+                                 step2_id,
+                                 &speed,
                                  1u);
             return;
         }
@@ -1393,12 +1342,13 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
                 s_mcu_pending.chain_step  = 0u;
                 s_mcu_pending.chain_u16_0 = 0u;
                 if (data_len == 0u || data == NULL) {
-                    BleFunc_SendResultToConidx(s_mcu_pending.conidx,
-                                               s_mcu_pending.reply_cmd, 0x01);
+                    BleFunc_SendResultToConidx(
+                        s_mcu_pending.conidx, s_mcu_pending.reply_cmd, 0x01);
                     return;
                 }
                 (void)Protocol_Send_Unicast(s_mcu_pending.conidx,
-                                            s_mcu_pending.reply_cmd, data,
+                                            s_mcu_pending.reply_cmd,
+                                            data,
                                             data_len);
                 return;
             }
@@ -1408,10 +1358,14 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
             s_mcu_pending.chain_step = 1u;
             co_printf("[MCU_TXN] chain(RADAR) step1 ok, send step2 id=0x%04X "
                       "sensitivity=%u\\r\\n",
-                      (unsigned)step2_id, (unsigned)sensitivity);
-            BleFunc_McuTxn_Start(s_mcu_pending.conidx, s_mcu_pending.reply_cmd,
-                                 s_mcu_pending.req_feature, step2_id,
-                                 &sensitivity, 1u);
+                      (unsigned)step2_id,
+                      (unsigned)sensitivity);
+            BleFunc_McuTxn_Start(s_mcu_pending.conidx,
+                                 s_mcu_pending.reply_cmd,
+                                 s_mcu_pending.req_feature,
+                                 step2_id,
+                                 &sensitivity,
+                                 1u);
             return;
         }
 
@@ -1420,13 +1374,13 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
         s_mcu_pending.chain_step  = 0u;
         s_mcu_pending.chain_u16_0 = 0u;
         if (data_len == 0u || data == NULL) {
-            BleFunc_SendResultToConidx(s_mcu_pending.conidx,
-                                       s_mcu_pending.reply_cmd, 0x00);
+            BleFunc_SendResultToConidx(
+                s_mcu_pending.conidx, s_mcu_pending.reply_cmd, 0x00);
             return;
         }
         /* 约定：MCU payload = ResultCode(1) + 可选数据；BLE 侧原样透传 */
-        (void)Protocol_Send_Unicast(s_mcu_pending.conidx,
-                                    s_mcu_pending.reply_cmd, data, data_len);
+        (void)Protocol_Send_Unicast(
+            s_mcu_pending.conidx, s_mcu_pending.reply_cmd, data, data_len);
         return;
     }
 
@@ -1471,9 +1425,12 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
         data_len == (uint16_t)sizeof(s_tpms_sim_payload_0117) &&
         BleFunc_IsAllZero(data, data_len)) {
         co_printf("[TPMS_SIM] replace all-zero payload: id=0x%04X len=%u\\r\\n",
-                  (unsigned)id, (unsigned)data_len);
+                  (unsigned)id,
+                  (unsigned)data_len);
         BleFunc_PushMcuFrameToAuthedApp(
-            feature, id, s_tpms_sim_payload_0117,
+            feature,
+            id,
+            s_tpms_sim_payload_0117,
             (uint16_t)sizeof(s_tpms_sim_payload_0117));
         return;
     }
@@ -1487,7 +1444,7 @@ void BleFunc_OnMcuUartFrame(uint16_t sync, uint16_t feature, uint16_t id,
  * @param len {placeholder}
  * @note 该指令用�?APP 端登录鉴权，payload 包含时间戳、Token 等信息�?
  */
-void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_Connect(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     (void)cmd;
     co_printf("  -> Connect\\r\\n");
 
@@ -1507,9 +1464,9 @@ void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len) {
         Protocol_Disconnect(Protocol_Get_Rx_Conidx());
         return;
     }
-
-    const uint8_t *time6        = &payload[0];
-    const uint8_t *token_ptr    = &payload[6];
+    
+    const uint8_t* time6        = &payload[0];
+    const uint8_t* token_ptr    = &payload[6];
     uint8_t        token_len    = 0;
     uint8_t        mobileSystem = 0xFF;
 
@@ -1654,7 +1611,7 @@ void BleFunc_FE_Connect(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - 该指令通常会涉�?IO/继电器动作（电门锁）�?
  * - 当前实现做协议解析与回包框架；硬件动作未接入时默认回失败，避免误控�?
  */
-void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_Defences(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Defences (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd); // 0x0301
 
@@ -1669,7 +1626,7 @@ void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len) {
         return;
     }
 
-    const uint8_t *time6        = &payload[0];
+    const uint8_t* time6        = &payload[0];
     uint8_t        defendStatus = payload[6];
 
     BleFunc_PrintTime6(time6);
@@ -1688,13 +1645,17 @@ void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len) {
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
             /* MapBleCmdToMcuId �?0x03FE 转换�?0x30(撤防) / 0x31(设防) */
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)cmd, payload, (uint16_t)len);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)cmd,
+                                 payload,
+                                 (uint16_t)len);
         }
 #else
         /* [DEBUG-ONLY] 模拟 MCU 回复成功 */
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Defences(%s) Success (0x00)\\r\\n",
                   defendStatus ? "LOCK" : "UNLOCK");
         result = 0x00;
@@ -1712,7 +1673,7 @@ void BleFunc_FE_Defences(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Cmd: 0x0401
  * - Response Payload: ResultCode(1)�?x00 成功�?x01 失败�?
  */
-void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Anti-Theft (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -1735,8 +1696,12 @@ void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     /* [PRODUCTION Mode] 真实转发�?MCU */
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 模拟 MCU 回复成功（同时镜像下�?MCU 便于联调对照�?*/
@@ -1756,8 +1721,9 @@ void BleFunc_FE_AntiTheft(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Payload: ResultCode(1)
  * @note 该指令通常不涉及危险硬件动作，默认回成功以保证 APP 流程联调�?
  */
-void BleFunc_FE_PhoneMessage(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FE_PhoneMessage(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> Phone Message (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -1780,8 +1746,12 @@ void BleFunc_FE_PhoneMessage(uint16_t cmd, const uint8_t *payload,
     /* [PRODUCTION Mode] 真实转发�?MCU */
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 模拟 MCU 回复成功（同时镜像下�?MCU 便于联调对照�?*/
@@ -1800,8 +1770,9 @@ void BleFunc_FE_PhoneMessage(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0701
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FE_RssiStrength(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> RSSI Strength (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -1821,10 +1792,10 @@ void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload,
     uint16_t max_raw = ((uint16_t)payload[8] << 8) | (uint16_t)payload[9];
     int16_t  min_dbm = -(int16_t)min_raw; /* 协议因子 -1，转换为�?dBm */
     int16_t  max_dbm = -(int16_t)max_raw;
-    co_printf("    min_raw=%u -> %d dBm\\r\\n", (unsigned)min_raw,
-              (int)min_dbm);
-    co_printf("    max_raw=%u -> %d dBm\\r\\n", (unsigned)max_raw,
-              (int)max_dbm);
+    co_printf(
+        "    min_raw=%u -> %d dBm\\r\\n", (unsigned)min_raw, (int)min_dbm);
+    co_printf(
+        "    max_raw=%u -> %d dBm\\r\\n", (unsigned)max_raw, (int)max_dbm);
 
     BleFunc_DumpPayload(payload, len);
 
@@ -1833,8 +1804,12 @@ void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload,
     /* [PRODUCTION Mode] 真实转发�?MCU */
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 自动成功回包（同时镜像下�?MCU 便于联调对照�?*/
@@ -1853,7 +1828,7 @@ void BleFunc_FE_RssiStrength(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  * @note 通常会触发鸣�?双闪等动作，未接入硬件前默认回失败�?
  */
-void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Car Search (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -1874,8 +1849,12 @@ void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     /* [PRODUCTION Mode] 真实转发�?MCU，并等待 MCU 回包/超时后再�?0x0801 */
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 模拟 MCU 回复成功 */
@@ -1895,8 +1874,9 @@ void BleFunc_FE_CarSearch(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * @note
  * 属于破坏性操作，未接入持久化/清理流程前默认回失败。soc端不用做处理，让vcu端进行处理即可�?
  */
-void BleFunc_FE_FactorySettings(uint16_t cmd, const uint8_t *payload,
-                                uint8_t len) {
+void BleFunc_FE_FactorySettings(uint16_t       cmd,
+                                const uint8_t* payload,
+                                uint8_t        len) {
     co_printf("  -> Factory Settings (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -1917,8 +1897,12 @@ void BleFunc_FE_FactorySettings(uint16_t cmd, const uint8_t *payload,
     /* [PRODUCTION Mode] 转发 MCU 进行整车复位 */
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 模拟 MCU 回复成功 */
@@ -1937,7 +1921,7 @@ void BleFunc_FE_FactorySettings(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  *   - 0x00 成功�?x01 失败�?x02 操作失败：无效卡（协议文档给出的扩展含义�?
  */
-void BleFunc_FE_BleUnpair(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_BleUnpair(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> BLE Unpair (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -1980,7 +1964,7 @@ void BleFunc_FE_BleUnpair(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - 该功能涉�?NFC 识别/加密/卡池存储/超时流程�?
  * - 当前实现仅解析与回包框架；未接入卡池时默认回失败�?
  */
-void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Add NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2001,8 +1985,12 @@ void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 先保留模拟成功逻辑，同时镜像下�?MCU 便于联调对照 */
@@ -2022,7 +2010,7 @@ void BleFunc_FE_AddNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Cmd: 0x0C01
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Delete NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2045,10 +2033,17 @@ void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
             BleFunc_SendResultToRx(reply_cmd, 0x01);
             return;
         }
-        co_printf("    uuid=%02X%02X%02X%02X\\r\\n", payload[7], payload[8],
-                  payload[9], payload[10]);
-        co_printf("    key=%02X %02X %02X %02X %02X %02X\\r\\n", payload[11],
-                  payload[12], payload[13], payload[14], payload[15],
+        co_printf("    uuid=%02X%02X%02X%02X\\r\\n",
+                  payload[7],
+                  payload[8],
+                  payload[9],
+                  payload[10]);
+        co_printf("    key=%02X %02X %02X %02X %02X %02X\\r\\n",
+                  payload[11],
+                  payload[12],
+                  payload[13],
+                  payload[14],
+                  payload[15],
                   payload[16]);
     } else if (control == 2 || control == 3) {
         if (len != 7) {
@@ -2070,8 +2065,12 @@ void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     /* [PRODUCTION Mode] 真实转发�?MCU */
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 模拟 MCU 回复成功 */
@@ -2090,7 +2089,7 @@ void BleFunc_FE_DeleteNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Payload: ResultCode(1) + (uuid/key 列表，可选，最�?6 �?
  * @note 未接入卡池时默认�?0x01（暂无卡）�?
  */
-void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Search NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2109,8 +2108,12 @@ void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     /* [DEBUG-ONLY] 保留当前“默认无卡”的行为，同时镜像下�?MCU */
@@ -2127,7 +2130,7 @@ void BleFunc_FE_SearchNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  *   - 0x00 油车解防�?x01 油车设防
  * - Response Cmd: 0x0F01
  */
-void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Oil Defence (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2146,13 +2149,17 @@ void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Oil Defence Success (0x00)\\r\\n");
         BleFunc_SendResultToRx(reply_cmd, 0x00);
     }
@@ -2167,8 +2174,9 @@ void BleFunc_FE_OilDefence(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  *   - 0x01 低档�?x02 中档�?x03 高档�?x04 关闭
  * - Response Cmd: 0x1101
  */
-void BleFunc_FE_OilCarSearch(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FE_OilCarSearch(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> Oil Car Search (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2187,13 +2195,17 @@ void BleFunc_FE_OilCarSearch(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Oil Car Search Success (0x00)\\r\\n");
         BleFunc_SendResultToRx(reply_cmd, 0x00);
     }
@@ -2208,7 +2220,7 @@ void BleFunc_FE_OilCarSearch(uint16_t cmd, const uint8_t *payload,
  *   - 0x00 开锁；0x01 关锁
  * - Response Cmd: 0x1201
  */
-void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Set Boot Lock (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2227,13 +2239,17 @@ void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Set Boot Lock Success (0x00)\\r\\n");
         BleFunc_SendResultToRx(reply_cmd, 0x00);
     }
@@ -2247,7 +2263,7 @@ void BleFunc_FE_SetBootLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Payload: Time(6) + control(1)�?x00 关；0x01 开�?
  * - Response Cmd: 0x1301
  */
-void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Set NFC (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2266,13 +2282,17 @@ void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Set NFC Success (0x00)\\r\\n");
         BleFunc_SendResultToRx(reply_cmd, 0x00);
     }
@@ -2286,7 +2306,7 @@ void BleFunc_FE_SetNfc(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Payload: Time(6) + control(1)�?x00 开�?x01 关）
  * - Response Cmd: 0x1401
  */
-void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Set Seat Lock (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2305,8 +2325,12 @@ void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
@@ -2332,7 +2356,7 @@ void BleFunc_FE_SetSeatLock(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Cmd: 0x1501
  * - Response ResultCode: 0x00 成功�?x01 失败�?x02 acc 状态拒绝（协议文档扩展�?
  */
-void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> Set Car Mute (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2351,13 +2375,17 @@ void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Set Car Mute Success (0x00)\\r\\n");
         BleFunc_SendResultToRx(reply_cmd, 0x00);
     }
@@ -2371,8 +2399,9 @@ void BleFunc_FE_SetCarMute(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Payload: Time(6) + control(1)�?x00 开�?x01 关）
  * - Response Cmd: 0x1601
  */
-void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload,
-                              uint8_t len) {
+void BleFunc_FE_SetMidBoxLock(uint16_t       cmd,
+                              const uint8_t* payload,
+                              uint8_t        len) {
     co_printf("  -> Set Mid Box Lock (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2391,8 +2420,12 @@ void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
@@ -2417,8 +2450,9 @@ void BleFunc_FE_SetMidBoxLock(uint16_t cmd, const uint8_t *payload,
  * - Payload: Time(6) + control(1)�?x01 打开�?x00 关闭�?
  * - Response Cmd: 0x1701
  */
-void BleFunc_FE_SetEmergencyMode(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len) {
+void BleFunc_FE_SetEmergencyMode(uint16_t       cmd,
+                                 const uint8_t* payload,
+                                 uint8_t        len) {
     co_printf("  -> Set Emergency Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2437,8 +2471,12 @@ void BleFunc_FE_SetEmergencyMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
@@ -2469,7 +2507,7 @@ void BleFunc_FE_SetEmergencyMode(uint16_t cmd, const uint8_t *payload,
  *       - len==7 按“单控开锁”处理（controlType=payload[6]），回包仍按
  * 0x1801+ResultCode(1)
  */
-void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> 0x18FE Handler (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2480,8 +2518,8 @@ void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len) {
         BleFunc_DumpPayload(payload, len);
         /* 失败回包：ResultCode(1)+MAC(6)=7 */
         uint8_t resp[7] = {0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-        BleFunc_SendResultToRx_WithData(reply_cmd, resp,
-                                        (uint16_t)sizeof(resp));
+        BleFunc_SendResultToRx_WithData(
+            reply_cmd, resp, (uint16_t)sizeof(resp));
         return;
     }
 
@@ -2493,12 +2531,16 @@ void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)cmd, payload, (uint16_t)len);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)cmd,
+                                 payload,
+                                 (uint16_t)len);
         }
 #else
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
         co_printf("[DEBUG_SIM] Single Control Unlock Success (0x00)\\r\\n");
         BleFunc_SendResultToRx(reply_cmd, 0x00);
 #endif
@@ -2529,8 +2571,9 @@ void BleFunc_FE_GetPhoneMac(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - 你提供的文档里该功能曾写�?0x18FE，但本工程已�?0x18FE 用作“获取手�?MAC”�?
  * - 为避免命令号冲突导致路由/回包错误，这里按 0x19FE 实现�?
  */
-void BleFunc_FE_SetUnlockMode(uint16_t cmd, const uint8_t *payload,
-                              uint8_t len) {
+void BleFunc_FE_SetUnlockMode(uint16_t       cmd,
+                              const uint8_t* payload,
+                              uint8_t        len) {
     co_printf("  -> Set Unlock Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd); /* 0x1901 */
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2552,8 +2595,12 @@ void BleFunc_FE_SetUnlockMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2572,8 +2619,9 @@ void BleFunc_FE_SetUnlockMode(uint16_t cmd, const uint8_t *payload,
  * - Response Payload: ResultCode(1)
  * - MCU 命令: 0x200 开�?/ 0x201 关闭
  */
-void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload,
-                              uint8_t len) {
+void BleFunc_FE_ChargeDisplay(uint16_t       cmd,
+                              const uint8_t* payload,
+                              uint8_t        len) {
     co_printf("  -> Charge Display (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FE(cmd); /* 0x1A01 */
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2589,7 +2637,8 @@ void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload,
 
     BleFunc_PrintTime6(&payload[0]);
     uint8_t control = payload[6];
-    co_printf("    control=0x%02X (%s)\\r\\n", control,
+    co_printf("    control=0x%02X (%s)\\r\\n",
+              control,
               (control == 0x01u) ? "ON" : "OFF");
     BleFunc_DumpPayload(payload, len);
 
@@ -2598,8 +2647,12 @@ void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     {
@@ -2624,8 +2677,9 @@ void BleFunc_FE_ChargeDisplay(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0202
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_AssistiveTrolley(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len) {
+void BleFunc_FD_AssistiveTrolley(uint16_t       cmd,
+                                 const uint8_t* payload,
+                                 uint8_t        len) {
     co_printf("  -> FD Assistive Trolley (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2638,15 +2692,19 @@ void BleFunc_FD_AssistiveTrolley(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    co_printf("    control=0x%02X speed=%u\\r\\n", payload[6],
-              (unsigned)payload[7]);
+    co_printf(
+        "    control=0x%02X speed=%u\\r\\n", payload[6], (unsigned)payload[7]);
     BleFunc_DumpPayload(payload, len);
 /* 下发�?MCU，并等待回包/超时再回 0x0202 */
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2663,8 +2721,9 @@ void BleFunc_FD_AssistiveTrolley(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0302
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_DelayedHeadlight(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len) {
+void BleFunc_FD_DelayedHeadlight(uint16_t       cmd,
+                                 const uint8_t* payload,
+                                 uint8_t        len) {
     co_printf("  -> FD Delayed Headlight (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2677,15 +2736,20 @@ void BleFunc_FD_DelayedHeadlight(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    co_printf("    control=0x%02X delayTime=%us\\r\\n", payload[6],
+    co_printf("    control=0x%02X delayTime=%us\\r\\n",
+              payload[6],
               (unsigned)payload[7]);
     BleFunc_DumpPayload(payload, len);
 /* 下发�?MCU，并等待回包/超时再回 0x0302 */
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2702,8 +2766,9 @@ void BleFunc_FD_DelayedHeadlight(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0402
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetChargingPower(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len) {
+void BleFunc_FD_SetChargingPower(uint16_t       cmd,
+                                 const uint8_t* payload,
+                                 uint8_t        len) {
     co_printf("  -> FD Set Charging Power (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2722,8 +2787,12 @@ void BleFunc_FD_SetChargingPower(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2740,8 +2809,9 @@ void BleFunc_FD_SetChargingPower(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0502
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetPGearMode(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetPGearMode(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Set P Gear Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2754,15 +2824,20 @@ void BleFunc_FD_SetPGearMode(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    co_printf("    control=0x%02X delayTime=%us\\r\\n", payload[6],
+    co_printf("    control=0x%02X delayTime=%us\\r\\n",
+              payload[6],
               (unsigned)payload[7]);
     BleFunc_DumpPayload(payload, len);
 /* 下发�?MCU，并等待回包/超时再回 0x0502 */
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2779,8 +2854,9 @@ void BleFunc_FD_SetPGearMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0602
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len) {
+void BleFunc_FD_SetChordHornMode(uint16_t       cmd,
+                                 const uint8_t* payload,
+                                 uint8_t        len) {
     co_printf("  -> FD Set Chord Horn Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2793,7 +2869,8 @@ void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    co_printf("    soundSource=%u volume=%u\\r\\n", (unsigned)payload[6],
+    co_printf("    soundSource=%u volume=%u\\r\\n",
+              (unsigned)payload[6],
               (unsigned)payload[7]);
     BleFunc_DumpPayload(payload, len);
 /*
@@ -2815,8 +2892,11 @@ void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
         s_mcu_pending.chain_step = 0u;
         s_mcu_pending.chain_u8_0 = volume;
 
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_Chord_horn_type_set, &sound_source,
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)CMD_Chord_horn_type_set,
+                             &sound_source,
                              1u);
     }
 #else
@@ -2826,9 +2906,11 @@ void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
         uint8_t volume       = payload[7];
         BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                  (uint16_t)CMD_Chord_horn_type_set,
-                                 &sound_source, 1u);
+                                 &sound_source,
+                                 1u);
         BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Chord_horn_volume_set, &volume,
+                                 (uint16_t)CMD_Chord_horn_volume_set,
+                                 &volume,
                                  1u);
     }
     co_printf("[DEBUG_SIM] FD cmd=0x%04X Success (0x00)\\r\\n", (unsigned)cmd);
@@ -2846,8 +2928,9 @@ void BleFunc_FD_SetChordHornMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0702
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
-                                uint8_t len) {
+void BleFunc_FD_SetRgbLightMode(uint16_t       cmd,
+                                const uint8_t* payload,
+                                uint8_t        len) {
     co_printf("  -> FD Set RGB Light Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2868,8 +2951,11 @@ void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
     }
     BleFunc_PrintTime6(&payload[0]);
     co_printf("    effects=%u gradual=%u rgb=(%u,%u,%u)\\r\\n",
-              (unsigned)payload[6], (unsigned)payload[7], (unsigned)payload[8],
-              (unsigned)payload[9], (unsigned)payload[10]);
+              (unsigned)payload[6],
+              (unsigned)payload[7],
+              (unsigned)payload[8],
+              (unsigned)payload[9],
+              (unsigned)payload[10]);
     if (len >= 12) {
         co_printf("    ext=0x%02X\\r\\n", (unsigned)payload[11]);
     }
@@ -2878,8 +2964,12 @@ void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2896,8 +2986,9 @@ void BleFunc_FD_SetRgbLightMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0802
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetAuxiliaryParking(uint16_t cmd, const uint8_t *payload,
-                                    uint8_t len) {
+void BleFunc_FD_SetAuxiliaryParking(uint16_t       cmd,
+                                    const uint8_t* payload,
+                                    uint8_t        len) {
     co_printf("  -> FD Set Auxiliary Parking (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2910,15 +3001,20 @@ void BleFunc_FD_SetAuxiliaryParking(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    co_printf("    control=0x%02X reverseSpeed=%u\\r\\n", payload[6],
+    co_printf("    control=0x%02X reverseSpeed=%u\\r\\n",
+              payload[6],
               (unsigned)payload[7]);
     BleFunc_DumpPayload(payload, len);
 /* 下发�?MCU，并等待回包/超时再回 0x0802 */
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -2935,8 +3031,9 @@ void BleFunc_FD_SetAuxiliaryParking(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x6302
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
-                                     uint8_t len) {
+void BleFunc_FD_SetIntelligentSwitch(uint16_t       cmd,
+                                     const uint8_t* payload,
+                                     uint8_t        len) {
     co_printf("  -> FD Set Intelligent Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -2963,29 +3060,21 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
      * - 0x05: position light
      * - 0x0A: three-color ambient
      */
-    const char *controlTypeStr = "unknown";
+    const char* controlTypeStr = "unknown";
     switch (controlType) {
-    case 0x02u:
-        controlTypeStr = "saddle_switch";
-        break;
-    case 0x03u:
-        controlTypeStr = "abs_switch";
-        break;
-    case 0x04u:
-        controlTypeStr = "power_led";
-        break;
-    case 0x05u:
-        controlTypeStr = "position_light";
-        break;
-    case 0x0Au:
-        controlTypeStr = "three_color_ambient";
-        break;
-    default:
-        break;
+    case 0x02u: controlTypeStr = "saddle_switch"; break;
+    case 0x03u: controlTypeStr = "abs_switch"; break;
+    case 0x04u: controlTypeStr = "power_led"; break;
+    case 0x05u: controlTypeStr = "position_light"; break;
+    case 0x0Au: controlTypeStr = "three_color_ambient"; break;
+    default: break;
     }
     co_printf("    strip %u->%u control=0x%02X controlType=0x%02X(%s)\\r\\n",
-              (unsigned)payload_len_before_strip, (unsigned)len, control,
-              controlType, controlTypeStr);
+              (unsigned)payload_len_before_strip,
+              (unsigned)len,
+              control,
+              controlType,
+              controlTypeStr);
     BleFunc_DumpPayload(payload, len);
 
 /*
@@ -2999,7 +3088,7 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
         uint8_t conidx = Protocol_Get_Rx_Conidx();
         if (controlType == 0x0Au) {
             uint16_t    mcu_id    = 0u;
-            const char *actionStr = "invalid";
+            const char* actionStr = "invalid";
             if (control == 0x01u)
                 mcu_id = (uint16_t)CMD_Three_shooting_lamp_on;
             else if (control == 0x00u)
@@ -3016,13 +3105,14 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
                 actionStr = "DEFAULT(0x63)";
 
             co_printf("    three_shooting_lamp action=%s mcu_id=0x%04X\\r\\n",
-                      actionStr, (unsigned)mcu_id);
+                      actionStr,
+                      (unsigned)mcu_id);
             if (mcu_id == 0u) {
                 BleFunc_SendResultToRx(reply_cmd, 0x01);
                 return;
             }
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE, mcu_id,
-                                 NULL, 0u);
+            BleFunc_McuTxn_Start(
+                conidx, reply_cmd, BLEFUNC_MCU_FEATURE, mcu_id, NULL, 0u);
         } else if (controlType == 0x02u || controlType == 0x03u ||
                    controlType == 0x04u || controlType == 0x05u) {
             if (control != 0x00u && control != 0x01u) {
@@ -3031,33 +3121,28 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
             }
             uint16_t mcu_id = 0u;
             switch (controlType) {
-            case 0x02u:
-                mcu_id = (uint16_t)CMD_SADDLE_ON_OFF;
-                break;
-            case 0x03u:
-                mcu_id = (uint16_t)CMD_ABS_ON_OFF;
-                break;
-            case 0x04u:
-                mcu_id = (uint16_t)CMD_POWER_LED;
-                break;
-            case 0x05u:
-                mcu_id = (uint16_t)CMD_Position_light_on_off;
-                break;
-            default:
-                break;
+            case 0x02u: mcu_id = (uint16_t)CMD_SADDLE_ON_OFF; break;
+            case 0x03u: mcu_id = (uint16_t)CMD_ABS_ON_OFF; break;
+            case 0x04u: mcu_id = (uint16_t)CMD_POWER_LED; break;
+            case 0x05u: mcu_id = (uint16_t)CMD_Position_light_on_off; break;
+            default: break;
             }
             uint8_t ctrl = control;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE, mcu_id,
-                                 &ctrl, 1u);
+            BleFunc_McuTxn_Start(
+                conidx, reply_cmd, BLEFUNC_MCU_FEATURE, mcu_id, &ctrl, 1u);
         } else {
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)cmd, payload, (uint16_t)len);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)cmd,
+                                 payload,
+                                 (uint16_t)len);
         }
     }
 #else
     if (controlType == 0x0Au) {
         uint16_t    mcu_id    = 0u;
-        const char *actionStr = "invalid";
+        const char* actionStr = "invalid";
         if (control == 0x01u)
             mcu_id = (uint16_t)CMD_Three_shooting_lamp_on;
         else if (control == 0x00u)
@@ -3075,7 +3160,8 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
 
         co_printf(
             "[DEBUG_SIM] three_shooting_lamp action=%s mcu_id=0x%04X\\r\\n",
-            actionStr, (unsigned)mcu_id);
+            actionStr,
+            (unsigned)mcu_id);
         if (mcu_id != 0u) {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, mcu_id, NULL, 0u);
         }
@@ -3087,27 +3173,18 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
         }
         uint16_t mcu_id = 0u;
         switch (controlType) {
-        case 0x02u:
-            mcu_id = (uint16_t)CMD_SADDLE_ON_OFF;
-            break;
-        case 0x03u:
-            mcu_id = (uint16_t)CMD_ABS_ON_OFF;
-            break;
-        case 0x04u:
-            mcu_id = (uint16_t)CMD_POWER_LED;
-            break;
-        case 0x05u:
-            mcu_id = (uint16_t)CMD_Position_light_on_off;
-            break;
-        default:
-            break;
+        case 0x02u: mcu_id = (uint16_t)CMD_SADDLE_ON_OFF; break;
+        case 0x03u: mcu_id = (uint16_t)CMD_ABS_ON_OFF; break;
+        case 0x04u: mcu_id = (uint16_t)CMD_POWER_LED; break;
+        case 0x05u: mcu_id = (uint16_t)CMD_Position_light_on_off; break;
+        default: break;
         }
         if (mcu_id != 0u) {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, mcu_id, &control, 1u);
         }
     } else {
-        BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, (uint16_t)cmd, payload,
-                                 (uint16_t)len);
+        BleFunc_McuUart_SendOnly(
+            BLEFUNC_MCU_FEATURE, (uint16_t)cmd, payload, (uint16_t)len);
     }
     co_printf("[DEBUG_SIM] FD cmd=0x%04X Success (0x00)\\r\\n", (unsigned)cmd);
     BleFunc_SendResultToRx(reply_cmd, 0x00);
@@ -3122,8 +3199,9 @@ void BleFunc_FD_SetIntelligentSwitch(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x6402
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_ParamSynchronize(uint16_t cmd, const uint8_t *payload,
-                                 uint8_t len) {
+void BleFunc_FD_ParamSynchronize(uint16_t       cmd,
+                                 const uint8_t* payload,
+                                 uint8_t        len) {
     co_printf("  -> FD Param Synchronize (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3148,8 +3226,9 @@ void BleFunc_FD_ParamSynchronize(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x6602
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_ParamSynchronizeChange(uint16_t cmd, const uint8_t *payload,
-                                       uint8_t len) {
+void BleFunc_FD_ParamSynchronizeChange(uint16_t       cmd,
+                                       const uint8_t* payload,
+                                       uint8_t        len) {
     co_printf("  -> FD Param Sync Change (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3174,8 +3253,9 @@ void BleFunc_FD_ParamSynchronizeChange(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x6502
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetDefaultMode(uint16_t cmd, const uint8_t *payload,
-                               uint8_t len) {
+void BleFunc_FD_SetDefaultMode(uint16_t       cmd,
+                               const uint8_t* payload,
+                               uint8_t        len) {
     co_printf("  -> FD Set Default Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3194,8 +3274,12 @@ void BleFunc_FD_SetDefaultMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3212,8 +3296,9 @@ void BleFunc_FD_SetDefaultMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0902
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t *payload,
-                                  uint8_t len) {
+void BleFunc_FD_SetVichleGurdMode(uint16_t       cmd,
+                                  const uint8_t* payload,
+                                  uint8_t        len) {
     co_printf("  -> FD Set Vehicle Guard Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3227,7 +3312,9 @@ void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t *payload,
     }
     BleFunc_PrintTime6(&payload[0]);
     co_printf("    sensitivity=0x%02X volume=0x%02X soundDefence=0x%02X\\r\\n",
-              payload[6], payload[7], payload[8]);
+              payload[6],
+              payload[7],
+              payload[8]);
     BleFunc_DumpPayload(payload, len);
 
 /* Send sensitivity + volume + soundDefence to MCU (Time6 stripped in transport)
@@ -3235,8 +3322,12 @@ void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3253,8 +3344,9 @@ void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0A02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t *payload,
-                                  uint8_t len) {
+void BleFunc_FD_SetAutoReturnMode(uint16_t       cmd,
+                                  const uint8_t* payload,
+                                  uint8_t        len) {
     co_printf("  -> FD Set Auto Return Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3273,8 +3365,12 @@ void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3291,8 +3387,9 @@ void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0B02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetEbsSwitch(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Set EBS Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3311,8 +3408,12 @@ void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3331,8 +3432,9 @@ void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0C02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetESaveMode(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Set E-SAVE Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3344,7 +3446,7 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    const uint8_t *mcu_payload              = payload;
+    const uint8_t* mcu_payload              = payload;
     uint16_t       payload_len_before_strip = len;
     uint16_t       temp_len                 = len;
     if (len >= 7) {
@@ -3362,7 +3464,9 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
     uint8_t control = mcu_payload[0];
     uint8_t speed   = (len >= 2) ? mcu_payload[1] : control;
     co_printf("    strip %u->%u control=0x%02X speed=%u\\r\\n",
-              (unsigned)payload_len_before_strip, (unsigned)len, control,
+              (unsigned)payload_len_before_strip,
+              (unsigned)len,
+              control,
               (unsigned)speed);
     BleFunc_DumpPayload(mcu_payload, len);
 
@@ -3380,16 +3484,21 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
             s_mcu_pending.chain_step  = 0u;
             s_mcu_pending.chain_u8_0  = speed;
             s_mcu_pending.chain_u16_0 = (uint16_t)CMD_Low_speed_gear_speed_set;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Low_speed_gear_on, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Low_speed_gear_on,
+                                 NULL,
+                                 0u);
         }
 #else
         {
-            BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Low_speed_gear_on, NULL, 0u);
+            BleFunc_McuUart_SendOnly(
+                BLEFUNC_MCU_FEATURE, (uint16_t)CMD_Low_speed_gear_on, NULL, 0u);
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_Low_speed_gear_speed_set,
-                                     &speed, 1u);
+                                     &speed,
+                                     1u);
             co_printf("[DEBUG_SIM] FD E-SAVE split send Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3407,16 +3516,21 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
             s_mcu_pending.chain_step  = 0u;
             s_mcu_pending.chain_u8_0  = speed;
             s_mcu_pending.chain_u16_0 = (uint16_t)CMD_Low_speed_gear_speed_set;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Low_speed_gear_on, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Low_speed_gear_on,
+                                 NULL,
+                                 0u);
         }
 #else
         {
-            BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Low_speed_gear_on, NULL, 0u);
+            BleFunc_McuUart_SendOnly(
+                BLEFUNC_MCU_FEATURE, (uint16_t)CMD_Low_speed_gear_on, NULL, 0u);
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_Low_speed_gear_speed_set,
-                                     &speed, 1u);
+                                     &speed,
+                                     1u);
             co_printf("[DEBUG_SIM] FD E-SAVE split send Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3427,13 +3541,18 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Low_speed_gear_off, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Low_speed_gear_off,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Low_speed_gear_off, NULL,
+                                     (uint16_t)CMD_Low_speed_gear_off,
+                                     NULL,
                                      0u);
             co_printf("[DEBUG_SIM] FD E-SAVE off Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
@@ -3445,14 +3564,18 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Low_speed_gear_default, NULL,
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Low_speed_gear_default,
+                                 NULL,
                                  0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Low_speed_gear_default, NULL,
+                                     (uint16_t)CMD_Low_speed_gear_default,
+                                     NULL,
                                      0u);
             co_printf("[DEBUG_SIM] FD E-SAVE default Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
@@ -3473,7 +3596,7 @@ void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0D02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> FD Set DYN Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3485,7 +3608,7 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    const uint8_t *mcu_payload              = payload;
+    const uint8_t* mcu_payload              = payload;
     uint16_t       payload_len_before_strip = len;
     uint16_t       temp_len                 = len;
     if (len >= 7) {
@@ -3503,7 +3626,9 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
     uint8_t control = mcu_payload[0];
     uint8_t speed   = (len >= 2) ? mcu_payload[1] : control;
     co_printf("    strip %u->%u control=0x%02X speed=%u\\r\\n",
-              (unsigned)payload_len_before_strip, (unsigned)len, control,
+              (unsigned)payload_len_before_strip,
+              (unsigned)len,
+              control,
               (unsigned)speed);
     BleFunc_DumpPayload(mcu_payload, len);
 
@@ -3522,17 +3647,23 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
             s_mcu_pending.chain_u8_0 = speed;
             s_mcu_pending.chain_u16_0 =
                 (uint16_t)CMD_Medium_speed_gear_speed_set;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Medium_speed_gear_on, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Medium_speed_gear_on,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Medium_speed_gear_on, NULL,
+                                     (uint16_t)CMD_Medium_speed_gear_on,
+                                     NULL,
                                      0u);
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_Medium_speed_gear_speed_set,
-                                     &speed, 1u);
+                                     &speed,
+                                     1u);
             co_printf("[DEBUG_SIM] FD DYN split send Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3549,17 +3680,23 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
             s_mcu_pending.chain_u8_0 = speed;
             s_mcu_pending.chain_u16_0 =
                 (uint16_t)CMD_Medium_speed_gear_speed_set;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Medium_speed_gear_on, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Medium_speed_gear_on,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Medium_speed_gear_on, NULL,
+                                     (uint16_t)CMD_Medium_speed_gear_on,
+                                     NULL,
                                      0u);
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_Medium_speed_gear_speed_set,
-                                     &speed, 1u);
+                                     &speed,
+                                     1u);
             co_printf("[DEBUG_SIM] FD DYN split send Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3570,13 +3707,18 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Medium_speed_gear_off, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Medium_speed_gear_off,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_Medium_speed_gear_off, NULL,
+                                     (uint16_t)CMD_Medium_speed_gear_off,
+                                     NULL,
                                      0u);
             co_printf("[DEBUG_SIM] FD DYN off Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
@@ -3588,15 +3730,19 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_Medium_speed_gear_default, NULL,
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_Medium_speed_gear_default,
+                                 NULL,
                                  0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_Medium_speed_gear_default,
-                                     NULL, 0u);
+                                     NULL,
+                                     0u);
             co_printf("[DEBUG_SIM] FD DYN default Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3616,8 +3762,9 @@ void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Cmd: 0x0E02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetSportMode(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Set SPORT Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3629,7 +3776,7 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
         BleFunc_SendResultToRx(reply_cmd, 0x01);
         return;
     }
-    const uint8_t *mcu_payload              = payload;
+    const uint8_t* mcu_payload              = payload;
     uint16_t       payload_len_before_strip = len;
     uint16_t       temp_len                 = len;
     if (len >= 7) {
@@ -3647,7 +3794,9 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
     uint8_t control = mcu_payload[0];
     uint8_t speed   = (len >= 2) ? mcu_payload[1] : control;
     co_printf("    strip %u->%u control=0x%02X speed=%u\\r\\n",
-              (unsigned)payload_len_before_strip, (unsigned)len, control,
+              (unsigned)payload_len_before_strip,
+              (unsigned)len,
+              control,
               (unsigned)speed);
     BleFunc_DumpPayload(mcu_payload, len);
 
@@ -3665,17 +3814,23 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
             s_mcu_pending.chain_step  = 0u;
             s_mcu_pending.chain_u8_0  = speed;
             s_mcu_pending.chain_u16_0 = (uint16_t)CMD_High_speed_gear_speed_set;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_High_speed_gear_on, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_High_speed_gear_on,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_High_speed_gear_on, NULL,
+                                     (uint16_t)CMD_High_speed_gear_on,
+                                     NULL,
                                      0u);
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_High_speed_gear_speed_set,
-                                     &speed, 1u);
+                                     &speed,
+                                     1u);
             co_printf("[DEBUG_SIM] FD SPORT split send Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3691,17 +3846,23 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
             s_mcu_pending.chain_step  = 0u;
             s_mcu_pending.chain_u8_0  = speed;
             s_mcu_pending.chain_u16_0 = (uint16_t)CMD_High_speed_gear_speed_set;
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_High_speed_gear_on, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_High_speed_gear_on,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_High_speed_gear_on, NULL,
+                                     (uint16_t)CMD_High_speed_gear_on,
+                                     NULL,
                                      0u);
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_High_speed_gear_speed_set,
-                                     &speed, 1u);
+                                     &speed,
+                                     1u);
             co_printf("[DEBUG_SIM] FD SPORT split send Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3712,13 +3873,18 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_High_speed_gear_off, NULL, 0u);
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_High_speed_gear_off,
+                                 NULL,
+                                 0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                                     (uint16_t)CMD_High_speed_gear_off, NULL,
+                                     (uint16_t)CMD_High_speed_gear_off,
+                                     NULL,
                                      0u);
             co_printf("[DEBUG_SIM] FD SPORT off Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
@@ -3730,15 +3896,19 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
         {
             uint8_t conidx = Protocol_Get_Rx_Conidx();
-            BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                                 (uint16_t)CMD_High_speed_gear_default, NULL,
+            BleFunc_McuTxn_Start(conidx,
+                                 reply_cmd,
+                                 BLEFUNC_MCU_FEATURE,
+                                 (uint16_t)CMD_High_speed_gear_default,
+                                 NULL,
                                  0u);
         }
 #else
         {
             BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                      (uint16_t)CMD_High_speed_gear_default,
-                                     NULL, 0u);
+                                     NULL,
+                                     0u);
             co_printf("[DEBUG_SIM] FD SPORT default Success (0x00)\\r\\n");
             BleFunc_SendResultToRx(reply_cmd, 0x00);
         }
@@ -3758,7 +3928,7 @@ void BleFunc_FD_SetSportMode(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x0F02
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> FD Set Lost Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3777,8 +3947,12 @@ void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3795,8 +3969,9 @@ void BleFunc_FD_SetLostMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Response Cmd: 0x1002
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetTcsSwitch(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetTcsSwitch(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Set TCS Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3815,8 +3990,12 @@ void BleFunc_FD_SetTcsSwitch(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3833,8 +4012,9 @@ void BleFunc_FD_SetTcsSwitch(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x1102
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetSideStand(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetSideStand(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Set Side Stand (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3853,8 +4033,12 @@ void BleFunc_FD_SetSideStand(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3871,8 +4055,9 @@ void BleFunc_FD_SetSideStand(uint16_t cmd, const uint8_t *payload,
  * - Response Cmd: 0x1202
  * - Response Payload: ResultCode(1)
  */
-void BleFunc_FD_SetBatteryParameter(uint16_t cmd, const uint8_t *payload,
-                                    uint8_t len) {
+void BleFunc_FD_SetBatteryParameter(uint16_t       cmd,
+                                    const uint8_t* payload,
+                                    uint8_t        len) {
     co_printf("  -> FD Set Battery Param (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3891,8 +4076,12 @@ void BleFunc_FD_SetBatteryParameter(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3908,8 +4097,9 @@ void BleFunc_FD_SetBatteryParameter(uint16_t cmd, const uint8_t *payload,
  * - 工程保留了解析入口，这里做兜底：解析 Time(6) 并回 ACK 风格 ResultCode�?
  * - Response Cmd: 0x1302
  */
-void BleFunc_FD_SetUpdataApp(uint16_t cmd, const uint8_t *payload,
-                             uint8_t len) {
+void BleFunc_FD_SetUpdataApp(uint16_t       cmd,
+                             const uint8_t* payload,
+                             uint8_t        len) {
     co_printf("  -> FD Update APP / Data Sync (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3933,7 +4123,7 @@ void BleFunc_FD_SetUpdataApp(uint16_t cmd, const uint8_t *payload,
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1402
  */
-void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> FD Set HDC Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -3958,8 +4148,12 @@ void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -3975,7 +4169,7 @@ void BleFunc_FD_SetHdcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1502
  */
-void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> FD Set HHC Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -4000,8 +4194,12 @@ void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)cmd, payload, (uint16_t)len);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)cmd,
+                             payload,
+                             (uint16_t)len);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, cmd, payload, (uint16_t)len);
@@ -4017,8 +4215,9 @@ void BleFunc_FD_SetHhcMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1602
  */
-void BleFunc_FD_SetStartAbility(uint16_t cmd, const uint8_t *payload,
-                                uint8_t len) {
+void BleFunc_FD_SetStartAbility(uint16_t       cmd,
+                                const uint8_t* payload,
+                                uint8_t        len) {
     co_printf("  -> FD Set Start Ability (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -4054,13 +4253,17 @@ void BleFunc_FD_SetStartAbility(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_Starting_strength_set, mcu_data,
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)CMD_Starting_strength_set,
+                             mcu_data,
                              (uint16_t)sizeof(mcu_data));
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_Starting_strength_set, mcu_data,
+                             (uint16_t)CMD_Starting_strength_set,
+                             mcu_data,
                              (uint16_t)sizeof(mcu_data));
     co_printf("[DEBUG_SIM] FD cmd=0x%04X Success (0x00)\\r\\n", (unsigned)cmd);
     BleFunc_SendResultToRx(reply_cmd, 0x00);
@@ -4074,8 +4277,9 @@ void BleFunc_FD_SetStartAbility(uint16_t cmd, const uint8_t *payload,
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1702
  */
-void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
-                                   uint8_t len) {
+void BleFunc_FD_SetSportPowerSpeed(uint16_t       cmd,
+                                   const uint8_t* payload,
+                                   uint8_t        len) {
     co_printf("  -> FD Set Sport Power Speed (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -4087,7 +4291,7 @@ void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    const uint8_t *mcu_payload = payload;
+    const uint8_t* mcu_payload = payload;
     uint16_t       temp_len    = len;
     BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
     len = (uint8_t)temp_len;
@@ -4104,12 +4308,16 @@ void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_SPORT_mode_type_set, &speed, 1u);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)CMD_SPORT_mode_type_set,
+                             &speed,
+                             1u);
     }
 #else
-    BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_SPORT_mode_type_set, &speed, 1u);
+    BleFunc_McuUart_SendOnly(
+        BLEFUNC_MCU_FEATURE, (uint16_t)CMD_SPORT_mode_type_set, &speed, 1u);
     co_printf("[DEBUG_SIM] FD cmd=0x%04X Success (0x00)\\r\\n", (unsigned)cmd);
     BleFunc_SendResultToRx(reply_cmd, 0x00);
 #endif
@@ -4122,7 +4330,7 @@ void BleFunc_FD_SetSportPowerSpeed(uint16_t cmd, const uint8_t *payload,
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1802
  */
-void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
+void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t* payload, uint8_t len) {
     co_printf("  -> FD Set ECO Mode (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -4134,7 +4342,7 @@ void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    const uint8_t *mcu_payload = payload;
+    const uint8_t* mcu_payload = payload;
     uint16_t       temp_len    = len;
     BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
     len = (uint8_t)temp_len;
@@ -4151,12 +4359,16 @@ void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
 #if (!ENABLE_NFC_ADD_SIMULATION)
     {
         uint8_t conidx = Protocol_Get_Rx_Conidx();
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_ECO_mode_type_set, &speed, 1u);
+        BleFunc_McuTxn_Start(conidx,
+                             reply_cmd,
+                             BLEFUNC_MCU_FEATURE,
+                             (uint16_t)CMD_ECO_mode_type_set,
+                             &speed,
+                             1u);
     }
 #else
-    BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
-                             (uint16_t)CMD_ECO_mode_type_set, &speed, 1u);
+    BleFunc_McuUart_SendOnly(
+        BLEFUNC_MCU_FEATURE, (uint16_t)CMD_ECO_mode_type_set, &speed, 1u);
     co_printf("[DEBUG_SIM] FD cmd=0x%04X Success (0x00)\\r\\n", (unsigned)cmd);
     BleFunc_SendResultToRx(reply_cmd, 0x00);
 #endif
@@ -4169,8 +4381,9 @@ void BleFunc_FD_SetEcoMode(uint16_t cmd, const uint8_t *payload, uint8_t len) {
  * - Payload: 至少包含 Time(6)
  * - Response Cmd: 0x1902
  */
-void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
-                               uint8_t len) {
+void BleFunc_FD_SetRadarSwitch(uint16_t       cmd,
+                               const uint8_t* payload,
+                               uint8_t        len) {
     co_printf("  -> FD Set Radar Switch (0x%04X)\\r\\n", cmd);
     uint16_t reply_cmd = BleFunc_MakeReplyCmd_FD(cmd);
     if (!BleFunc_EnsureAuthed(reply_cmd))
@@ -4182,7 +4395,7 @@ void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
         return;
     }
     BleFunc_PrintTime6(&payload[0]);
-    const uint8_t *mcu_payload = payload;
+    const uint8_t* mcu_payload = payload;
     uint16_t       temp_len    = len;
     BleFunc_StripTime6_ForMcu(&mcu_payload, &temp_len);
     len = (uint8_t)temp_len;
@@ -4197,7 +4410,8 @@ void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
     bool    has_sensitivity = (len >= 2u);
     uint8_t sensitivity     = has_sensitivity ? mcu_payload[1] : 0u;
     co_printf("    control=0x%02X sensitivity=0x%02X%s\\r\\n",
-              (unsigned)control, (unsigned)sensitivity,
+              (unsigned)control,
+              (unsigned)sensitivity,
               has_sensitivity ? "" : " (n/a)");
     BleFunc_DumpPayload(mcu_payload, len);
 
@@ -4228,15 +4442,16 @@ void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t *payload,
             s_mcu_pending.chain_u8_0  = sensitivity;
             s_mcu_pending.chain_u16_0 = (uint16_t)CMD_Radar_sensitivity_set;
         }
-        BleFunc_McuTxn_Start(conidx, reply_cmd, BLEFUNC_MCU_FEATURE, switch_cmd,
-                             NULL, 0u);
+        BleFunc_McuTxn_Start(
+            conidx, reply_cmd, BLEFUNC_MCU_FEATURE, switch_cmd, NULL, 0u);
     }
 #else
     BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE, switch_cmd, NULL, 0u);
     if (has_sensitivity) {
         BleFunc_McuUart_SendOnly(BLEFUNC_MCU_FEATURE,
                                  (uint16_t)CMD_Radar_sensitivity_set,
-                                 &sensitivity, 1u);
+                                 &sensitivity,
+                                 1u);
     }
     co_printf("[DEBUG_SIM] FD cmd=0x%04X Success (0x00)\\r\\n", (unsigned)cmd);
     BleFunc_SendResultToRx(reply_cmd, 0x00);

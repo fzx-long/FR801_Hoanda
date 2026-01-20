@@ -175,7 +175,6 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
         co_printf("Protocol: Footer Error\r\n");
         return false;
     }
-
     // 5. 检查长度字段
     // 协议定义 Length 为 "数据包长度，包括 header、footer"
     if (pHead->length != self->rx_len) {
