@@ -26,14 +26,14 @@ typedef struct {
 /*********************************************************************
  * @brief 基础接口：读/写/擦除封装。
  */
-void flash_op_read(uint32_t addr, uint8_t *buf, uint32_t len);
-void flash_op_write_direct(uint32_t addr, uint8_t *buf, uint32_t len);
+void flash_op_read(uint32_t addr, uint8_t* buf, uint32_t len);
+void flash_op_write_direct(uint32_t addr, uint8_t* buf, uint32_t len);
 void flash_op_erase_sector(uint32_t addr);
 
 /*********************************************************************
  * @brief 应用层接口：TPMS 绑定信息的保存/加载。
  */
-void flash_op_save_tpms_info(uint32_t addr, tpms_bind_info_t *info);
-void flash_op_load_tpms_info(uint32_t addr, tpms_bind_info_t *info);
+void flash_op_save_tpms_info(uint32_t addr, tpms_bind_info_t* info);
+void flash_op_load_tpms_info(uint32_t addr, tpms_bind_info_t* info);
 
 #endif

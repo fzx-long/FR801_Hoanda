@@ -43,9 +43,9 @@ typedef int8_t (*rssi_getter_t)(uint8_t conidx);
  * - 回调可能在 RAM 回调环境里触发，请保持回调实现足够轻量。
  */
 typedef void (*rssi_distance_change_cb_t)(uint8_t conidx,
-									 uint8_t new_distance,
-									 int16_t filtered_rssi,
-									 int8_t raw_rssi);
+                                          uint8_t new_distance,
+                                          int16_t filtered_rssi,
+                                          int8_t  raw_rssi);
 
 /**
  * @brief RSSI 距离状态变化回调
@@ -59,83 +59,83 @@ typedef void (*rssi_distance_change_cb_t)(uint8_t conidx,
  * - 回调可能在 RAM 回调环境里触发，请保持回调实现足够轻量。
  */
 typedef void (*rssi_distance_change_cb_t)(uint8_t conidx,
-									 uint8_t new_distance,
-									 int16_t filtered_rssi,
-									 int8_t raw_rssi);
+                                          uint8_t new_distance,
+                                          int16_t filtered_rssi,
+                                          int8_t  raw_rssi);
 
 typedef enum {
-	RSSI_DIST_LOST = 0,
-	RSSI_DIST_FAR  = 1,
-	RSSI_DIST_NEAR = 2,
+    RSSI_DIST_LOST = 0,
+    RSSI_DIST_FAR  = 1,
+    RSSI_DIST_NEAR = 2,
 } rssi_distance_t;
 
 struct RSSI_Checker;
 
 typedef struct {
-	/* 反向指针：用于定时器回调里从 ctx 找回 self */
-	struct RSSI_Checker *owner;
+    /* 反向指针：用于定时器回调里从 ctx 找回 self */
+    struct RSSI_Checker* owner;
 
-	bool            active;
-	uint8_t         conidx;
-	rssi_getter_t   getter;
+    bool          active;
+    uint8_t       conidx;
+    rssi_getter_t getter;
 
-	/* 3 点平均 */
-	int8_t          s3_buf[3];
-	uint8_t         s3_cnt;
-	uint8_t         s3_idx;
+    /* 3 点平均 */
+    int8_t  s3_buf[3];
+    uint8_t s3_cnt;
+    uint8_t s3_idx;
 
-	/* EMA（整数实现） */
-	int16_t         ema;
-	bool            ema_inited;
+    /* EMA（整数实现） */
+    int16_t ema;
+    bool    ema_inited;
 
-	rssi_distance_t distance;
+    rssi_distance_t distance;
 
-	/* 对端 MAC（用于打印 RSSI+MAC） */
-	uint8_t         peer_addr[6];
-	bool            peer_addr_valid;
+    /* 对端 MAC（用于打印 RSSI+MAC） */
+    uint8_t peer_addr[6];
+    bool    peer_addr_valid;
 
-	/* os_timer_t 在本 SDK 中是结构体，不是指针：用标志位管理启动/停止 */
-	bool            timer_inited;
-	bool            timer_started;
-	os_timer_t      timer;
+    /* os_timer_t 在本 SDK 中是结构体，不是指针：用标志位管理启动/停止 */
+    bool       timer_inited;
+    bool       timer_started;
+    os_timer_t timer;
 } RSSI_ConnCtx;
 
 typedef struct {
-	/* 阈值（单位 dBm，负数） */
-	int8_t  near_threshold;
-	int8_t  far_threshold;
-	int8_t  lost_threshold;
-	uint8_t hysteresis;
-	uint16_t period_ms;
+    /* 阈值（单位 dBm，负数） */
+    int8_t   near_threshold;
+    int8_t   far_threshold;
+    int8_t   lost_threshold;
+    uint8_t  hysteresis;
+    uint16_t period_ms;
 } RSSI_Config;
 
 typedef struct {
-	void (*Init)(struct RSSI_Checker *self);
-	void (*Enable)(struct RSSI_Checker *self, uint8_t conidx, rssi_getter_t getter);
-	void (*Disable)(struct RSSI_Checker *self, uint8_t conidx);
-	void (*Update)(struct RSSI_Checker *self, uint8_t conidx, int8_t rssi);
-	int16_t (*GetFiltered)(struct RSSI_Checker *self, uint8_t conidx);
-	uint8_t (*GetDistance)(struct RSSI_Checker *self, uint8_t conidx);
-	bool (*IsNear)(struct RSSI_Checker *self, uint8_t conidx);
-	bool (*IsLost)(struct RSSI_Checker *self, uint8_t conidx);
-	void (*Reset)(struct RSSI_Checker *self, uint8_t conidx);
+    void (*Init)(struct RSSI_Checker* self);
+    void (*Enable)(struct RSSI_Checker* self, uint8_t conidx, rssi_getter_t getter);
+    void (*Disable)(struct RSSI_Checker* self, uint8_t conidx);
+    void (*Update)(struct RSSI_Checker* self, uint8_t conidx, int8_t rssi);
+    int16_t (*GetFiltered)(struct RSSI_Checker* self, uint8_t conidx);
+    uint8_t (*GetDistance)(struct RSSI_Checker* self, uint8_t conidx);
+    bool (*IsNear)(struct RSSI_Checker* self, uint8_t conidx);
+    bool (*IsLost)(struct RSSI_Checker* self, uint8_t conidx);
+    void (*Reset)(struct RSSI_Checker* self, uint8_t conidx);
 } RSSI_Methods;
 
 typedef struct RSSI_Checker {
-	RSSI_Methods m;
-	RSSI_Config  cfg;
-	RSSI_ConnCtx conn[RSSI_MAX_CONN];
+    RSSI_Methods m;
+    RSSI_Config  cfg;
+    RSSI_ConnCtx conn[RSSI_MAX_CONN];
 } RSSI_Checker;
 
 /**
  * @brief 构造一个 RSSI_Checker 对象（绑定方法表 + 默认配置）
  */
-void RSSI_Checker_Construct(RSSI_Checker *self);
+void RSSI_Checker_Construct(RSSI_Checker* self);
 
 /**
  * @brief 获取默认全局对象（方便兼容旧调用方式）
  */
-RSSI_Checker *RSSI_Get_Default(void);
+RSSI_Checker* RSSI_Get_Default(void);
 
 /**
  * @brief 初始化 RSSI 检测模块
@@ -207,9 +207,9 @@ void RSSI_Check_Reset(uint8_t conidx);
  * @param out_addr6  输出 6 字节 MAC 缓冲区
  * @return true=有有效 MAC；false=无效/未保存
  */
-bool RSSI_Check_Get_Peer_Addr(uint8_t conidx, uint8_t *out_addr6);
+bool RSSI_Check_Get_Peer_Addr(uint8_t conidx, uint8_t* out_addr6);
 
-void RSSI_Check_Set_Peer_Addr(uint8_t conidx, const uint8_t *addr6);
+void RSSI_Check_Set_Peer_Addr(uint8_t conidx, const uint8_t* addr6);
 
 /**
  * @brief 清除指定连接的对端 MAC 地址（断开连接时调用）

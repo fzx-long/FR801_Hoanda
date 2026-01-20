@@ -14,17 +14,16 @@
 #include <string.h>
 
 static tpms_logic_slot_t s_slots[TPMS_SENSOR_MAX];
-static uint32_t s_round = 0;
-static uint32_t s_last_round[TPMS_SENSOR_MAX];
-static os_timer_t s_timer;
+static uint32_t          s_round = 0;
+static uint32_t          s_last_round[TPMS_SENSOR_MAX];
+static os_timer_t        s_timer;
 
 /*********************************************************************
  * @brief 评估 TPMS 数据帧的报警状态
  * @param f 指向 TPMS 数据帧的指针
  * @retval 返回对应的报警类型
  */
-static tpms_alarm_t eval_frame(const TPMS_Frame *f)
-{
+static tpms_alarm_t eval_frame(const TPMS_Frame* f) {
     if (f == NULL || !f->valid) {
         return TPMS_ALARM_DATA_INVALID;
     }
@@ -48,8 +47,7 @@ static tpms_alarm_t eval_frame(const TPMS_Frame *f)
  * @brief 轮询定时器回调，检查各槽位离线状态
  * @param arg 定时器参数（未使用）
  */
-static void timer_cb(void *arg)
-{
+static void timer_cb(void* arg) {
     (void)arg;
     s_round++;
     for (uint8_t i = 0; i < TPMS_SENSOR_MAX; i++) {
@@ -66,8 +64,7 @@ static void timer_cb(void *arg)
 /*********************************************************************
  * @brief TPMS 业务逻辑初始化
  */
-void TPMS_Biz_Init(void)
-{
+void TPMS_Biz_Init(void) {
     memset(s_slots, 0, sizeof(s_slots));
     for (uint8_t i = 0; i < TPMS_SENSOR_MAX; i++) {
         s_last_round[i] = 0;
@@ -81,13 +78,13 @@ void TPMS_Biz_Init(void)
  * @param slot 传感器槽位索引
  * @param frame 指向接收到的 TPMS 数据帧的指针
  */
-void TPMS_Biz_OnFrame(uint8_t slot, const TPMS_Frame *frame)
-{
-    if (slot >= TPMS_SENSOR_MAX) return;
-    s_slots[slot].has_data = true;
+void TPMS_Biz_OnFrame(uint8_t slot, const TPMS_Frame* frame) {
+    if (slot >= TPMS_SENSOR_MAX)
+        return;
+    s_slots[slot].has_data   = true;
     s_slots[slot].last_frame = *frame;
-    s_slots[slot].alarm = eval_frame(frame);
-    s_last_round[slot] = s_round;
+    s_slots[slot].alarm      = eval_frame(frame);
+    s_last_round[slot]       = s_round;
 
     if (s_slots[slot].alarm != TPMS_ALARM_NONE) {
         co_printf("[TPMS] alarm slot=%u code=%u\r\n", slot, (unsigned)s_slots[slot].alarm);
@@ -101,9 +98,9 @@ void TPMS_Biz_OnFrame(uint8_t slot, const TPMS_Frame *frame)
  * @retval true 成功获取状态
  * @retval false 参数无效或获取失败
  */
-bool TPMS_Biz_Get_Status(uint8_t slot, tpms_logic_slot_t *out)
-{
-    if (slot >= TPMS_SENSOR_MAX || out == NULL) return false;
+bool TPMS_Biz_Get_Status(uint8_t slot, tpms_logic_slot_t* out) {
+    if (slot >= TPMS_SENSOR_MAX || out == NULL)
+        return false;
     *out = s_slots[slot];
     return true;
 }

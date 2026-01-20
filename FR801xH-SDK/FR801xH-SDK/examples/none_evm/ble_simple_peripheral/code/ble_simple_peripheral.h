@@ -7,60 +7,50 @@
  */
 #ifndef BLE_SIMPLE_PERIPHERAL_H
 #define BLE_SIMPLE_PERIPHERAL_H
- 
- /*
- * INCLUDES (°üº¬Í·ÎÄ¼þ)
+
+/*
+ * INCLUDES (ï¿½ï¿½ï¿½ï¿½Í·ï¿½Ä¼ï¿½)
  */
 
 /*
- * MACROS (ºê¶¨Òå)
+ * MACROS (ï¿½ê¶¨ï¿½ï¿½)
  */
 
 /*
- * CONSTANTS (³£Á¿¶¨Òå)
+ * CONSTANTS (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
  */
-#define SP_TASK_EVT_NOTI    0x0001
+#define SP_TASK_EVT_NOTI 0x0001
 
 /*
- * TYPEDEFS (ÀàÐÍ¶¨Òå)
+ * TYPEDEFS (ï¿½ï¿½ï¿½Í¶ï¿½ï¿½ï¿½)
  */
-enum
-{
-    GATT_SVC_IDX_SP,
-    GATT_SVC_NUM    
-};
-
-
+enum { GATT_SVC_IDX_SP, GATT_SVC_NUM };
 
 /*
- * GLOBAL VARIABLES (È«¾Ö±äÁ¿)
- */
-
-
-
-/*
- * LOCAL VARIABLES (±¾µØ±äÁ¿)
- */
- 
-/*
- * LOCAL FUNCTIONS (±¾µØº¯Êý)
+ * GLOBAL VARIABLES (È«ï¿½Ö±ï¿½ï¿½ï¿½)
  */
 
 /*
- * EXTERN FUNCTIONS (Íâ²¿º¯Êý)
+ * LOCAL VARIABLES (ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½)
  */
 
 /*
- * PUBLIC FUNCTIONS (È«¾Öº¯Êý)
+ * LOCAL FUNCTIONS (ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½)
  */
 
+/*
+ * EXTERN FUNCTIONS (ï¿½â²¿ï¿½ï¿½ï¿½ï¿½)
+ */
 
-/** @function group ble peripheral device APIs (bleÍâÉèÏà¹ØµÄAPI)
+/*
+ * PUBLIC FUNCTIONS (È«ï¿½Öºï¿½ï¿½ï¿½)
+ */
+
+/** @function group ble peripheral device APIs (bleï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½API)
  * @{
  */
- 
-void app_gap_evt_cb(gap_event_t *p_event);
 
+void app_gap_evt_cb(gap_event_t* p_event);
 
 /*********************************************************************
  * @fn      simple_peripheral_init

@@ -18,16 +18,21 @@ static RSSI_Checker g_rssi_default;
 /* 业务层可选回调：用于监听距离状态变化（例如 NEAR 触发） */
 static rssi_distance_change_cb_t g_distance_change_cb = NULL;
 
-static void rssi_timer_handler(void *arg);
-static void RSSI_Checker_Init_Impl(RSSI_Checker *self);
-static void RSSI_Checker_Enable_Impl(RSSI_Checker *self, uint8_t conidx, rssi_getter_t getter);
-static void RSSI_Checker_Disable_Impl(RSSI_Checker *self, uint8_t conidx);
-static void RSSI_Checker_Update_Impl(RSSI_Checker *self, uint8_t conidx, int8_t rssi);
-static int16_t RSSI_Checker_GetFiltered_Impl(RSSI_Checker *self, uint8_t conidx);
-static uint8_t RSSI_Checker_GetDistance_Impl(RSSI_Checker *self, uint8_t conidx);
-static bool RSSI_Checker_IsNear_Impl(RSSI_Checker *self, uint8_t conidx);
-static bool RSSI_Checker_IsLost_Impl(RSSI_Checker *self, uint8_t conidx);
-static void RSSI_Checker_Reset_Impl(RSSI_Checker *self, uint8_t conidx);
+static void rssi_timer_handler(void* arg);
+static void RSSI_Checker_Init_Impl(RSSI_Checker* self);
+static void RSSI_Checker_Enable_Impl(RSSI_Checker* self,
+                                     uint8_t       conidx,
+                                     rssi_getter_t getter);
+static void RSSI_Checker_Disable_Impl(RSSI_Checker* self, uint8_t conidx);
+static void
+RSSI_Checker_Update_Impl(RSSI_Checker* self, uint8_t conidx, int8_t rssi);
+static int16_t RSSI_Checker_GetFiltered_Impl(RSSI_Checker* self,
+                                             uint8_t       conidx);
+static uint8_t RSSI_Checker_GetDistance_Impl(RSSI_Checker* self,
+                                             uint8_t       conidx);
+static bool    RSSI_Checker_IsNear_Impl(RSSI_Checker* self, uint8_t conidx);
+static bool    RSSI_Checker_IsLost_Impl(RSSI_Checker* self, uint8_t conidx);
+static void    RSSI_Checker_Reset_Impl(RSSI_Checker* self, uint8_t conidx);
 
 /**
  * @brief 3 点平均 + EMA 滤波
@@ -35,15 +40,14 @@ static void RSSI_Checker_Reset_Impl(RSSI_Checker *self, uint8_t conidx);
  * @param raw 原始 RSSI 值
  * @return 滤波后的 RSSI
  */
-static int8_t rssi_filter_3avg_ema(RSSI_ConnCtx *ctx, int8_t raw)
-{
+static int8_t rssi_filter_3avg_ema(RSSI_ConnCtx* ctx, int8_t raw) {
     if (!ctx) {
         return raw;
     }
 
     /* 3 点平均 */
     ctx->s3_buf[ctx->s3_idx] = raw;
-    ctx->s3_idx = (ctx->s3_idx + 1) % 3;
+    ctx->s3_idx              = (ctx->s3_idx + 1) % 3;
     if (ctx->s3_cnt < 3) {
         ctx->s3_cnt++;
     }
@@ -56,11 +60,11 @@ static int8_t rssi_filter_3avg_ema(RSSI_ConnCtx *ctx, int8_t raw)
 
     /* EMA：ema = ema + alpha * (x - ema)，alpha=0.3 */
     if (!ctx->ema_inited) {
-        ctx->ema = avg3;
+        ctx->ema        = avg3;
         ctx->ema_inited = true;
     } else {
         int16_t diff = (int16_t)avg3 - ctx->ema;
-        ctx->ema = ctx->ema + (diff * 3) / 10; /* alpha=0.3 */
+        ctx->ema     = ctx->ema + (diff * 3) / 10; /* alpha=0.3 */
     }
 
     /* 限幅 */
@@ -77,10 +81,9 @@ static int8_t rssi_filter_3avg_ema(RSSI_ConnCtx *ctx, int8_t raw)
  * @brief 滞回判定：根据滤波值更新距离状态
  * @param ctx RSSI 上下文
  */
-static void rssi_hysteresis_update(RSSI_ConnCtx *ctx)
-{
-    RSSI_Checker *self = ctx ? ctx->owner : NULL;
-    int16_t val = ctx->ema;
+static void rssi_hysteresis_update(RSSI_ConnCtx* ctx) {
+    RSSI_Checker*   self      = ctx ? ctx->owner : NULL;
+    int16_t         val       = ctx->ema;
     rssi_distance_t old_state = ctx->distance;
 
     if (self == NULL) {
@@ -89,29 +92,31 @@ static void rssi_hysteresis_update(RSSI_ConnCtx *ctx)
 
     /* 根据当前状态应用不同阈值（滞回） */
     switch (ctx->distance) {
-        case RSSI_DIST_LOST:
-            if (val > (int16_t)self->cfg.far_threshold + (int16_t)self->cfg.hysteresis) {
-                ctx->distance = RSSI_DIST_FAR;
-            }
-            break;
+    case RSSI_DIST_LOST:
+        if (val >
+            (int16_t)self->cfg.far_threshold + (int16_t)self->cfg.hysteresis) {
+            ctx->distance = RSSI_DIST_FAR;
+        }
+        break;
 
-        case RSSI_DIST_FAR:
-            if (val < (int16_t)self->cfg.lost_threshold - (int16_t)self->cfg.hysteresis) {
-                ctx->distance = RSSI_DIST_LOST;
-            } else if (val > (int16_t)self->cfg.near_threshold + (int16_t)self->cfg.hysteresis) {
-                ctx->distance = RSSI_DIST_NEAR;
-            }
-            break;
-
-        case RSSI_DIST_NEAR:
-            if (val < (int16_t)self->cfg.far_threshold - (int16_t)self->cfg.hysteresis) {
-                ctx->distance = RSSI_DIST_FAR;
-            }
-            break;
-
-        default:
+    case RSSI_DIST_FAR:
+        if (val <
+            (int16_t)self->cfg.lost_threshold - (int16_t)self->cfg.hysteresis) {
             ctx->distance = RSSI_DIST_LOST;
-            break;
+        } else if (val > (int16_t)self->cfg.near_threshold +
+                             (int16_t)self->cfg.hysteresis) {
+            ctx->distance = RSSI_DIST_NEAR;
+        }
+        break;
+
+    case RSSI_DIST_NEAR:
+        if (val <
+            (int16_t)self->cfg.far_threshold - (int16_t)self->cfg.hysteresis) {
+            ctx->distance = RSSI_DIST_FAR;
+        }
+        break;
+
+    default: ctx->distance = RSSI_DIST_LOST; break;
     }
 
     /* 状态变化时打印 */
@@ -124,11 +129,12 @@ static void rssi_hysteresis_update(RSSI_ConnCtx *ctx)
  * @brief 定时器回调：定期读取 RSSI 并滤波/判定
  * @param arg 连接索引（uint8_t 转 void*）
  */
-static void rssi_timer_handler(void *arg)
-{
-    RSSI_ConnCtx *ctx = (RSSI_ConnCtx *)arg;
-    if (ctx == NULL || ctx->owner == NULL) return;
-    if (!ctx->active || ctx->getter == NULL) return;
+static void rssi_timer_handler(void* arg) {
+    RSSI_ConnCtx* ctx = (RSSI_ConnCtx*)arg;
+    if (ctx == NULL || ctx->owner == NULL)
+        return;
+    if (!ctx->active || ctx->getter == NULL)
+        return;
 
     uint8_t conidx = ctx->conidx;
     /* OOP：通过回调函数获取原始 RSSI（平台无关） */
@@ -145,45 +151,44 @@ static void rssi_timer_handler(void *arg)
     RSSI_Check_Update(conidx, raw);
 }
 
-void RSSI_Checker_Construct(RSSI_Checker *self)
-{
-    if (self == NULL) return;
+void RSSI_Checker_Construct(RSSI_Checker* self) {
+    if (self == NULL)
+        return;
 
     memset(self, 0, sizeof(*self));
 
-    self->m.Init = RSSI_Checker_Init_Impl;
-    self->m.Enable = RSSI_Checker_Enable_Impl;
-    self->m.Disable = RSSI_Checker_Disable_Impl;
-    self->m.Update = RSSI_Checker_Update_Impl;
+    self->m.Init        = RSSI_Checker_Init_Impl;
+    self->m.Enable      = RSSI_Checker_Enable_Impl;
+    self->m.Disable     = RSSI_Checker_Disable_Impl;
+    self->m.Update      = RSSI_Checker_Update_Impl;
     self->m.GetFiltered = RSSI_Checker_GetFiltered_Impl;
     self->m.GetDistance = RSSI_Checker_GetDistance_Impl;
-    self->m.IsNear = RSSI_Checker_IsNear_Impl;
-    self->m.IsLost = RSSI_Checker_IsLost_Impl;
-    self->m.Reset = RSSI_Checker_Reset_Impl;
+    self->m.IsNear      = RSSI_Checker_IsNear_Impl;
+    self->m.IsLost      = RSSI_Checker_IsLost_Impl;
+    self->m.Reset       = RSSI_Checker_Reset_Impl;
 
     self->cfg.near_threshold = -60;
-    self->cfg.far_threshold = -75;
+    self->cfg.far_threshold  = -75;
     self->cfg.lost_threshold = -90;
-    self->cfg.hysteresis = 3;
-    self->cfg.period_ms = 1000;
+    self->cfg.hysteresis     = 3;
+    self->cfg.period_ms      = 1000;
 
     for (uint8_t i = 0; i < RSSI_MAX_CONN; i++) {
-        self->conn[i].owner = self;
-        self->conn[i].conidx = i;
-        self->conn[i].ema = -70;
+        self->conn[i].owner    = self;
+        self->conn[i].conidx   = i;
+        self->conn[i].ema      = -70;
         self->conn[i].distance = RSSI_DIST_LOST;
 
         memset(self->conn[i].peer_addr, 0, sizeof(self->conn[i].peer_addr));
         self->conn[i].peer_addr_valid = false;
 
         /* 定时器句柄是结构体：构造时先标记未初始化，真正启用时再 init/start */
-        self->conn[i].timer_inited = false;
+        self->conn[i].timer_inited  = false;
         self->conn[i].timer_started = false;
     }
 }
 
-RSSI_Checker *RSSI_Get_Default(void)
-{
+RSSI_Checker* RSSI_Get_Default(void) {
     static bool inited = false;
     if (!inited) {
         RSSI_Checker_Construct(&g_rssi_default);
@@ -196,20 +201,20 @@ RSSI_Checker *RSSI_Get_Default(void)
 /**
  * @brief 初始化 RSSI 检测模块
  */
-static void RSSI_Checker_Init_Impl(RSSI_Checker *self)
-{
-    if (self == NULL) return;
+static void RSSI_Checker_Init_Impl(RSSI_Checker* self) {
+    if (self == NULL)
+        return;
     for (uint8_t i = 0; i < RSSI_MAX_CONN; i++) {
-        RSSI_ConnCtx *ctx = &self->conn[i];
-        ctx->owner = self;
-        ctx->active = false;
-        ctx->conidx = i;
-        ctx->getter = NULL;
-        ctx->s3_cnt = 0;
-        ctx->s3_idx = 0;
-        ctx->ema_inited = false;
-        ctx->ema = -70;
-        ctx->distance = RSSI_DIST_LOST;
+        RSSI_ConnCtx* ctx = &self->conn[i];
+        ctx->owner        = self;
+        ctx->active       = false;
+        ctx->conidx       = i;
+        ctx->getter       = NULL;
+        ctx->s3_cnt       = 0;
+        ctx->s3_idx       = 0;
+        ctx->ema_inited   = false;
+        ctx->ema          = -70;
+        ctx->distance     = RSSI_DIST_LOST;
 
         memset(ctx->peer_addr, 0, sizeof(ctx->peer_addr));
         ctx->peer_addr_valid = false;
@@ -228,9 +233,8 @@ static void RSSI_Checker_Init_Impl(RSSI_Checker *self)
     }
 }
 
-void RSSI_Check_Init(void)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+void RSSI_Check_Init(void) {
+    RSSI_Checker* self = RSSI_Get_Default();
     self->m.Init(self);
 }
 
@@ -239,21 +243,24 @@ void RSSI_Check_Init(void)
  * @param conidx 连接索引
  * @param getter RSSI 获取回调函数（平台相关实现）
  */
-static void RSSI_Checker_Enable_Impl(RSSI_Checker *self, uint8_t conidx, rssi_getter_t getter)
-{
-    if (self == NULL) return;
-    if (conidx >= RSSI_MAX_CONN) return;
+static void RSSI_Checker_Enable_Impl(RSSI_Checker* self,
+                                     uint8_t       conidx,
+                                     rssi_getter_t getter) {
+    if (self == NULL)
+        return;
+    if (conidx >= RSSI_MAX_CONN)
+        return;
 
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
-    ctx->owner = self;
-    ctx->active = true;
-    ctx->conidx = conidx;
-    ctx->getter = getter;
-    ctx->s3_cnt = 0;
-    ctx->s3_idx = 0;
-    ctx->ema_inited = false;
-    ctx->ema = -70;
-    ctx->distance = RSSI_DIST_LOST;
+    RSSI_ConnCtx* ctx = &self->conn[conidx];
+    ctx->owner        = self;
+    ctx->active       = true;
+    ctx->conidx       = conidx;
+    ctx->getter       = getter;
+    ctx->s3_cnt       = 0;
+    ctx->s3_idx       = 0;
+    ctx->ema_inited   = false;
+    ctx->ema          = -70;
+    ctx->distance     = RSSI_DIST_LOST;
 
     /* getter 为空：采用 GAP 上报/事件喂入 RSSI，不启用轮询定时器 */
     if (getter == NULL) {
@@ -273,15 +280,14 @@ static void RSSI_Checker_Enable_Impl(RSSI_Checker *self, uint8_t conidx, rssi_ge
         os_timer_start(&ctx->timer, self->cfg.period_ms, 1);
         ctx->timer_started = true;
     }
-
 }
 
 /*
  * GAP 实时 RSSI 上报回调（文档要求：函数名与参数固定，且放在 RAM）
  * 注意：此回调中不要做过多操作，只做“喂入 + 滤波”。
  */
-__attribute__((section("ram_code"))) void gap_rssi_ind(int8_t rssi, uint8_t conidx)
-{
+__attribute__((section("ram_code"))) void gap_rssi_ind(int8_t  rssi,
+                                                       uint8_t conidx) {
     if (conidx >= RSSI_MAX_CONN) {
         return;
     }
@@ -294,30 +300,27 @@ __attribute__((section("ram_code"))) void gap_rssi_ind(int8_t rssi, uint8_t coni
     RSSI_Check_Update(conidx, rssi);
 }
 
-void RSSI_Check_Set_DistanceChangeCb(rssi_distance_change_cb_t cb)
-{
+void RSSI_Check_Set_DistanceChangeCb(rssi_distance_change_cb_t cb) {
     g_distance_change_cb = cb;
 }
 
-void RSSI_Check_Set_Peer_Addr(uint8_t conidx, const uint8_t *addr6)
-{
+void RSSI_Check_Set_Peer_Addr(uint8_t conidx, const uint8_t* addr6) {
     if (conidx >= RSSI_MAX_CONN || addr6 == NULL) {
         return;
     }
-    RSSI_Checker *self = RSSI_Get_Default();
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
+    RSSI_Checker* self = RSSI_Get_Default();
+    RSSI_ConnCtx* ctx  = &self->conn[conidx];
     memcpy(ctx->peer_addr, addr6, 6);
     ctx->peer_addr_valid = true;
 }
 
-bool RSSI_Check_Get_Peer_Addr(uint8_t conidx, uint8_t *out_addr6)
-{
+bool RSSI_Check_Get_Peer_Addr(uint8_t conidx, uint8_t* out_addr6) {
     if (conidx >= RSSI_MAX_CONN || out_addr6 == NULL) {
         return false;
     }
 
-    RSSI_Checker *self = RSSI_Get_Default();
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
+    RSSI_Checker* self = RSSI_Get_Default();
+    RSSI_ConnCtx* ctx  = &self->conn[conidx];
     if (!ctx->peer_addr_valid) {
         return false;
     }
@@ -326,20 +329,18 @@ bool RSSI_Check_Get_Peer_Addr(uint8_t conidx, uint8_t *out_addr6)
     return true;
 }
 
-void RSSI_Check_Clear_Peer_Addr(uint8_t conidx)
-{
+void RSSI_Check_Clear_Peer_Addr(uint8_t conidx) {
     if (conidx >= RSSI_MAX_CONN) {
         return;
     }
-    RSSI_Checker *self = RSSI_Get_Default();
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
+    RSSI_Checker* self = RSSI_Get_Default();
+    RSSI_ConnCtx* ctx  = &self->conn[conidx];
     memset(ctx->peer_addr, 0, sizeof(ctx->peer_addr));
     ctx->peer_addr_valid = false;
 }
 
-void RSSI_Check_Enable(uint8_t conidx, rssi_getter_t getter)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+void RSSI_Check_Enable(uint8_t conidx, rssi_getter_t getter) {
+    RSSI_Checker* self = RSSI_Get_Default();
     self->m.Enable(self, conidx, getter);
 }
 
@@ -347,11 +348,12 @@ void RSSI_Check_Enable(uint8_t conidx, rssi_getter_t getter)
  * @brief 禁用指定连接的 RSSI 跟踪
  * @param conidx 连接索引
  */
-static void RSSI_Checker_Disable_Impl(RSSI_Checker *self, uint8_t conidx)
-{
-    if (self == NULL) return;
-    if (conidx >= RSSI_MAX_CONN) return;
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
+static void RSSI_Checker_Disable_Impl(RSSI_Checker* self, uint8_t conidx) {
+    if (self == NULL)
+        return;
+    if (conidx >= RSSI_MAX_CONN)
+        return;
+    RSSI_ConnCtx* ctx = &self->conn[conidx];
 
     if (ctx->timer_started) {
         os_timer_stop(&ctx->timer);
@@ -362,9 +364,8 @@ static void RSSI_Checker_Disable_Impl(RSSI_Checker *self, uint8_t conidx)
     ctx->getter = NULL;
 }
 
-void RSSI_Check_Disable(uint8_t conidx)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+void RSSI_Check_Disable(uint8_t conidx) {
+    RSSI_Checker* self = RSSI_Get_Default();
     self->m.Disable(self, conidx);
 }
 
@@ -373,12 +374,15 @@ void RSSI_Check_Disable(uint8_t conidx)
  * @param conidx 连接索引
  * @param rssi   原始 RSSI 值（负数，单位 dBm）
  */
-static void RSSI_Checker_Update_Impl(RSSI_Checker *self, uint8_t conidx, int8_t rssi)
-{
-    if (self == NULL) return;
-    if (conidx >= RSSI_MAX_CONN) return;
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
-    if (!ctx->active) return;
+static void
+RSSI_Checker_Update_Impl(RSSI_Checker* self, uint8_t conidx, int8_t rssi) {
+    if (self == NULL)
+        return;
+    if (conidx >= RSSI_MAX_CONN)
+        return;
+    RSSI_ConnCtx* ctx = &self->conn[conidx];
+    if (!ctx->active)
+        return;
 
     /* 记录变化前的状态：用于边沿触发（NEAR/FAR/LOST） */
     uint8_t prev_distance = (uint8_t)ctx->distance;
@@ -399,13 +403,18 @@ static void RSSI_Checker_Update_Impl(RSSI_Checker *self, uint8_t conidx, int8_t 
      * - 打印 raw/filtered/distance/mac，方便你对照 MCU 是否收到 0x0118。
      */
     if (ctx->peer_addr_valid) {
-        co_printf("[RSSI] link=%d raw=%d flt=%d dist=%u mac=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+        co_printf("[RSSI] link=%d raw=%d flt=%d dist=%u "
+                  "mac=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
                   conidx,
                   rssi,
                   (int)ctx->ema,
                   (unsigned)ctx->distance,
-                  ctx->peer_addr[0], ctx->peer_addr[1], ctx->peer_addr[2],
-                  ctx->peer_addr[3], ctx->peer_addr[4], ctx->peer_addr[5]);
+                  ctx->peer_addr[0],
+                  ctx->peer_addr[1],
+                  ctx->peer_addr[2],
+                  ctx->peer_addr[3],
+                  ctx->peer_addr[4],
+                  ctx->peer_addr[5]);
     } else {
         co_printf("[RSSI] link=%d raw=%d flt=%d dist=%u mac=UNKNOWN\r\n",
                   conidx,
@@ -416,9 +425,8 @@ static void RSSI_Checker_Update_Impl(RSSI_Checker *self, uint8_t conidx, int8_t 
 #endif
 }
 
-void RSSI_Check_Update(uint8_t conidx, int8_t rssi)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+void RSSI_Check_Update(uint8_t conidx, int8_t rssi) {
+    RSSI_Checker* self = RSSI_Get_Default();
     self->m.Update(self, conidx, rssi);
 }
 
@@ -427,16 +435,17 @@ void RSSI_Check_Update(uint8_t conidx, int8_t rssi)
  * @param conidx 连接索引
  * @return 滤波后 RSSI（dBm）
  */
-static int16_t RSSI_Checker_GetFiltered_Impl(RSSI_Checker *self, uint8_t conidx)
-{
-    if (self == NULL) return -100;
-    if (conidx >= RSSI_MAX_CONN) return -100;
+static int16_t RSSI_Checker_GetFiltered_Impl(RSSI_Checker* self,
+                                             uint8_t       conidx) {
+    if (self == NULL)
+        return -100;
+    if (conidx >= RSSI_MAX_CONN)
+        return -100;
     return self->conn[conidx].ema;
 }
 
-int16_t RSSI_Check_Get_Filtered(uint8_t conidx)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+int16_t RSSI_Check_Get_Filtered(uint8_t conidx) {
+    RSSI_Checker* self = RSSI_Get_Default();
     return self->m.GetFiltered(self, conidx);
 }
 
@@ -445,16 +454,17 @@ int16_t RSSI_Check_Get_Filtered(uint8_t conidx)
  * @param conidx 连接索引
  * @return 0=失联，1=远距离，2=近距离
  */
-static uint8_t RSSI_Checker_GetDistance_Impl(RSSI_Checker *self, uint8_t conidx)
-{
-    if (self == NULL) return 0;
-    if (conidx >= RSSI_MAX_CONN) return 0;
+static uint8_t RSSI_Checker_GetDistance_Impl(RSSI_Checker* self,
+                                             uint8_t       conidx) {
+    if (self == NULL)
+        return 0;
+    if (conidx >= RSSI_MAX_CONN)
+        return 0;
     return (uint8_t)self->conn[conidx].distance;
 }
 
-uint8_t RSSI_Check_Get_Distance(uint8_t conidx)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+uint8_t RSSI_Check_Get_Distance(uint8_t conidx) {
+    RSSI_Checker* self = RSSI_Get_Default();
     return self->m.GetDistance(self, conidx);
 }
 
@@ -463,16 +473,16 @@ uint8_t RSSI_Check_Get_Distance(uint8_t conidx)
  * @param conidx 连接索引
  * @return true=近距离，false=其他
  */
-static bool RSSI_Checker_IsNear_Impl(RSSI_Checker *self, uint8_t conidx)
-{
-    if (self == NULL) return false;
-    if (conidx >= RSSI_MAX_CONN) return false;
+static bool RSSI_Checker_IsNear_Impl(RSSI_Checker* self, uint8_t conidx) {
+    if (self == NULL)
+        return false;
+    if (conidx >= RSSI_MAX_CONN)
+        return false;
     return self->conn[conidx].distance == RSSI_DIST_NEAR;
 }
 
-bool RSSI_Check_Is_Near(uint8_t conidx)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+bool RSSI_Check_Is_Near(uint8_t conidx) {
+    RSSI_Checker* self = RSSI_Get_Default();
     return self->m.IsNear(self, conidx);
 }
 
@@ -481,16 +491,16 @@ bool RSSI_Check_Is_Near(uint8_t conidx)
  * @param conidx 连接索引
  * @return true=失联，false=其他
  */
-static bool RSSI_Checker_IsLost_Impl(RSSI_Checker *self, uint8_t conidx)
-{
-    if (self == NULL) return false;
-    if (conidx >= RSSI_MAX_CONN) return false;
+static bool RSSI_Checker_IsLost_Impl(RSSI_Checker* self, uint8_t conidx) {
+    if (self == NULL)
+        return false;
+    if (conidx >= RSSI_MAX_CONN)
+        return false;
     return self->conn[conidx].distance == RSSI_DIST_LOST;
 }
 
-bool RSSI_Check_Is_Lost(uint8_t conidx)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+bool RSSI_Check_Is_Lost(uint8_t conidx) {
+    RSSI_Checker* self = RSSI_Get_Default();
     return self->m.IsLost(self, conidx);
 }
 
@@ -498,20 +508,20 @@ bool RSSI_Check_Is_Lost(uint8_t conidx)
  * @brief 重置指定连接的滤波器
  * @param conidx 连接索引
  */
-static void RSSI_Checker_Reset_Impl(RSSI_Checker *self, uint8_t conidx)
-{
-    if (self == NULL) return;
-    if (conidx >= RSSI_MAX_CONN) return;
-    RSSI_ConnCtx *ctx = &self->conn[conidx];
-    ctx->s3_cnt = 0;
-    ctx->s3_idx = 0;
-    ctx->ema_inited = false;
-    ctx->ema = -70;
-    ctx->distance = RSSI_DIST_LOST;
+static void RSSI_Checker_Reset_Impl(RSSI_Checker* self, uint8_t conidx) {
+    if (self == NULL)
+        return;
+    if (conidx >= RSSI_MAX_CONN)
+        return;
+    RSSI_ConnCtx* ctx = &self->conn[conidx];
+    ctx->s3_cnt       = 0;
+    ctx->s3_idx       = 0;
+    ctx->ema_inited   = false;
+    ctx->ema          = -70;
+    ctx->distance     = RSSI_DIST_LOST;
 }
 
-void RSSI_Check_Reset(uint8_t conidx)
-{
-    RSSI_Checker *self = RSSI_Get_Default();
+void RSSI_Check_Reset(uint8_t conidx) {
+    RSSI_Checker* self = RSSI_Get_Default();
     self->m.Reset(self, conidx);
 }

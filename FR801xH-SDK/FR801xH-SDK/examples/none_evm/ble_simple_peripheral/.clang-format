@@ -1,30 +1,44 @@
-# .clang-format
+# Clang-Format 配置（单一版本，避免重复键）
 BasedOnStyle: LLVM
-Language: C
 
-# 一行最大宽度
-ColumnLimit: 80
-
-# 对齐连续的宏定义（#define）
-AlignConsecutiveMacros: true
-
-# 常见配套：让连续声明/赋值也更整齐（可按需保留）
-AlignConsecutiveDeclarations: true
-AlignConsecutiveAssignments: true
-
-# 缩进与常见风格（可按需调整）
+# 缩进 / 制表符
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 
-# 宏定义通常不强制二次缩进
+# 不限制列宽，避免因列宽导致的自动换行
+ColumnLimit: 80
+
+# 保持短的初始化器/代码块为单行（当适合时）
+AllowShortBlocksOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: None
+
+# 参数/列表不要打包（更容易逐行对齐）
+BinPackArguments: false
+BinPackParameters: false
+
+# 对齐相关，尽量使连续的声明/赋值/宏更整齐
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+AlignTrailingComments: true
+
+# 预处理指令缩进策略
 IndentPPDirectives: None
 
-# 换行与括号（保持相对常规的 C 习惯）
+# 括号和空格风格
 BreakBeforeBraces: Attach
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Inline
+SpaceBeforeParens: ControlStatements
+SpaceBeforeCpp11BracedList: true
 
-# 避免把 include 排序搞乱（有些项目不希望自动重排）
+# 指针对齐
+PointerAlignment: Left
+DerivePointerAlignment: false
+
+# 包含排序（保持原状以免干扰项目风格）
 SortIncludes: Never
+
+# 其他：避免对初始化列表过度重排的配置
+ReflowComments: false

@@ -50,7 +50,7 @@ void BleFunc_FD_ParamSynchronize(uint16_t cmd, const uint8_t* payload, uint8_t l
 void BleFunc_FD_ParamSynchronizeChange(uint16_t cmd, const uint8_t* payload, uint8_t len);
 void BleFunc_FD_SetDefaultMode(uint16_t cmd, const uint8_t* payload, uint8_t len);
 void BleFunc_FD_SetVichleGurdMode(uint16_t cmd, const uint8_t* payload, uint8_t len);
-void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t* payload, uint8_t len);	
+void BleFunc_FD_SetAutoReturnMode(uint16_t cmd, const uint8_t* payload, uint8_t len);
 void BleFunc_FD_SetEbsSwitch(uint16_t cmd, const uint8_t* payload, uint8_t len);
 void BleFunc_FD_SetESaveMode(uint16_t cmd, const uint8_t* payload, uint8_t len);
 void BleFunc_FD_SetDynMode(uint16_t cmd, const uint8_t* payload, uint8_t len);
@@ -71,12 +71,12 @@ void BleFunc_FD_SetRadarSwitch(uint16_t cmd, const uint8_t* payload, uint8_t len
  * @brief UART 收到 MCU->SOC 回包后上报（用于 BLE 侧判断 MCU 是否回包）
  * @note 由 user_task.c 在完成帧校验/解析后调用
  */
-void BleFunc_OnMcuUartFrame(uint16_t sync,
-							uint16_t feature,
-							uint16_t id,
-							const uint8_t *data,
-							uint16_t data_len,
-							uint8_t crc_ok);
+void BleFunc_OnMcuUartFrame(uint16_t       sync,
+                            uint16_t       feature,
+                            uint16_t       id,
+                            const uint8_t* data,
+                            uint16_t       data_len,
+                            uint8_t        crc_ok);
 
 /**
  * @brief RSSI 距离状态变化回调（由 rssi_check 模块触发）
@@ -86,9 +86,9 @@ void BleFunc_OnMcuUartFrame(uint16_t sync,
  * - 仅在距离状态发生变化时触发，避免在 RSSI 高频回调里反复下发。
  */
 void BleFunc_RSSI_DistanceChangeCb(uint8_t conidx,
-							  uint8_t new_distance,
-							  int16_t filtered_rssi,
-							  int8_t raw_rssi);
+                                   uint8_t new_distance,
+                                   int16_t filtered_rssi,
+                                   int8_t  raw_rssi);
 
 /**
  * @brief RSSI 采集到就下发 MCU（发送滤波值，不做阈值/距离判定）

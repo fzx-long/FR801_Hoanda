@@ -14,62 +14,62 @@
 static BLE_Central_Base_t g_ble_scanner;
 
 /* ============ 第 3 步：在 app_gap_evt_cb() 开头添加 ============ */
-void app_gap_evt_cb(gap_event_t *p_event)
-{
+void app_gap_evt_cb(gap_event_t* p_event) {
     // 添加这一行，让 Scanner 处理 GAP 事件
     BLE_Scanner_Event_Handler(p_event);
-    
+
     // ... 原有的 switch (p_event->type) ...
 }
 
 /* ============ 第 4 步：在 user_entry_after_ble_init() 中初始化 ============ */
-void user_entry_after_ble_init(void)
-{
+void user_entry_after_ble_init(void) {
     // ... 原有的代码 ...
-    
+
     // 创建扫描器实例
     BLE_Scanner_Create(&g_ble_scanner);
-    
+
     // 开始扫描
     g_ble_scanner.ops.scan_start();
-    
+
     // ... 原有的代码 ...
 }
 
 /* ============ 第 5 步：使用示例（在需要的地方调用）============ */
 
-void example_usage(void)
-{
+void example_usage(void) {
     // 开始扫描
     g_ble_scanner.ops.scan_start();
-    
+
     // 停止扫描
     g_ble_scanner.ops.scan_stop();
-    
+
     // 连接指定 MAC 地址的设备（小端序）
     uint8_t target_mac[6] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
     g_ble_scanner.ops.connect(target_mac);
-    
+
     // 断开连接
     g_ble_scanner.ops.disconnect();
-    
+
     // 获取 RSSI（打印到串口）
     g_ble_scanner.ops.get_rssi();
-    
+
     // 获取 MAC（打印到串口）
     g_ble_scanner.ops.get_mac();
-    
+
     // 获取广播数据
-    uint8_t adv_data[31];
-    uint8_t *p_adv = g_ble_scanner.ops.get_adv_data(adv_data);
+    uint8_t  adv_data[31];
+    uint8_t* p_adv = g_ble_scanner.ops.get_adv_data(adv_data);
     // 现在 adv_data 中有广播数据，p_adv 指向内部缓存
-    
+
     // 直接访问状态变量
     if (g_ble_scanner.scaned) {
         co_printf("Scanned MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                  g_ble_scanner.scan_mac[5], g_ble_scanner.scan_mac[4],
-                  g_ble_scanner.scan_mac[3], g_ble_scanner.scan_mac[2],
-                  g_ble_scanner.scan_mac[1], g_ble_scanner.scan_mac[0]);
+                  g_ble_scanner.scan_mac[5],
+                  g_ble_scanner.scan_mac[4],
+                  g_ble_scanner.scan_mac[3],
+                  g_ble_scanner.scan_mac[2],
+                  g_ble_scanner.scan_mac[1],
+                  g_ble_scanner.scan_mac[0]);
         co_printf("RSSI: %d dBm\r\n", (int8_t)g_ble_scanner.rssi);
     }
 }
