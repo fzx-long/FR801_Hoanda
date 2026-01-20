@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\ble_simple_peripheral.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\ble_simple_peripheral.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Fri Jan 16 11:38:01 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue Jan 20 15:59:53 2026
 <BR><P>
 <H3>Maximum Stack Usage =        840 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -481,12 +481,12 @@ Global Symbols
 <LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_timer_init (via Veneer)
 <LI><a href="#[19f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frspim_wr (via Veneer)
 <LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frspim_rd (via Veneer)
-<LI><a href="#[2b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_write (via Veneer)
-<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read (via Veneer)
-<LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_erase (via Veneer)
 <LI><a href="#[459]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;system_lvd_protect_handle (via Veneer)
 <LI><a href="#[3e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_OTP_read (via Veneer)
 <LI><a href="#[44c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pmu_clear_isr_state (via Veneer)
+<LI><a href="#[2b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_write (via Veneer)
+<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read (via Veneer)
+<LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_erase (via Veneer)
 <LI><a href="#[1a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortSuppressTicksAndSleep_patch (via Veneer)
 <LI><a href="#[49a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_page_erase (via Veneer)
 <LI><a href="#[499]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_OTP_erase (via Veneer)
@@ -503,12 +503,12 @@ Global Symbols
 <LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_timer_init (via Veneer)
 <LI><a href="#[19f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frspim_wr (via Veneer)
 <LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frspim_rd (via Veneer)
-<LI><a href="#[2b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_write (via Veneer)
-<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read (via Veneer)
-<LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_erase (via Veneer)
 <LI><a href="#[459]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;system_lvd_protect_handle (via Veneer)
 <LI><a href="#[3e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_OTP_read (via Veneer)
 <LI><a href="#[44c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pmu_clear_isr_state (via Veneer)
+<LI><a href="#[2b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_write (via Veneer)
+<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read (via Veneer)
+<LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_erase (via Veneer)
 <LI><a href="#[49a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_page_erase (via Veneer)
 <LI><a href="#[499]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_OTP_erase (via Veneer)
 <LI><a href="#[497]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_OTP_write (via Veneer)
@@ -527,11 +527,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2e4]"></a>rand</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
-<BR><BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_param_update_cmd_handler (via Veneer)
+<BR><BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
+<LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_param_update_cmd_handler (via Veneer)
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;l2cc_lecb_disconnect_cmd_handler (via Veneer)
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;l2cc_lecb_connect_cmd_handler (via Veneer)
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;l2cc_lecb_add_cmd_handler (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 </UL>
 
 <P><STRONG><a name="[223]"></a>srand</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
@@ -550,11 +550,6 @@ Global Symbols
 <LI><a href="#[37d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_msg_post (via Veneer)
 <LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gap_set_dev_name (via Veneer)
 <LI><a href="#[3f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sp_build_local_name_and_scan_rsp (via Veneer)
-<LI><a href="#[8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;scanner_get_adv_data (via Veneer)
-<LI><a href="#[1cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;scanner_gap_event_handler (via Veneer)
-<LI><a href="#[20b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SocMcu_Frame_Build (via Veneer)
-<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart1_rx_callback (via Veneer)
-<LI><a href="#[1ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_PushMcuFrameToAuthedApp (via Veneer)
 <LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hid_gatt_msg_handler (via Veneer)
 <LI><a href="#[1c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_set_key (via Veneer)
 <LI><a href="#[1c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_cbc_encrypt (via Veneer)
@@ -562,11 +557,19 @@ Global Symbols
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ops_aes_encrypt (via Veneer)
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ops_aes_decrypt (via Veneer)
 <LI><a href="#[1c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MD5_Update (via Veneer)
+<LI><a href="#[8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;scanner_get_adv_data (via Veneer)
+<LI><a href="#[1cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;scanner_gap_event_handler (via Veneer)
+<LI><a href="#[20b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SocMcu_Frame_Build (via Veneer)
+<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart1_rx_callback (via Veneer)
+<LI><a href="#[1ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_PushMcuFrameToAuthedApp (via Veneer)
 <LI><a href="#[251]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_scan_response_data (via Veneer)
 <LI><a href="#[252]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_per_adv_data (via Veneer)
 <LI><a href="#[26c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_advertising_param (via Veneer)
 <LI><a href="#[250]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_advertising_data (via Veneer)
 <LI><a href="#[2cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gap_get_dev_name (via Veneer)
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_ind_handler (via Veneer)
 <LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_resolve_address (via Veneer)
 <LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_store_info (via Veneer)
 <LI><a href="#[222]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_connection_success_ind_func (via Veneer)
@@ -605,9 +608,7 @@ Global Symbols
 <LI><a href="#[289]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attmdb_get_uuid (via Veneer)
 <LI><a href="#[288]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attm_get_value (via Veneer)
 <LI><a href="#[287]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attm_convert_to128 (via Veneer)
-<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_ind_handler (via Veneer)
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu (via Veneer)
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rand_pdu (via Veneer)
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_cfm_pdu (via Veneer)
 <LI><a href="#[172]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_id_info_pdu (via Veneer)
@@ -678,7 +679,6 @@ Global Symbols
 <LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_hdl_val_ntf_ind_handler (via Veneer)
 <LI><a href="#[17a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_find_info_rsp_handler (via Veneer)
 <LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_find_by_type_rsp_handler (via Veneer)
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu (via Veneer)
 </UL>
 
 <P><STRONG><a name="[1dd]"></a>__aeabi_memcpy4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
@@ -698,6 +698,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MD5_Final (via Veneer)
 <LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_init (via Veneer)
 <LI><a href="#[2b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_clr_all_info (via Veneer)
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 <LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_read_info_from_flash (via Veneer)
 <LI><a href="#[262]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_init (via Veneer)
 <LI><a href="#[246]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_gap_set_dev_config (via Veneer)
@@ -706,7 +707,6 @@ Global Symbols
 <LI><a href="#[1a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gatt_service_init (via Veneer)
 <LI><a href="#[30e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_sign_command (via Veneer)
 <LI><a href="#[346]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_confirm_gen_rand (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 <LI><a href="#[400]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_aes_cmac_continue (via Veneer)
 <LI><a href="#[366]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_scan_add_to_filter (via Veneer)
 <LI><a href="#[420]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_generate_l (via Veneer)
@@ -716,12 +716,12 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Algo_SetKeyIV (via Veneer)
 <LI><a href="#[39b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;handle_uart_frame (via Veneer)
 <LI><a href="#[213]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TPMS_Init (via Veneer)
+<LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MD5_Final (via Veneer)
+<LI><a href="#[208]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Construct (via Veneer)
 <LI><a href="#[216]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TPMS_Parse_Adv (via Veneer)
 <LI><a href="#[214]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_learn_reset_candidates (via Veneer)
 <LI><a href="#[210]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_save (via Veneer)
 <LI><a href="#[215]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_load (via Veneer)
-<LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MD5_Final (via Veneer)
-<LI><a href="#[208]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Construct (via Veneer)
 <LI><a href="#[3ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;initial_static_memory (via Veneer)
 <LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_main (via Veneer)
 <LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_init_imp (via Veneer)
@@ -931,7 +931,25 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[1cd]"></a>co_printf</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
-<BR><BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode (via Veneer)
+<BR><BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode (via Veneer)
+<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp (via Veneer)
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch (via Veneer)
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility (via Veneer)
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed (via Veneer)
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode (via Veneer)
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand (via Veneer)
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode (via Veneer)
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch (via Veneer)
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode (via Veneer)
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode (via Veneer)
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch (via Veneer)
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode (via Veneer)
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode (via Veneer)
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode (via Veneer)
+<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch (via Veneer)
+<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode (via Veneer)
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode (via Veneer)
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode (via Veneer)
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChordHornMode (via Veneer)
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChargingPower (via Veneer)
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetBatteryParameter (via Veneer)
@@ -991,34 +1009,6 @@ Global Symbols
 <LI><a href="#[21a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Task_Init (via Veneer)
 <LI><a href="#[224]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;user_entry_after_ble_init (via Veneer)
 <LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;debug_timer_func (via Veneer)
-<LI><a href="#[18]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_print_status (via Veneer)
-<LI><a href="#[19]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_learn_timer_cb (via Veneer)
-<LI><a href="#[17]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_feed_adv (via Veneer)
-<LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ParamSync_OnMcuSync64FD (via Veneer)
-<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_PrintTime6 (via Veneer)
-<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuUart_SendOnly (via Veneer)
-<LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Timeout (via Veneer)
-<LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Start (via Veneer)
-<LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_EnsureAuthed (via Veneer)
-<LI><a href="#[1d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_DumpPayload (via Veneer)
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode (via Veneer)
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp (via Veneer)
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch (via Veneer)
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility (via Veneer)
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed (via Veneer)
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode (via Veneer)
-<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand (via Veneer)
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode (via Veneer)
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch (via Veneer)
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode (via Veneer)
-<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode (via Veneer)
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch (via Veneer)
-<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode (via Veneer)
-<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode (via Veneer)
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode (via Veneer)
-<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch (via Veneer)
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode (via Veneer)
-<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode (via Veneer)
 <LI><a href="#[452]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;onkey_isr_ram (via Veneer)
 <LI><a href="#[451]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;otd_isr_ram (via Veneer)
 <LI><a href="#[44e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;charge_isr_ram (via Veneer)
@@ -1030,6 +1020,16 @@ Global Symbols
 <LI><a href="#[3f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;show_reg (via Veneer)
 <LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hid_gatt_msg_handler (via Veneer)
 <LI><a href="#[1f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ParamSync_Send66FD (via Veneer)
+<LI><a href="#[18]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_print_status (via Veneer)
+<LI><a href="#[19]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_learn_timer_cb (via Veneer)
+<LI><a href="#[17]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_feed_adv (via Veneer)
+<LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ParamSync_OnMcuSync64FD (via Veneer)
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_PrintTime6 (via Veneer)
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuUart_SendOnly (via Veneer)
+<LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Timeout (via Veneer)
+<LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Start (via Veneer)
+<LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_EnsureAuthed (via Veneer)
+<LI><a href="#[1d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_DumpPayload (via Veneer)
 <LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rwble_isr_patch (via Veneer)
 <LI><a href="#[45c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HardFault_Handler_C (via Veneer)
 <LI><a href="#[191]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timer1_isr_ram (via Veneer)
@@ -1038,6 +1038,10 @@ Global Symbols
 <LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_init (via Veneer)
 <LI><a href="#[2b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_clr_all_info (via Veneer)
 <LI><a href="#[26d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_start_conn (via Veneer)
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_security_ind_handler (via Veneer)
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_ind_handler (via Veneer)
 <LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_write_info_to_flash (via Veneer)
 <LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_addr_resolve_cb (via Veneer)
 <LI><a href="#[360]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mesh_set_runtime (via Veneer)
@@ -1047,13 +1051,9 @@ Global Symbols
 <LI><a href="#[37e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gatt_store_peer_prf_info (via Veneer)
 <LI><a href="#[1a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gatt_service_init (via Veneer)
 <LI><a href="#[2bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_check_ediv_rand (via Veneer)
-<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_security_ind_handler (via Veneer)
-<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_ind_handler (via Veneer)
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu (via Veneer)
 <LI><a href="#[177]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_dhkey_check_pdu (via Veneer)
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gattc_disc_svc_ind_handler (via Veneer)
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu (via Veneer)
 </UL>
 
 <P><STRONG><a name="[46c]"></a>eTaskConfirmSleepModeStatus</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
@@ -1252,6 +1252,8 @@ Global Symbols
 <LI><a href="#[251]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_scan_response_data (via Veneer)
 <LI><a href="#[252]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_per_adv_data (via Veneer)
 <LI><a href="#[250]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_set_advertising_data (via Veneer)
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 <LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_resolve_address (via Veneer)
 <LI><a href="#[248]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_create_conn_act (via Veneer)
 <LI><a href="#[360]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mesh_set_runtime (via Veneer)
@@ -1340,8 +1342,7 @@ Global Symbols
 <LI><a href="#[30c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_send_disconect_ind (via Veneer)
 <LI><a href="#[2de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_send_complete_evt (via Veneer)
 <LI><a href="#[2ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_con_create (via Veneer)
-<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu (via Veneer)
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu (via Veneer)
 <LI><a href="#[426]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_key_press_notification_ind (via Veneer)
 <LI><a href="#[364]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_smp_resolv_op_cont (via Veneer)
@@ -1413,7 +1414,6 @@ Global Symbols
 <LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_hdl_val_ntf_ind_handler (via Veneer)
 <LI><a href="#[17a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_find_info_rsp_handler (via Veneer)
 <LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_find_by_type_rsp_handler (via Veneer)
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu (via Veneer)
 </UL>
 
 <P><STRONG><a name="[14a]"></a>ke_msg_discard</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE), UNUSED)
@@ -1430,6 +1430,7 @@ Global Symbols
 
 <P><STRONG><a name="[282]"></a>ke_msg_free</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
 <BR><BR>[Called By]<UL><LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_timer_stop (via Veneer)
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 <LI><a href="#[37b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gatt_msg_default_handler_imp (via Veneer)
 <LI><a href="#[31d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_per_sync_clear_fragments (via Veneer)
 <LI><a href="#[39c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;l2cc_pdu_rx_init (via Veneer)
@@ -1442,7 +1443,6 @@ Global Symbols
 <LI><a href="#[387]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gattc_operation_cleanup (via Veneer)
 <LI><a href="#[34b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_operation_cleanup (via Veneer)
 <LI><a href="#[2e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_operation_cleanup (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 <LI><a href="#[368]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_scan_send_adv_report_ind (via Veneer)
 <LI><a href="#[35c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_per_sync_send_adv_report_ind (via Veneer)
 <LI><a href="#[3bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;l2cc_data_send (via Veneer)
@@ -1469,6 +1469,8 @@ Global Symbols
 <LI><a href="#[3df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_msg_send (via Veneer)
 <LI><a href="#[2bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_send_security_req (via Veneer)
 <LI><a href="#[25b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_execute_activity_cmd (via Veneer)
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
 <LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_resolve_address (via Veneer)
 <LI><a href="#[248]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;appm_create_conn_act (via Veneer)
 <LI><a href="#[360]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mesh_set_runtime (via Veneer)
@@ -1547,8 +1549,7 @@ Global Symbols
 <LI><a href="#[30c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_send_disconect_ind (via Veneer)
 <LI><a href="#[2de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_send_complete_evt (via Veneer)
 <LI><a href="#[2ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_con_create (via Veneer)
-<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_req_ind_handler (via Veneer)
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_req_ind_handler (via Veneer)
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu (via Veneer)
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu (via Veneer)
 <LI><a href="#[426]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_key_press_notification_ind (via Veneer)
 <LI><a href="#[364]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_smp_resolv_op_cont (via Veneer)
@@ -1602,7 +1603,6 @@ Global Symbols
 <LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_hdl_val_ntf_ind_handler (via Veneer)
 <LI><a href="#[17a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_find_info_rsp_handler (via Veneer)
 <LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_find_by_type_rsp_handler (via Veneer)
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu (via Veneer)
 </UL>
 
 <P><STRONG><a name="[393]"></a>ke_msg_send_basic</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
@@ -1929,8 +1929,8 @@ Global Symbols
 
 <P><STRONG><a name="[498]"></a>qspi_stig_cmd</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, syscall.txt(ABSOLUTE))
 <BR><BR>[Called By]<UL><LI><a href="#[439]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_enable (via Veneer)
-<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable (via Veneer)
 <LI><a href="#[3e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_OTP_read (via Veneer)
+<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable (via Veneer)
 <LI><a href="#[49c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read_id (via Veneer)
 <LI><a href="#[49b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_enable1 (via Veneer)
 <LI><a href="#[49a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_page_erase (via Veneer)
@@ -2478,7 +2478,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> protocol_fd.o(.constdata)
 </UL>
-<P><STRONG><a name="[6d]"></a>BleFunc_FD_SetESaveMode</STRONG> (Thumb, 256 bytes, Stack size 40 bytes, ble_function.o(i.BleFunc_FD_SetESaveMode))
+<P><STRONG><a name="[6d]"></a>BleFunc_FD_SetESaveMode</STRONG> (Thumb, 252 bytes, Stack size 40 bytes, ble_function.o(i.BleFunc_FD_SetESaveMode))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = BleFunc_FD_SetESaveMode &rArr; BleFunc_EnsureAuthed &rArr; BleFunc_SendResultToRx &rArr; Protocol_Send_Unicast &rArr; proto_encrypt_payload &rArr; Algo_SetKeyIV
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
@@ -2540,7 +2540,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> protocol_fd.o(.constdata)
 </UL>
-<P><STRONG><a name="[66]"></a>BleFunc_FD_SetIntelligentSwitch</STRONG> (Thumb, 332 bytes, Stack size 56 bytes, ble_function.o(i.BleFunc_FD_SetIntelligentSwitch))
+<P><STRONG><a name="[66]"></a>BleFunc_FD_SetIntelligentSwitch</STRONG> (Thumb, 336 bytes, Stack size 56 bytes, ble_function.o(i.BleFunc_FD_SetIntelligentSwitch))
 <BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = BleFunc_FD_SetIntelligentSwitch &rArr; BleFunc_EnsureAuthed &rArr; BleFunc_SendResultToRx &rArr; Protocol_Send_Unicast &rArr; proto_encrypt_payload &rArr; Algo_SetKeyIV
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
@@ -2964,7 +2964,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> protocol_fe.o(.constdata)
 </UL>
-<P><STRONG><a name="[1e9]"></a>BleFunc_OnMcuUartFrame</STRONG> (Thumb, 552 bytes, Stack size 48 bytes, ble_function.o(i.BleFunc_OnMcuUartFrame))
+<P><STRONG><a name="[1e9]"></a>BleFunc_OnMcuUartFrame</STRONG> (Thumb, 554 bytes, Stack size 48 bytes, ble_function.o(i.BleFunc_OnMcuUartFrame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = BleFunc_OnMcuUartFrame &rArr; BleFunc_McuTxn_Start &rArr; BleFunc_SendResultToConidx &rArr; Protocol_Send_Unicast &rArr; proto_encrypt_payload &rArr; Algo_SetKeyIV
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Send_Unicast
@@ -3530,6 +3530,7 @@ Global Symbols
 <LI><a href="#[237]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;user_custom_parameters
 <LI><a href="#[23e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pmu_sub_init
 <LI><a href="#[241]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_delay_10us (via Veneer)
+<LI><a href="#[223]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;srand (via Veneer)
 <LI><a href="#[240]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pmu_calibration_start (via Veneer)
 <LI><a href="#[232]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enable_cache (via Veneer)
 <LI><a href="#[23c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;patch_set_entry (via Veneer)
@@ -3539,7 +3540,6 @@ Global Symbols
 <LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;intc_init (via Veneer)
 <LI><a href="#[231]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_boot_get_storage_type (via Veneer)
 <LI><a href="#[234]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NVIC_SetPriority (via Veneer)
-<LI><a href="#[223]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;srand (via Veneer)
 <LI><a href="#[244]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;user_entry4 (via Veneer)
 <LI><a href="#[239]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;user_init_static_memory
 <LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;trng_init_
@@ -4307,9 +4307,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = ble_bond_clr_all_info &rArr; flash_write &rArr; flash_protect_enable &rArr; co_delay_100us
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
+<LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr (via Veneer)
 <LI><a href="#[2b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_write (via Veneer)
 <LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_erase (via Veneer)
-<LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr (via Veneer)
 <LI><a href="#[262]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_sec_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gap_bond_manager_delete_all
@@ -4335,8 +4335,8 @@ Global Symbols
 <P><STRONG><a name="[2b8]"></a>ble_bond_read_info_from_flash</STRONG> (Thumb, 58 bytes, Stack size 16 bytes, user_bond_manage.o(i.ble_bond_read_info_from_flash))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = ble_bond_read_info_from_flash &rArr; flash_read
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read (via Veneer)
-<LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr (via Veneer)
+<BR>[Calls]<UL><LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr (via Veneer)
+<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_read (via Veneer)
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_init
 </UL>
@@ -4750,8 +4750,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2df]"></a>gapc_get_bdaddr</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, gapc.o(i.gapc_get_bdaddr))
-<BR><BR>[Called By]<UL><LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_peer_att_info_ind_handler
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_ind_handler
+<BR><BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_ind_handler
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_peer_att_info_ind_handler
 <LI><a href="#[418]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_generate_e1
 <LI><a href="#[403]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_generate_cfm
 </UL>
@@ -4795,6 +4795,7 @@ Global Symbols
 <LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gattc_read_req_ind_handler
 <LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_param_update_cmd_handler
 <LI><a href="#[270]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gattc_set_mtu
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
 <LI><a href="#[426]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_key_press_notification_ind
 <LI><a href="#[149]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hci_le_rd_phy_cmd_cmp_evt_handler
 <LI><a href="#[152]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hci_le_phy_upd_cmp_evt_handler
@@ -4809,7 +4810,6 @@ Global Symbols
 <LI><a href="#[3a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_handle_enc_change_evt
 <LI><a href="#[416]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_check_repeated_attempts
 <LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;attc_hdl_val_ntf_ind_handler
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
 </UL>
 
 <P><STRONG><a name="[303]"></a>gapc_get_operation</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, gapc.o(i.gapc_get_operation))
@@ -4871,6 +4871,9 @@ Global Symbols
 <LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_encrypt_cfm_handler
 <LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_cmd_handler
 <LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_cfm_handler
+<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sign_info_pdu
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rsp_pdu
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rand_pdu
@@ -4889,9 +4892,6 @@ Global Symbols
 <LI><a href="#[410]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_initiate_dhkey_verification
 <LI><a href="#[40e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_initiate_dhkey_check
 <LI><a href="#[407]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_init_mac_key_calculation
-<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sign_info_pdu
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 </UL>
 
 <P><STRONG><a name="[430]"></a>gapc_get_sign_counter</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, gapc.o(i.gapc_get_sign_counter))
@@ -5415,9 +5415,9 @@ Global Symbols
 <P><STRONG><a name="[408]"></a>gapm_get_local_public_key</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, gapm.o(i.gapm_get_local_public_key))
 <BR><BR>[Called By]<UL><LI><a href="#[346]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_confirm_gen_rand
 <LI><a href="#[375]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_calc_confirm_cont
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rsp_pdu
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rand_pdu
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 </UL>
 
 <P><STRONG><a name="[3c6]"></a>gapm_get_max_mps</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, gapm.o(i.gapm_get_max_mps))
@@ -5571,9 +5571,9 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[30b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_security_req_send
 <LI><a href="#[2dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_pairing_start
 <LI><a href="#[2d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_pairing_rsp
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rsp_pdu
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
 </UL>
 
 <P><STRONG><a name="[38f]"></a>gapm_is_pref_con_param_pres</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, gapm.o(i.gapm_is_pref_con_param_pres))
@@ -6630,8 +6630,8 @@ Global Symbols
 <P><STRONG><a name="[1]"></a>jump_table_memmory_init</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, jump_table.o(i.jump_table_memmory_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = jump_table_memmory_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[3b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ke_mem_init (via Veneer)
-<LI><a href="#[3af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset (via Veneer)
+<BR>[Calls]<UL><LI><a href="#[3af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset (via Veneer)
+<LI><a href="#[3b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ke_mem_init (via Veneer)
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> jump_table.o(jump_table_2)
 </UL>
@@ -7201,9 +7201,9 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[213]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TPMS_Init
 <LI><a href="#[3f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;simple_peripheral_init
 <LI><a href="#[224]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;user_entry_after_ble_init
+<LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Init_Impl
 <LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Enable_Impl
 <LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Start
-<LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Init_Impl
 </UL>
 
 <P><STRONG><a name="[1e7]"></a>os_timer_start</STRONG> (Thumb, 84 bytes, Stack size 24 bytes, os_timer.o(i.os_timer_start))
@@ -7240,9 +7240,9 @@ Global Symbols
 <LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_gap_evt_cb
 <LI><a href="#[22d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sp_rssi_req_timer_update
 <LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_timer_start
+<LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Init_Impl
 <LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Enable_Impl
 <LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Disable_Impl
-<LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RSSI_Checker_Init_Impl
 </UL>
 
 <P><STRONG><a name="[42]"></a>param_timer_func</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, ble_simple_peripheral.o(i.param_timer_func))
@@ -7520,8 +7520,8 @@ Global Symbols
 <LI><a href="#[275]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_get_dest_task
 <LI><a href="#[417]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_launch_rep_att_timer
 </UL>
-<BR>[Called By]<UL><LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
+<BR>[Called By]<UL><LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
+<LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu
 </UL>
 
 <P><STRONG><a name="[300]"></a>smpc_clear_timeout_timer</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, smpc.o(i.smpc_clear_timeout_timer))
@@ -7712,10 +7712,10 @@ Global Symbols
 <LI><a href="#[2d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_pairing_oob_exch
 <LI><a href="#[346]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_confirm_gen_rand
 <LI><a href="#[375]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_calc_confirm_cont
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rsp_pdu
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rand_pdu
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_cfm_pdu
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 </UL>
 
 <P><STRONG><a name="[3a8]"></a>smpc_generate_stk</STRONG> (Thumb, 76 bytes, Stack size 24 bytes, smpc.o(i.smpc_generate_stk))
@@ -7985,13 +7985,13 @@ Global Symbols
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapm_cmp_evt_handler
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_key_press_notification_cmd_handler
 <LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_bond_cfm_handler
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rsp_pdu
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rand_pdu
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_cfm_pdu
 <LI><a href="#[427]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_tkdp_send_continue
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 </UL>
 
 <P><STRONG><a name="[405]"></a>smpc_process_aes_cmac</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, smpc_crypto.o(i.smpc_process_aes_cmac))
@@ -8063,12 +8063,12 @@ Global Symbols
 <LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gapc_auth_set
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_pairing_end
+<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sign_info_pdu
+<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_req_pdu
 <LI><a href="#[16f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_fail_pdu
 <LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_mst_id_pdu
 <LI><a href="#[173]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_id_addr_info_pdu
-<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sign_info_pdu
-<LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sec_req_pdu
 </UL>
 
 <P><STRONG><a name="[40c]"></a>smpc_send_pairing_req_ind</STRONG> (Thumb, 252 bytes, Stack size 24 bytes, smpc.o(i.smpc_send_pairing_req_ind))
@@ -8085,9 +8085,9 @@ Global Symbols
 <LI><a href="#[2dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_pairing_req_handler
 <LI><a href="#[346]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_confirm_gen_rand
 <LI><a href="#[375]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_calc_confirm_cont
+<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_pair_rsp_pdu
 <LI><a href="#[427]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_tkdp_send_continue
-<LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_public_key_pdu
 </UL>
 
 <P><STRONG><a name="[404]"></a>smpc_send_start_enc_cmd</STRONG> (Thumb, 130 bytes, Stack size 32 bytes, smpc.o(i.smpc_send_start_enc_cmd))
@@ -8157,12 +8157,12 @@ Global Symbols
 <LI><a href="#[424]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_tkdp_send_start
 <LI><a href="#[3a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_secure_connections_enabled
 </UL>
-<BR>[Called By]<UL><LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_mst_id_pdu
+<BR>[Called By]<UL><LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sign_info_pdu
+<LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_mst_id_pdu
 <LI><a href="#[172]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_id_info_pdu
 <LI><a href="#[173]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_id_addr_info_pdu
 <LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_enc_info_pdu
 <LI><a href="#[425]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_tkdp_rcp_start
-<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smpc_recv_sign_info_pdu
 </UL>
 
 <P><STRONG><a name="[425]"></a>smpc_tkdp_rcp_start</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, smpc.o(i.smpc_tkdp_rcp_start))
@@ -8587,15 +8587,15 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = flash_write &rArr; flash_protect_enable &rArr; co_delay_100us
 </UL>
 <BR>[Calls]<UL><LI><a href="#[439]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_enable
-<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable
 <LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CPU_SR_Save (via Veneer)
 <LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CPU_SR_Restore (via Veneer)
+<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable
 <LI><a href="#[461]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_get_ota_state
 <LI><a href="#[232]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enable_cache
 <LI><a href="#[460]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disable_cache
 </UL>
-<BR>[Called By]<UL><LI><a href="#[210]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_save (via Veneer)
-<LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_op_write_direct (via Veneer)
+<BR>[Called By]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_op_write_direct (via Veneer)
+<LI><a href="#[210]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_save (via Veneer)
 <LI><a href="#[2b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_clr_all_info (via Veneer)
 <LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_write_info_to_flash (via Veneer)
 <LI><a href="#[338]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;jump_table_set_static_keys (via Veneer)
@@ -8606,15 +8606,15 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = flash_erase &rArr; flash_protect_enable &rArr; co_delay_100us
 </UL>
 <BR>[Calls]<UL><LI><a href="#[439]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_enable
-<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable
 <LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CPU_SR_Save (via Veneer)
 <LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CPU_SR_Restore (via Veneer)
+<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable
 <LI><a href="#[461]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_get_ota_state
 <LI><a href="#[232]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enable_cache
 <LI><a href="#[460]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disable_cache
 </UL>
-<BR>[Called By]<UL><LI><a href="#[210]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_save (via Veneer)
-<LI><a href="#[2c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_op_erase_sector (via Veneer)
+<BR>[Called By]<UL><LI><a href="#[2c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_op_erase_sector (via Veneer)
+<LI><a href="#[210]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_save (via Veneer)
 <LI><a href="#[2b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_clr_all_info (via Veneer)
 <LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_write_info_to_flash (via Veneer)
 <LI><a href="#[338]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;jump_table_set_static_keys (via Veneer)
@@ -8630,8 +8630,8 @@ Global Symbols
 <LI><a href="#[232]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enable_cache
 <LI><a href="#[460]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disable_cache
 </UL>
-<BR>[Called By]<UL><LI><a href="#[215]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_load (via Veneer)
-<LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_op_read (via Veneer)
+<BR>[Called By]<UL><LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_op_read (via Veneer)
+<LI><a href="#[215]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tpms_bind_store_load (via Veneer)
 <LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_write_info_to_flash (via Veneer)
 <LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ble_bond_read_info_from_flash (via Veneer)
 <LI><a href="#[380]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gatt_write_peer_svc_to_flash (via Veneer)
@@ -8941,9 +8941,9 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[443]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;retry_handshake
 <LI><a href="#[439]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_enable
-<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable
 <LI><a href="#[459]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;system_lvd_protect_handle
 <LI><a href="#[44c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pmu_clear_isr_state
+<LI><a href="#[438]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_disable
 <LI><a href="#[45c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HardFault_Handler_C
 <LI><a href="#[49b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;flash_protect_enable1
 </UL>
@@ -9278,7 +9278,25 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
 </UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
+<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
+<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
+<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChordHornMode
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChargingPower
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetBatteryParameter
@@ -9310,7 +9328,17 @@ Local Symbols
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_BleUnpair
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AntiTheft
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AddNfc
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
+</UL>
+
+<P><STRONG><a name="[1d1]"></a>BleFunc_EnsureAuthed</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, ble_function.o(i.BleFunc_EnsureAuthed))
+<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = BleFunc_EnsureAuthed &rArr; BleFunc_SendResultToRx &rArr; Protocol_Send_Unicast &rArr; proto_encrypt_payload &rArr; Algo_SetKeyIV
+</UL>
+<BR>[Calls]<UL><LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Get_Rx_Conidx
+<LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Auth_IsOk
+<LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
+<LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_SendResultToRx
+</UL>
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
 <LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
@@ -9328,17 +9356,7 @@ Local Symbols
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
 <LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
-</UL>
-
-<P><STRONG><a name="[1d1]"></a>BleFunc_EnsureAuthed</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, ble_function.o(i.BleFunc_EnsureAuthed))
-<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = BleFunc_EnsureAuthed &rArr; BleFunc_SendResultToRx &rArr; Protocol_Send_Unicast &rArr; proto_encrypt_payload &rArr; Algo_SetKeyIV
-</UL>
-<BR>[Calls]<UL><LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Get_Rx_Conidx
-<LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Auth_IsOk
-<LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
-<LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_SendResultToRx
-</UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChordHornMode
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChargingPower
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetBatteryParameter
@@ -9369,27 +9387,9 @@ Local Symbols
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_BleUnpair
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AntiTheft
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AddNfc
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
-<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
-<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
-<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
-<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
-<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
-<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
 </UL>
 
-<P><STRONG><a name="[1e5]"></a>BleFunc_MapBleCmdToMcuId</STRONG> (Thumb, 988 bytes, Stack size 20 bytes, ble_function.o(i.BleFunc_MapBleCmdToMcuId))
+<P><STRONG><a name="[1e5]"></a>BleFunc_MapBleCmdToMcuId</STRONG> (Thumb, 1042 bytes, Stack size 20 bytes, ble_function.o(i.BleFunc_MapBleCmdToMcuId))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = BleFunc_MapBleCmdToMcuId
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuUart_SendOnly
@@ -9426,7 +9426,24 @@ Local Symbols
 <LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_StripTime6_ForMcu
 <LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_MapBleCmdToMcuId
 </UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
+<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
+<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChordHornMode
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChargingPower
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetBatteryParameter
@@ -9455,23 +9472,6 @@ Local Symbols
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_CarSearch
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AntiTheft
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AddNfc
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
-<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
-<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
-<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
-<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
-<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
-<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
 </UL>
 
 <P><STRONG><a name="[1ec]"></a>BleFunc_ParamSync_MaybeNotify</STRONG> (Thumb, 74 bytes, Stack size 0 bytes, ble_function.o(i.BleFunc_ParamSync_MaybeNotify))
@@ -9488,7 +9488,25 @@ Local Symbols
 <BR>[Calls]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;co_printf (via Veneer)
 <LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;proto_time6_bcd_to_str12
 </UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
+<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
+<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
+<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChordHornMode
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChargingPower
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetBatteryParameter
@@ -9519,24 +9537,6 @@ Local Symbols
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_BleUnpair
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AntiTheft
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AddNfc
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
-<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
-<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
-<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
-<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
-<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
-<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
 </UL>
 
 <P><STRONG><a name="[1ee]"></a>BleFunc_PushMcuFrameToAuthedApp</STRONG> (Thumb, 94 bytes, Stack size 16 bytes, ble_function.o(i.BleFunc_PushMcuFrameToAuthedApp))
@@ -9566,7 +9566,25 @@ Local Symbols
 <BR>[Calls]<UL><LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Send_Unicast
 <LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Protocol_Get_Rx_Conidx
 </UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
+<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
+<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
+<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDefaultMode
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChordHornMode
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetChargingPower
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetBatteryParameter
@@ -9598,24 +9616,6 @@ Local Symbols
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AntiTheft
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FE_AddNfc
 <LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_EnsureAuthed
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetVichleGurdMode
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetUpdataApp
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetTcsSwitch
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetStartAbility
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
-<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSideStand
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRgbLightMode
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetPGearMode
-<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetLostMode
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
-<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHhcMode
-<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetHdcMode
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
-<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEbsSwitch
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
-<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
 </UL>
 
 <P><STRONG><a name="[1e2]"></a>BleFunc_SendResultToRx_WithData</STRONG> (Thumb, 26 bytes, Stack size 16 bytes, ble_function.o(i.BleFunc_SendResultToRx_WithData))
@@ -9628,15 +9628,15 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[1d7]"></a>BleFunc_StripTime6_ForMcu</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, ble_function.o(i.BleFunc_StripTime6_ForMcu))
-<BR><BR>[Called By]<UL><LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuUart_SendOnly
-<LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Start
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
+<BR><BR>[Called By]<UL><LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportPowerSpeed
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetSportMode
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetRadarSwitch
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetIntelligentSwitch
 <LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetEcoMode
 <LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetESaveMode
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_FD_SetDynMode
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuUart_SendOnly
+<LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleFunc_McuTxn_Start
 </UL>
 
 <P><STRONG><a name="[1db]"></a>BleFunc_ToUpper</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, ble_function.o(i.BleFunc_ToUpper))
@@ -10442,8 +10442,8 @@ Local Symbols
 <LI><a href="#[259]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ke_msg_send (via Veneer)
 <LI><a href="#[282]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ke_msg_free (via Veneer)
 <LI><a href="#[258]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ke_msg_alloc (via Veneer)
-<LI><a href="#[2e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_connection_paring_info_ind_func
 <LI><a href="#[2e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gap_paring_req_cb
+<LI><a href="#[2e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_connection_paring_info_ind_func
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app_sec.o(.constdata)
 </UL>
