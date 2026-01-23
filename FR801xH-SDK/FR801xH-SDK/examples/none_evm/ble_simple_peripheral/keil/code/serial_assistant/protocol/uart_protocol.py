@@ -174,6 +174,9 @@ def SocMcu_Frame_Build(sync, feature, cmd_id, data=None):
     """
     data_len = len(data) if data else 0
     
+    # 计算len字段值：包含feature(2B) + cmd_id(2B) + data(nB)
+    len_field = 2 + 2 + data_len
+    
     # 计算总长度
     total_len = 1 + 1 + 2 + 2 + 2 + data_len + SOC_MCU_CRC_LEN + 2
     
@@ -184,13 +187,12 @@ def SocMcu_Frame_Build(sync, feature, cmd_id, data=None):
     frame[0] = SOC_MCU_FRAME_HEAD
     frame[1] = sync & 0xFF
     
-    # 填充feature和cmd_id（大端序）
-    put_u16_be(frame, 2, feature)
-    put_u16_be(frame, 4, cmd_id)
+    # 填充长度字段（移到feature前面）
+    put_u16_be(frame, 2, len_field)
     
-    # 填充长度字段（直接使用data段的长度）
-    len_field = data_len
-    put_u16_be(frame, 6, len_field)
+    # 填充feature和cmd_id（大端序）
+    put_u16_be(frame, 4, feature)
+    put_u16_be(frame, 6, cmd_id)
     
     # 填充数据
     if data_len > 0:
@@ -198,7 +200,7 @@ def SocMcu_Frame_Build(sync, feature, cmd_id, data=None):
     
     # 计算校验和
     crc_offset = 8 + data_len
-    # 校验和覆盖范围：head(1B)+sync(1B)+feature(2B)+id(2B)+len(2B)+data(nB)
+    # 校验和覆盖范围：head(1B)+sync(1B)+len(2B)+feature(2B)+id(2B)+data(nB)
     checksum_data = frame[0:8+data_len]
     checksum = bin_complement_check_sum(checksum_data)
     frame[crc_offset] = checksum
@@ -257,14 +259,14 @@ def SocMcu_Frame_Parse(frame):
         if frame[0] != SOC_MCU_FRAME_HEAD:
             return None
         
-        # 解析基本字段
+        # 解析基本字段（更新偏移量）
         sync = frame[1]
-        feature = (frame[2] << 8) | frame[3]
-        cmd_id = (frame[4] << 8) | frame[5]
-        len_field = (frame[6] << 8) | frame[7]
+        len_field = (frame[2] << 8) | frame[3]  # len字段移到了feature前面
+        feature = (frame[4] << 8) | frame[5]     # feature移到了len后面
+        cmd_id = (frame[6] << 8) | frame[7]      # cmd_id移到了feature后面
         
-        # 计算数据长度（直接使用len_field）
-        data_len = len_field
+        # 计算数据长度：len_field包含feature(2B) + cmd_id(2B) + data(nB)
+        data_len = len_field - 2 - 2
         if data_len < 0:
             return None
         

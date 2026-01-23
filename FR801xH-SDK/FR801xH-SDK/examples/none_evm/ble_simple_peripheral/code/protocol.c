@@ -87,7 +87,8 @@ static uint8_t g_protocol_last_rx_crypto[PROTOCOL_MAX_CONN] = {
 void gap_disconnect_req(uint8_t conidx);
 
 #if PROTOCOL_USE_ACK
-typedef struct {
+typedef struct
+{
     bool     in_flight;
     bool     critical;
     uint8_t  seq;
@@ -123,8 +124,10 @@ static bool
 proto_send_frame(uint8_t conidx, const uint8_t* frame, uint16_t len);
 
 // BCC 校验函数实现
-static bool Protocol_Check_BCC(Protocol_Handler_t* self) {
-    if (self == NULL || self->rx_buffer == NULL || self->rx_len < 10) {
+static bool Protocol_Check_BCC(Protocol_Handler_t* self)
+{
+    if (self == NULL || self->rx_buffer == NULL || self->rx_len < 10)
+    {
         return false;
     }
 
@@ -137,7 +140,8 @@ static bool Protocol_Check_BCC(Protocol_Handler_t* self) {
 
     uint16_t check_len = self->rx_len - 3;
 
-    for (uint16_t i = 0; i < check_len; i++) {
+    for (uint16_t i = 0; i < check_len; i++)
+    {
         bcc ^= self->rx_buffer[i];
     }
 
@@ -148,13 +152,16 @@ static bool Protocol_Check_BCC(Protocol_Handler_t* self) {
 }
 
 // 协议解析函数实现
-static bool Protocol_Parse(Protocol_Handler_t* self) {
-    if (self == NULL || self->rx_buffer == NULL) {
+static bool Protocol_Parse(Protocol_Handler_t* self)
+{
+    if (self == NULL || self->rx_buffer == NULL)
+    {
         return false;
     }
 
     // 1. 检查最小长度 (Header 2 + Len 1 + Crypto 1 + Seq 1 + Cmd 2 + BCC 1 + Footer 2 = 10)
-    if (self->rx_len < 10) {
+    if (self->rx_len < 10)
+    {
         co_printf("Protocol: Len too short %d\r\n", self->rx_len);
         return false;
     }
@@ -163,7 +170,8 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
     Protocol_Header_t* pHead = (Protocol_Header_t*)self->rx_buffer;
 
     // 3. 检查 Header Magic (0x5555)
-    if (pHead->header != PROTOCOL_HEADER_MAGIC) {
+    if (pHead->header != PROTOCOL_HEADER_MAGIC)
+    {
         co_printf("Protocol: Header Error 0x%04X\r\n", pHead->header);
         return false;
     }
@@ -171,13 +179,15 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
     // 4. 检查 Footer Magic (0xAAAA)
     // Footer 位于最后两个字节
     if (self->rx_buffer[self->rx_len - 2] != 0xAA ||
-        self->rx_buffer[self->rx_len - 1] != 0xAA) {
+        self->rx_buffer[self->rx_len - 1] != 0xAA)
+    {
         co_printf("Protocol: Footer Error\r\n");
         return false;
     }
     // 5. 检查长度字段
     // 协议定义 Length 为 "数据包长度，包括 header、footer"
-    if (pHead->length != self->rx_len) {
+    if (pHead->length != self->rx_len)
+    {
         co_printf(
             "Protocol: Len mismatch %d != %d\r\n", pHead->length, self->rx_len);
         return false;
@@ -200,38 +210,42 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
 
     // 8. 校验 BCC
     // 先校验完整性，再进行解密
-    if (!self->Check_BCC(self)) {
+    if (!self->Check_BCC(self))
+    {
         co_printf("Protocol: BCC Error\r\n");
         return false;
     }
 
     // 9. 解密 Data 段 (OPP 动态策略)
-    if (self->payload_len > 0) {
+    if (self->payload_len > 0)
+    {
         Algo_Context_t algo_ctx;
 
         // A. 动态绑定算法 (0x00=None, 0x01=DES3, 0x02=AES128)
-        if (Algo_Bind(&algo_ctx, (algo_type_t)pHead->crypto)) {
+        if (Algo_Bind(&algo_ctx, (algo_type_t)pHead->crypto))
+        {
 
             /* Debug：打印解密前 payload 前 16 字节，便于对齐 App 端 AES 参数 */
             co_printf("Protocol: crypto=0x%02X payload_len=%d\r\n",
                       (unsigned)pHead->crypto,
                       (int)self->payload_len);
             co_printf("Protocol: payload head (enc): ");
-            for (uint16_t i = 0; i < 16 && i < self->payload_len; i++) {
+            for (uint16_t i = 0; i < 16 && i < self->payload_len; i++)
+            {
                 co_printf("%02X ", self->payload[i]);
             }
             co_printf("\r\n");
 
             // B. 设置密钥 (仅当非 None 模式时生效)
-            if (pHead->crypto != ALGO_TYPE_NONE) {
+            if (pHead->crypto != ALGO_TYPE_NONE)
+            {
                 Algo_SetKeyIV(&algo_ctx, s_default_aes_key, s_default_aes_iv);
             }
 
             // C. 执行解密 (原地解密: 输入=输出=payload)
-            if (!Algo_Decrypt(&algo_ctx,
-                              self->payload,
-                              self->payload_len,
-                              self->payload)) {
+            if (!Algo_Decrypt(
+                    &algo_ctx, self->payload, self->payload_len, self->payload))
+            {
                 co_printf("Protocol: Decrypt Error\r\n");
                 return false;
             }
@@ -242,17 +256,22 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
              * - 例如 Connect(0x01FE) 明文应为 39 字节，但加密后会填充到 48 字节。
              * - 若不去填充，业务层会把 padding 当成 token/mobileSystem，导致 time_bcd 解析失败与鉴权失败。
              */
-            if (pHead->crypto == ALGO_TYPE_AES_CBC && self->payload_len >= 16) {
+            if (pHead->crypto == ALGO_TYPE_AES_CBC && self->payload_len >= 16)
+            {
                 uint8_t pad = self->payload[self->payload_len - 1];
-                if (pad >= 1 && pad <= 16 && pad <= self->payload_len) {
+                if (pad >= 1 && pad <= 16 && pad <= self->payload_len)
+                {
                     bool pad_ok = true;
-                    for (uint16_t i = 0; i < pad; i++) {
-                        if (self->payload[self->payload_len - 1 - i] != pad) {
+                    for (uint16_t i = 0; i < pad; i++)
+                    {
+                        if (self->payload[self->payload_len - 1 - i] != pad)
+                        {
                             pad_ok = false;
                             break;
                         }
                     }
-                    if (pad_ok) {
+                    if (pad_ok)
+                    {
                         self->payload_len = (uint16_t)(self->payload_len - pad);
                         co_printf("Protocol: unpad pkcs7 -> payload_len=%d\r\n",
                                   (int)self->payload_len);
@@ -262,11 +281,14 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
 
             /* Debug：打印解密后 payload 前 16 字节 */
             co_printf("Protocol: payload head (dec): ");
-            for (uint16_t i = 0; i < 16 && i < self->payload_len; i++) {
+            for (uint16_t i = 0; i < 16 && i < self->payload_len; i++)
+            {
                 co_printf("%02X ", self->payload[i]);
             }
             co_printf("\r\n");
-        } else {
+        }
+        else
+        {
             co_printf("Protocol: Unknown Algo 0x%02X\r\n", pHead->crypto);
             return false;
         }
@@ -276,13 +298,15 @@ static bool Protocol_Parse(Protocol_Handler_t* self) {
 }
 
 // 初始化协议处理器
-void Protocol_Init(void) {
+void Protocol_Init(void)
+{
     g_protocol_handler.rx_buffer = NULL;
     g_protocol_handler.rx_len    = 0;
     g_protocol_handler.Check_BCC = Protocol_Check_BCC;
     g_protocol_handler.Parse     = Protocol_Parse;
 
-    for (uint8_t i = 0; i < PROTOCOL_MAX_CONN; i++) {
+    for (uint8_t i = 0; i < PROTOCOL_MAX_CONN; i++)
+    {
         g_protocol_last_rx_att_idx[i] = SP_IDX_CHAR1_VALUE;
         g_protocol_last_rx_seq[i]     = 0xFF;
         g_protocol_last_rx_crypto[i]  = CRYPTO_TYPE_NONE;
@@ -290,19 +314,22 @@ void Protocol_Init(void) {
 
 #if PROTOCOL_USE_ACK
     memset(g_tx_ctx, 0, sizeof(g_tx_ctx));
-    for (uint8_t i = 0; i < PROTOCOL_MAX_CONN; i++) {
+    for (uint8_t i = 0; i < PROTOCOL_MAX_CONN; i++)
+    {
         os_timer_init(&g_ack_timer[i], proto_ack_timeout, (void*)(uint32_t)i);
     }
 #endif
 }
 
 // 处理接收到的数据 (供外部调用)
-void Protocol_Handle_Data(uint8_t conidx, uint8_t* data, uint16_t len) {
+void Protocol_Handle_Data(uint8_t conidx, uint8_t* data, uint16_t len)
+{
     g_protocol_rx_conidx         = conidx;
     g_protocol_handler.rx_buffer = data;
     g_protocol_handler.rx_len    = len;
 
-    if (!g_protocol_handler.Parse(&g_protocol_handler)) {
+    if (!g_protocol_handler.Parse(&g_protocol_handler))
+    {
         return;
     }
 
@@ -310,7 +337,8 @@ void Protocol_Handle_Data(uint8_t conidx, uint8_t* data, uint16_t len) {
     uint8_t  seq = g_protocol_handler.header_info.seq_num;
 
     /* 记录最近一次 RX 的流水号，用于后续回复帧“回显相同流水号” */
-    if (conidx < PROTOCOL_MAX_CONN) {
+    if (conidx < PROTOCOL_MAX_CONN)
+    {
         g_protocol_last_rx_seq[conidx] = seq;
         g_protocol_last_rx_crypto[conidx] =
             g_protocol_handler.header_info.crypto;
@@ -318,9 +346,11 @@ void Protocol_Handle_Data(uint8_t conidx, uint8_t* data, uint16_t len) {
 
 #if PROTOCOL_USE_ACK
     /* 如果是 ACK，匹配流水号后停止对应定时器 */
-    if (cmd == CMD_ACK_ID) {
+    if (cmd == CMD_ACK_ID)
+    {
         if (conidx < PROTOCOL_MAX_CONN && g_tx_ctx[conidx].in_flight &&
-            g_tx_ctx[conidx].seq == seq) {
+            g_tx_ctx[conidx].seq == seq)
+        {
             g_tx_ctx[conidx].in_flight = false;
             os_timer_stop(&g_ack_timer[conidx]);
             co_printf("Protocol: ACK ok conidx=%d seq=%d\r\n", conidx, seq);
@@ -339,19 +369,26 @@ void Protocol_Handle_Data(uint8_t conidx, uint8_t* data, uint16_t len) {
     // 根据命令低字节区分 FE 和 FD
     uint8_t cmd_type = (uint8_t)(cmd & 0xFF);
 
-    if (cmd_type == 0xFE) {
+    if (cmd_type == 0xFE)
+    {
         Protocol_Process_FE(
             cmd, g_protocol_handler.payload, g_protocol_handler.payload_len);
-    } else if (cmd_type == 0xFD) {
+    }
+    else if (cmd_type == 0xFD)
+    {
         Protocol_Process_FD(
             cmd, g_protocol_handler.payload, g_protocol_handler.payload_len);
-    } else if (cmd_type == 0x02) {
+    }
+    else if (cmd_type == 0x02)
+    {
         /* 兼容：设备主动推送类命令（如 0x64FD/0x66FD）对应的 APP 回复（0x6402/0x6602） */
         ParamSync_OnAppReply(conidx,
                              cmd,
                              g_protocol_handler.payload,
                              g_protocol_handler.payload_len);
-    } else {
+    }
+    else
+    {
         co_printf("Protocol: Unknown Cmd Type 0x%02X\r\n", cmd_type);
     }
 }
@@ -371,16 +408,21 @@ static bool proto_encrypt_payload(uint8_t        crypto,
                                   uint16_t       plain_len,
                                   uint8_t*       out,
                                   uint16_t       out_cap,
-                                  uint16_t*      out_len) {
-    if (out_len == NULL) {
+                                  uint16_t*      out_len)
+{
+    if (out_len == NULL)
+    {
         return false;
     }
     *out_len = 0;
 
-    if (crypto == CRYPTO_TYPE_NONE || plain_len == 0) {
+    if (crypto == CRYPTO_TYPE_NONE || plain_len == 0)
+    {
         /* 无加密：直接输出原文 */
-        if (plain_len > 0) {
-            if (plain == NULL || out == NULL || out_cap < plain_len) {
+        if (plain_len > 0)
+        {
+            if (plain == NULL || out == NULL || out_cap < plain_len)
+            {
                 return false;
             }
             memcpy(out, plain, plain_len);
@@ -390,32 +432,38 @@ static bool proto_encrypt_payload(uint8_t        crypto,
     }
 
     /* 需要加密：必须有输入输出缓冲区 */
-    if (plain == NULL || out == NULL) {
+    if (plain == NULL || out == NULL)
+    {
         return false;
     }
 
     Algo_Context_t algo_ctx;
-    if (!Algo_Bind(&algo_ctx, (algo_type_t)crypto)) {
+    if (!Algo_Bind(&algo_ctx, (algo_type_t)crypto))
+    {
         return false;
     }
     Algo_SetKeyIV(&algo_ctx, s_default_aes_key, s_default_aes_iv);
 
     /* PKCS7Padding：先拷贝明文到 out，再做 padding，再原地加密 */
-    if (out_cap < plain_len) {
+    if (out_cap < plain_len)
+    {
         return false;
     }
     memcpy(out, plain, plain_len);
 
     uint8_t block_size = 16u;
-    if (algo_ctx.ops != NULL && algo_ctx.ops->block_size != 0) {
+    if (algo_ctx.ops != NULL && algo_ctx.ops->block_size != 0)
+    {
         block_size = algo_ctx.ops->block_size;
     }
     uint32_t padded_len = Algo_Padding(out, (uint32_t)plain_len, block_size);
-    if (padded_len == 0 || padded_len > out_cap || padded_len > 0xFFu) {
+    if (padded_len == 0 || padded_len > out_cap || padded_len > 0xFFu)
+    {
         return false;
     }
 
-    if (!Algo_Encrypt(&algo_ctx, out, padded_len, out)) {
+    if (!Algo_Encrypt(&algo_ctx, out, padded_len, out))
+    {
         return false;
     }
 
@@ -423,46 +471,62 @@ static bool proto_encrypt_payload(uint8_t        crypto,
     return true;
 }
 
-uint8_t Protocol_Get_Rx_Conidx(void) {
+uint8_t Protocol_Get_Rx_Conidx(void)
+{
     return g_protocol_rx_conidx;
 }
 
-void Protocol_Set_Rx_AttIdx(uint8_t conidx, uint16_t att_idx) {
+void Protocol_Set_Rx_AttIdx(uint8_t conidx, uint16_t att_idx)
+{
     if (conidx >= PROTOCOL_MAX_CONN)
         return;
 
     /* 只接受我们关心的通道；CHAR3 无 Notify，因此记录为 CHAR2 作为回包通道 */
-    if (att_idx == SP_IDX_CHAR1_VALUE) {
+    if (att_idx == SP_IDX_CHAR1_VALUE)
+    {
         g_protocol_last_rx_att_idx[conidx] = SP_IDX_CHAR1_VALUE;
-    } else if (att_idx == SP_IDX_CHAR2_VALUE) {
+    }
+    else if (att_idx == SP_IDX_CHAR2_VALUE)
+    {
         g_protocol_last_rx_att_idx[conidx] = SP_IDX_CHAR2_VALUE;
-    } else if (att_idx == SP_IDX_CHAR3_VALUE) {
+    }
+    else if (att_idx == SP_IDX_CHAR3_VALUE)
+    {
         g_protocol_last_rx_att_idx[conidx] = SP_IDX_CHAR2_VALUE;
-    } else {
+    }
+    else
+    {
         g_protocol_last_rx_att_idx[conidx] = SP_IDX_CHAR1_VALUE;
     }
 }
 
-void Protocol_Auth_Clear(uint8_t conidx) {
-    if (conidx < PROTOCOL_MAX_CONN) {
+void Protocol_Auth_Clear(uint8_t conidx)
+{
+    if (conidx < PROTOCOL_MAX_CONN)
+    {
         g_protocol_authed[conidx] = 0;
     }
 }
 
-void Protocol_Auth_Set(uint8_t conidx, bool ok) {
-    if (conidx < PROTOCOL_MAX_CONN) {
+void Protocol_Auth_Set(uint8_t conidx, bool ok)
+{
+    if (conidx < PROTOCOL_MAX_CONN)
+    {
         g_protocol_authed[conidx] = ok ? 1 : 0;
     }
 }
 
-bool Protocol_Auth_IsOk(uint8_t conidx) {
-    if (conidx < PROTOCOL_MAX_CONN) {
+bool Protocol_Auth_IsOk(uint8_t conidx)
+{
+    if (conidx < PROTOCOL_MAX_CONN)
+    {
         return g_protocol_authed[conidx] != 0;
     }
     return false;
 }
 
-void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
+void Protocol_Auth_SendResult(uint8_t conidx, bool ok)
+{
     uint8_t  frame[PHONE_REPLY_FRAME_OVERHEAD + 32u];
     uint16_t frame_len = 0;
 
@@ -472,9 +536,12 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
      * - 若当前没有有效的 RX seq（例如无请求触发的异步通知），回退为本地自增。
      */
     uint8_t tx_seq = 0;
-    if (conidx < PROTOCOL_MAX_CONN && g_protocol_last_rx_seq[conidx] != 0xFF) {
+    if (conidx < PROTOCOL_MAX_CONN && g_protocol_last_rx_seq[conidx] != 0xFF)
+    {
         tx_seq = g_protocol_last_rx_seq[conidx];
-    } else {
+    }
+    else
+    {
         g_seq  = (g_seq + 1) & 0xFF;
         tx_seq = g_seq;
     }
@@ -485,7 +552,8 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
      */
     uint8_t peer_mac[PHONE_REPLY_MODEL_MAC_MAX_LEN];
     uint8_t mac_len = 0;
-    if (RSSI_Check_Get_Peer_Addr(conidx, peer_mac)) {
+    if (RSSI_Check_Get_Peer_Addr(conidx, peer_mac))
+    {
         mac_len = PHONE_REPLY_MODEL_MAC_MAX_LEN;
     }
 
@@ -495,13 +563,15 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
     plain_payload[2] = 2u;         /* NfcSwitch: 联调默认开 */
     plain_payload[3] = 0x02u;      /* CarSearchVolume: 联调默认中 */
     plain_payload[4] = mac_len;
-    if (mac_len == PHONE_REPLY_MODEL_MAC_MAX_LEN) {
+    if (mac_len == PHONE_REPLY_MODEL_MAC_MAX_LEN)
+    {
         memcpy(&plain_payload[5], peer_mac, PHONE_REPLY_MODEL_MAC_MAX_LEN);
     }
     uint16_t plain_len = (uint16_t)(5u + (uint16_t)mac_len);
 
     uint8_t crypto = CRYPTO_TYPE_NONE;
-    if (conidx < PROTOCOL_MAX_CONN) {
+    if (conidx < PROTOCOL_MAX_CONN)
+    {
         crypto = g_protocol_last_rx_crypto[conidx];
     }
 
@@ -512,7 +582,8 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
                                plain_len,
                                enc_payload,
                                (uint16_t)sizeof(enc_payload),
-                               &enc_len)) {
+                               &enc_len))
+    {
         co_printf("Protocol: auth result encrypt fail\r\n");
         return;
     }
@@ -521,7 +592,8 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
     co_printf("Protocol: AuthResult enc payload (%dB crypto=0x%02X): ",
               (int)enc_len,
               (unsigned)crypto);
-    for (uint16_t i = 0; i < enc_len; i++) {
+    for (uint16_t i = 0; i < enc_len; i++)
+    {
         co_printf("%02X ", enc_payload[i]);
     }
     co_printf("\r\n");
@@ -534,7 +606,8 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
                                  enc_len,
                                  frame,
                                  (uint16_t)sizeof(frame),
-                                 &frame_len)) {
+                                 &frame_len))
+    {
         co_printf("Protocol: build auth result fail\r\n");
         return;
     }
@@ -552,11 +625,13 @@ void Protocol_Auth_SendResult(uint8_t conidx, bool ok) {
     proto_send_frame(conidx, frame, frame_len);
 }
 
-void Protocol_Disconnect(uint8_t conidx) {
+void Protocol_Disconnect(uint8_t conidx)
+{
     gap_disconnect_req(conidx);
 }
 
-void Protocol_Create_Test_Data(void) {
+void Protocol_Create_Test_Data(void)
+{
     static uint8_t test_buf[20];
     uint8_t        i   = 0;
     uint8_t        bcc = 0;
@@ -583,7 +658,8 @@ void Protocol_Create_Test_Data(void) {
     test_buf[i++] = 0xEE;
 
     // 7. Calculate BCC (XOR from Header to Data)
-    for (j = 0; j < i; j++) {
+    for (j = 0; j < i; j++)
+    {
         bcc ^= test_buf[j];
     }
     test_buf[i++] = bcc;
@@ -597,7 +673,8 @@ void Protocol_Create_Test_Data(void) {
 }
 
 // 生成并喂入 FE Connect(0x01FE) 测试帧：Time(6)+Token(32)+mobileSystem(1)
-void Protocol_Create_Test_FE_Connect_01FE(void) {
+void Protocol_Create_Test_FE_Connect_01FE(void)
+{
     // total = Header(2)+Len(1)+Crypto(1)+Seq(1)+Cmd(2)+Payload(39)+BCC(1)+Footer(2) = 49
     static uint8_t test_buf[64];
     uint8_t        i   = 0;
@@ -631,7 +708,8 @@ void Protocol_Create_Test_FE_Connect_01FE(void) {
 
     // Token(32): MD5(T-BOXKEY) 的 32 字节 ASCII 示例（用真实 token 替换这串即可）
     const char token32[] = "0123456789ABCDEF0123456789ABCDEF";
-    for (uint8_t k = 0; k < 32; k++) {
+    for (uint8_t k = 0; k < 32; k++)
+    {
         test_buf[i++] = (uint8_t)token32[k];
     }
 
@@ -639,7 +717,8 @@ void Protocol_Create_Test_FE_Connect_01FE(void) {
     test_buf[i++] = 0x01;
 
     // 7. BCC (XOR from Header to end of Payload)
-    for (uint8_t k = 0; k < i; k++) {
+    for (uint8_t k = 0; k < i; k++)
+    {
         bcc ^= test_buf[k];
     }
     test_buf[i++] = bcc;
@@ -653,7 +732,8 @@ void Protocol_Create_Test_FE_Connect_01FE(void) {
 }
 
 /* 发送帧到指定连接（通过 GATT Notify） */
-static uint8_t proto_pick_tx_att_idx(uint8_t conidx) {
+static uint8_t proto_pick_tx_att_idx(uint8_t conidx)
+{
     if (conidx >= PROTOCOL_MAX_CONN)
         return SP_IDX_CHAR1_VALUE;
 
@@ -662,11 +742,13 @@ static uint8_t proto_pick_tx_att_idx(uint8_t conidx) {
     return SP_IDX_CHAR2_VALUE;
 #else
     uint8_t prefer = g_protocol_last_rx_att_idx[conidx];
-    if (prefer != SP_IDX_CHAR1_VALUE && prefer != SP_IDX_CHAR2_VALUE) {
+    if (prefer != SP_IDX_CHAR1_VALUE && prefer != SP_IDX_CHAR2_VALUE)
+    {
         prefer = SP_IDX_CHAR1_VALUE;
     }
 
-    if (prefer == SP_IDX_CHAR1_VALUE) {
+    if (prefer == SP_IDX_CHAR1_VALUE)
+    {
         if (sp_is_char1_ntf_enabled(conidx))
             return SP_IDX_CHAR1_VALUE;
         if (sp_is_char2_ntf_enabled(conidx))
@@ -683,8 +765,8 @@ static uint8_t proto_pick_tx_att_idx(uint8_t conidx) {
 #endif
 }
 
-static bool
-proto_send_frame(uint8_t conidx, const uint8_t* frame, uint16_t len) {
+static bool proto_send_frame(uint8_t conidx, const uint8_t* frame, uint16_t len)
+{
     if (conidx >= PROTOCOL_MAX_CONN)
         return false;
 
@@ -693,7 +775,8 @@ proto_send_frame(uint8_t conidx, const uint8_t* frame, uint16_t len) {
 #if PROTOCOL_DEBUG_TX
     /* cmd 在 frame[5..6]（小端），打印用于确认到底发了什么 */
     uint16_t cmd_be = 0;
-    if (len >= 7) {
+    if (len >= 7)
+    {
         /* Cmd：协议帧里是大端 */
         cmd_be = ((uint16_t)frame[5] << 8) | (uint16_t)frame[6];
     }
@@ -706,20 +789,26 @@ proto_send_frame(uint8_t conidx, const uint8_t* frame, uint16_t len) {
               (int)len,
               (unsigned)cmd_be);
     co_printf("Protocol: TX frame(all %dB): ", (int)len);
-    for (uint16_t i = 0; i < len; i++) {
+    for (uint16_t i = 0; i < len; i++)
+    {
         co_printf("%02X ", frame[i]);
     }
     co_printf("\r\n");
 #endif
 
-    if (att_idx == SP_IDX_CHAR1_VALUE) {
-        if (!sp_is_char1_ntf_enabled(conidx)) {
+    if (att_idx == SP_IDX_CHAR1_VALUE)
+    {
+        if (!sp_is_char1_ntf_enabled(conidx))
+        {
             co_printf("Protocol: TX drop (char1 notify disabled) conidx=%d\r\n",
                       conidx);
             return false;
         }
-    } else if (att_idx == SP_IDX_CHAR2_VALUE) {
-        if (!sp_is_char2_ntf_enabled(conidx)) {
+    }
+    else if (att_idx == SP_IDX_CHAR2_VALUE)
+    {
+        if (!sp_is_char2_ntf_enabled(conidx))
+        {
             co_printf("Protocol: TX drop (char2 notify disabled) conidx=%d\r\n",
                       conidx);
             return false;
@@ -739,7 +828,8 @@ proto_send_frame(uint8_t conidx, const uint8_t* frame, uint16_t len) {
 int Protocol_Send_Unicast(uint8_t        conidx,
                           uint16_t       cmd,
                           const uint8_t* payload,
-                          uint16_t       len) {
+                          uint16_t       len)
+{
     if (conidx >= PROTOCOL_MAX_CONN)
         return -1;
     if (gap_get_connect_status(conidx) == 0)
@@ -764,7 +854,8 @@ int Protocol_Send_Unicast(uint8_t        conidx,
                                len,
                                enc_payload,
                                (uint16_t)PROTOCOL_MAX_LEN,
-                               &enc_len)) {
+                               &enc_len))
+    {
         return -5;
     }
 
@@ -772,7 +863,8 @@ int Protocol_Send_Unicast(uint8_t        conidx,
     co_printf("Protocol: Unicast enc payload (%dB crypto=0x%02X): ",
               (int)enc_len,
               (unsigned)crypto);
-    for (uint16_t i = 0; i < enc_len; i++) {
+    for (uint16_t i = 0; i < enc_len; i++)
+    {
         co_printf("%02X ", enc_payload[i]);
     }
     co_printf("\r\n");
@@ -784,9 +876,12 @@ int Protocol_Send_Unicast(uint8_t        conidx,
 
     /* 同步应答：流水号与请求保持一致（若有） */
     uint8_t tx_seq = 0;
-    if (conidx < PROTOCOL_MAX_CONN && g_protocol_last_rx_seq[conidx] != 0xFF) {
+    if (conidx < PROTOCOL_MAX_CONN && g_protocol_last_rx_seq[conidx] != 0xFF)
+    {
         tx_seq = g_protocol_last_rx_seq[conidx];
-    } else {
+    }
+    else
+    {
         g_seq  = (g_seq + 1) & 0xFF;
         tx_seq = g_seq;
     }
@@ -795,11 +890,13 @@ int Protocol_Send_Unicast(uint8_t        conidx,
     frame[5] = (uint8_t)(cmd >> 8);
     frame[6] = (uint8_t)(cmd & 0xFF);
 
-    if (enc_len > 0) {
+    if (enc_len > 0)
+    {
         memcpy(&frame[7], enc_payload, enc_len);
     }
 
-    for (uint16_t i = 0; i < (uint16_t)(7u + enc_len); i++) {
+    for (uint16_t i = 0; i < (uint16_t)(7u + enc_len); i++)
+    {
         bcc ^= frame[i];
     }
     frame[7 + enc_len] = bcc;
@@ -813,7 +910,8 @@ int Protocol_Send_Unicast(uint8_t        conidx,
 int Protocol_Send_Unicast_Async(uint8_t        conidx,
                                 uint16_t       cmd,
                                 const uint8_t* payload,
-                                uint16_t       len) {
+                                uint16_t       len)
+{
     if (conidx >= PROTOCOL_MAX_CONN)
         return -1;
     if (gap_get_connect_status(conidx) == 0)
@@ -838,7 +936,8 @@ int Protocol_Send_Unicast_Async(uint8_t        conidx,
                                len,
                                enc_payload,
                                (uint16_t)PROTOCOL_MAX_LEN,
-                               &enc_len)) {
+                               &enc_len))
+    {
         return -5;
     }
 
@@ -854,11 +953,13 @@ int Protocol_Send_Unicast_Async(uint8_t        conidx,
     frame[5] = (uint8_t)(cmd >> 8);
     frame[6] = (uint8_t)(cmd & 0xFF);
 
-    if (enc_len > 0) {
+    if (enc_len > 0)
+    {
         memcpy(&frame[7], enc_payload, enc_len);
     }
 
-    for (uint16_t i = 0; i < (uint16_t)(7u + enc_len); i++) {
+    for (uint16_t i = 0; i < (uint16_t)(7u + enc_len); i++)
+    {
         bcc ^= frame[i];
     }
     frame[7 + enc_len] = bcc;
@@ -869,7 +970,8 @@ int Protocol_Send_Unicast_Async(uint8_t        conidx,
 }
 /* 发送 ACK（Cmd=0x0000，Data 长度=0） */
 #if PROTOCOL_USE_ACK
-static void proto_send_ack(uint8_t conidx, uint8_t seq) {
+static void proto_send_ack(uint8_t conidx, uint8_t seq)
+{
     uint8_t ack[10];
     uint8_t bcc = 0;
     ack[0]      = 0x55;
@@ -890,7 +992,8 @@ static void proto_send_ack(uint8_t conidx, uint8_t seq) {
 
 /* 重传定时器回调 */
 #if PROTOCOL_USE_ACK
-static void proto_ack_timeout(void* arg) {
+static void proto_ack_timeout(void* arg)
+{
     uint8_t conidx = (uint8_t)(uint32_t)arg;
     if (conidx >= PROTOCOL_MAX_CONN)
         return;
@@ -898,7 +1001,8 @@ static void proto_ack_timeout(void* arg) {
     if (!ctx->in_flight)
         return;
 
-    if (ctx->retry < PROTOCOL_MAX_RETRY) {
+    if (ctx->retry < PROTOCOL_MAX_RETRY)
+    {
         ctx->retry++;
         co_printf("Protocol: RETRY conidx=%d seq=%d try=%d\r\n",
                   conidx,
@@ -906,14 +1010,17 @@ static void proto_ack_timeout(void* arg) {
                   ctx->retry);
         proto_send_frame(conidx, ctx->buf, ctx->len);
         proto_restart_timer(conidx);
-    } else {
+    }
+    else
+    {
         co_printf(
             "Protocol: RETRY FAIL conidx=%d seq=%d\r\n", conidx, ctx->seq);
         ctx->in_flight = false;
     }
 }
 
-static void proto_restart_timer(uint8_t conidx) {
+static void proto_restart_timer(uint8_t conidx)
+{
     os_timer_stop(&g_ack_timer[conidx]);
     os_timer_start(&g_ack_timer[conidx], PROTOCOL_ACK_TIMEOUT, 0);
 }
@@ -934,7 +1041,8 @@ static void proto_restart_timer(uint8_t conidx) {
 int Protocol_Send_Broadcast(uint16_t       cmd,
                             const uint8_t* payload,
                             uint16_t       len,
-                            bool           critical) {
+                            bool           critical)
+{
     if (len + 10 > PROTOCOL_MAX_LEN + 10)
         return -2; // 长度超限
 
@@ -948,7 +1056,8 @@ int Protocol_Send_Broadcast(uint16_t       cmd,
 #if PROTOCOL_USE_ACK
     /* 逐连接发送，仅对已连接且已打开 CHAR1 通知的连接生效 */
     bool sent_any = false;
-    for (uint8_t idx = 0; idx < PROTOCOL_MAX_CONN; idx++) {
+    for (uint8_t idx = 0; idx < PROTOCOL_MAX_CONN; idx++)
+    {
         if (gap_get_connect_status(idx) == 0)
             continue;
 
@@ -962,7 +1071,8 @@ int Protocol_Send_Broadcast(uint16_t       cmd,
                                    len,
                                    enc_payload,
                                    (uint16_t)PROTOCOL_MAX_LEN,
-                                   &enc_len)) {
+                                   &enc_len))
+        {
             continue;
         }
         uint16_t total_len = (uint16_t)(enc_len + 10u);
@@ -993,22 +1103,27 @@ int Protocol_Send_Broadcast(uint16_t       cmd,
         ctx->critical  = critical;
         ctx->in_flight = true;
 
-        if (proto_send_frame(idx, frame, total_len)) {
+        if (proto_send_frame(idx, frame, total_len))
+        {
             proto_restart_timer(idx);
             sent_any = true;
-        } else {
+        }
+        else
+        {
             ctx->in_flight = false;
         }
     }
 
-    if (!sent_any) {
+    if (!sent_any)
+    {
         return -3; // 没有任何连接/订阅者
     }
     return 0;
 #else
     /* 开发阶段：不启用 ACK/重传，逐连接发送（按最后 RX 通道选择 CHAR1/CHAR2） */
     bool sent_any = false;
-    for (uint8_t idx = 0; idx < PROTOCOL_MAX_CONN; idx++) {
+    for (uint8_t idx = 0; idx < PROTOCOL_MAX_CONN; idx++)
+    {
         if (gap_get_connect_status(idx) == 0)
             continue;
 
@@ -1022,7 +1137,8 @@ int Protocol_Send_Broadcast(uint16_t       cmd,
                                    len,
                                    enc_payload,
                                    (uint16_t)PROTOCOL_MAX_LEN,
-                                   &enc_len)) {
+                                   &enc_len))
+        {
             continue;
         }
         uint16_t total_len = (uint16_t)(enc_len + 10u);
@@ -1043,7 +1159,8 @@ int Protocol_Send_Broadcast(uint16_t       cmd,
         frame[8 + enc_len] = 0xAA;
         frame[9 + enc_len] = 0xAA;
 
-        if (proto_send_frame(idx, frame, total_len)) {
+        if (proto_send_frame(idx, frame, total_len))
+        {
             sent_any = true;
         }
     }

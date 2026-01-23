@@ -132,7 +132,7 @@ static void handle_uart_frame(const uart_frame_msg_t *m)
     const uint8_t *f = m->data;
     const uint16_t flen = m->len;
 
-    /* 基本长度校验：head(1)+sync(1)+feature(2)+id(2)+len(2)+crc+end(2) */
+    /* 基本长度校验：head(1)+sync(1)+len(2)+feature(2)+id(2)+crc+end(2) */
     const uint16_t min_len = (uint16_t)(1u + 1u + 2u + 2u + 2u + SOC_MCU_CRC_LEN + 2u);
     if (flen < min_len) {
         co_printf("[UART] frame too short: %u\r\n", (unsigned)flen);
@@ -149,11 +149,15 @@ static void handle_uart_frame(const uart_frame_msg_t *m)
 
     /* Big Endian Parsing */
     uint16_t sync = (uint16_t)f[1]; /* 1 Byte Sync */
-    uint16_t feature = (uint16_t)((f[2] << 8) | f[3]);
-    uint16_t id = (uint16_t)((f[4] << 8) | f[5]);
-    uint16_t len_field = (uint16_t)((f[6] << 8) | f[7]);
-    uint16_t data_len = len_field;
-    /* total = head(1)+sync(1)+feature(2)+id(2)+len(2)+data+crc+end(2) */
+    uint16_t len_field = (uint16_t)((f[2] << 8) | f[3]);
+    uint16_t feature = (uint16_t)((f[4] << 8) | f[5]);
+    uint16_t id = (uint16_t)((f[6] << 8) | f[7]);
+    if (len_field < 4u) {
+        co_printf("[UART] len too small: %u\r\n", (unsigned)len_field);
+        return;
+    }
+    uint16_t data_len = (uint16_t)(len_field - 4u);
+    /* total = head(1)+sync(1)+len(2)+feature(2)+id(2)+data+crc+end(2) */
     uint16_t expected = (uint16_t)(1u + 1u + 2u + 2u + 2u + data_len + SOC_MCU_CRC_LEN + 2u);
     if (expected != flen) {
         co_printf("[UART] len mismatch: expected=%u actual=%u\r\n", (unsigned)expected, (unsigned)flen);

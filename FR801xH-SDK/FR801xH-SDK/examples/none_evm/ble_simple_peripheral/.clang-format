@@ -29,7 +29,7 @@ AlignTrailingComments: true
 IndentPPDirectives: None
 
 # 括号和空格风格
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman
 SpaceBeforeParens: ControlStatements
 SpaceBeforeCpp11BracedList: true
 
