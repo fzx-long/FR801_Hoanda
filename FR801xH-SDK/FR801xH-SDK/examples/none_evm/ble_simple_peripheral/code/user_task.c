@@ -174,7 +174,7 @@ static void handle_uart_frame(const uart_frame_msg_t *m)
 
     uint8_t crc_rx = crc_ptr[0];
     uint16_t crc_off = (uint16_t)(8u + data_len);
-    uint8_t crc_calc = BinComplementCheckSum(f, crc_off);
+    uint8_t crc_calc = BinComplementCheckSum(&f[4], len_field);
     bool crc_ok = (crc_calc == crc_rx);
 
     co_printf("[UART] sync=0x%04X feature=0x%04X id=0x%04X data_len=%u crc_%s\r\n",
