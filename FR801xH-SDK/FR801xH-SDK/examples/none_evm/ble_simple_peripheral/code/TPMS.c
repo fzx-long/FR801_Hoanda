@@ -32,7 +32,7 @@
 #ifndef BLE_AD_TYPE_MANUFACTURER_SPECIFIC
 #define BLE_AD_TYPE_MANUFACTURER_SPECIFIC 0xFF
 #endif
-/** @} */
+/** @ */
 
 /**
  * @brief 文档定义：TPMS 自定义 Manufacturer 数据段固定头
@@ -46,7 +46,7 @@
  * @note 建议联调阶段打开，量产阶段关闭以节省串口带宽与 CPU
  */
 #ifndef TPMS_LOG_ENABLE
-#define TPMS_LOG_ENABLE 1
+#define TPMS_LOG_ENABLE 0
 #endif
 
 #if TPMS_LOG_ENABLE
@@ -75,6 +75,43 @@ static bool mac_all_00(const uint8_t mac[6])
 static void copy_mac(uint8_t dst[6], const uint8_t src[6])
 {
 	memcpy(dst, src, 6);
+}
+
+
+static void tpms_dump_hex(const uint8_t *p, uint8_t len)
+{
+    if (p == NULL) {
+        TPMS_LOG("[TPMS] ADV: null\r\n");
+        return;
+    }
+    TPMS_LOG("[TPMS] ADV len=%u: ", (unsigned)len);
+    for (uint8_t i = 0; i < len; i++) {
+        TPMS_LOG("%02X ", p[i]);
+    }
+    TPMS_LOG("\r\n");
+}
+
+static bool tpms_adv_name_is_tpmss(const uint8_t *adv, uint8_t adv_len)
+{
+    if (adv == NULL || adv_len == 0u) return false;
+    uint8_t idx = 0u;
+    while (idx < adv_len) {
+        uint8_t l = adv[idx];
+        if (l == 0u) break;
+        uint8_t end = (uint8_t)(idx + 1u + l);
+        if (end > adv_len || l < 1u) {
+            break;
+        }
+        uint8_t type = adv[idx + 1u];
+        if (type == 0x09u || type == 0x08u) {
+            uint8_t name_len = (uint8_t)(l - 1u);
+            if (name_len == 5u && memcmp(&adv[idx + 2u], "TPMSS", 5u) == 0) {
+                return true;
+            }
+        }
+        idx = end;
+    }
+    return false;
 }
 
 static TPMS_Device g_tpms;
@@ -365,6 +402,12 @@ static void tpms_set_target_mac(uint8_t wheel_idx, const uint8_t mac_le[6])
  */
 static void tpms_feed_adv(const uint8_t mac_le[6], int8_t rssi, const uint8_t *data, uint8_t len)
 {
+    TPMS_LOG("[TPMS_FEED] mac=%02X:%02X:%02X:%02X:%02X:%02X rssi=%d len=%u\r\n",
+             mac_le ? mac_le[5] : 0, mac_le ? mac_le[4] : 0, mac_le ? mac_le[3] : 0,
+             mac_le ? mac_le[2] : 0, mac_le ? mac_le[1] : 0, mac_le ? mac_le[0] : 0,
+             (int)rssi, (unsigned)len);
+    tpms_dump_hex(data, len);
+
 	if (mac_le == NULL || data == NULL || len == 0 || len > 31) return;
 
 	TPMS_Frame frame;
@@ -456,6 +499,16 @@ static void tpms_print_status(void)
 /**
  * @brief 4 字节小端转 uint32
  */
+static uint32_t u32_be(const uint8_t *p)
+{
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3];
+}
+
+static uint16_t u16_be(const uint8_t *p)
+{
+    return (uint16_t)(((uint16_t)p[0] << 8) | (uint16_t)p[1]);
+}
+
 static uint32_t u32_le(const uint8_t *p)
 {
 	return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
@@ -505,6 +558,8 @@ static TPMS_Mode tpms_decode_mode(uint8_t mode_low_nibble)
  */
 bool TPMS_Parse_Adv(const uint8_t *adv, uint8_t adv_len, TPMS_Frame *out)
 {
+	bool name_tpmss = tpms_adv_name_is_tpmss(adv, adv_len);
+
 	if (out) {
 		memset(out, 0, sizeof(*out));
 	}
@@ -533,20 +588,88 @@ bool TPMS_Parse_Adv(const uint8_t *adv, uint8_t adv_len, TPMS_Frame *out)
 
 		if (type == BLE_AD_TYPE_MANUFACTURER_SPECIFIC) {
 			/* 文档：AD Len=0x14 => payload_len=0x13=19，且第一个字节固定 0x4D */
-			if (payload_len == 0x13 && payload[0] == TPMS_PAYLOAD_HEADER) {
+			const uint8_t *p = payload;
+			if (payload_len == 0x15 && payload[2] == TPMS_PAYLOAD_HEADER) {
+				/* 兼容 Manufacturer Company ID(2B) */
+				p = &payload[2];
+			}
+			if (payload_len == 0x13 && payload[0] == 0x93 && payload[1] == 0x4D) {
+				const uint8_t *q = &payload[2];
+				out->header = 0u;
+				out->status_raw = 0u;
+				out->batt_status = TPMS_BATT_STATUS_INVALID;
+				out->mode = TPMS_MODE_INVALID;
+				out->rolling_cnt = u32_le(&q[0]);
+				out->sensor_id = u32_le(&q[4]);
+				out->pressure_kpa_x100 = (uint16_t)((uint16_t)q[8] * 314u);
+				out->temperature_c = (int8_t)q[9];
+				out->battery_v_x100 = (uint16_t)((uint16_t)q[10] + 122u);
+				memcpy(out->bt_addr, &q[11], 6);
+				out->valid = true;
+				TPMS_LOG("[TPMS_PARSE] ok id=0x%08X P=%u T=%d V=%u status=0x%02X mac=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+				         (unsigned)out->sensor_id, (unsigned)out->pressure_kpa_x100, (int)out->temperature_c,
+				         (unsigned)out->battery_v_x100, (unsigned)out->status_raw,
+				         out->bt_addr[5], out->bt_addr[4], out->bt_addr[3], out->bt_addr[2], out->bt_addr[1], out->bt_addr[0]);
+				return true;
+			}
+
+			if (payload_len == 0x13 && payload[0] == 0x93 && payload[1] == 0x4D) {
+				const uint8_t *q = &payload[2];
+				out->header = 0u;
+				out->status_raw = 0u;
+				out->batt_status = TPMS_BATT_STATUS_INVALID;
+				out->mode = TPMS_MODE_INVALID;
+				out->rolling_cnt = u32_le(&q[0]);
+				out->sensor_id = u32_le(&q[4]);
+				out->pressure_kpa_x100 = (uint16_t)((uint16_t)q[8] * 314u);
+				out->temperature_c = (int8_t)q[9];
+				out->battery_v_x100 = (uint16_t)((uint16_t)q[10] + 122u);
+				memcpy(out->bt_addr, &q[11], 6);
+				out->valid = true;
+				TPMS_LOG("[TPMS_PARSE] ok id=0x%08X P=%u T=%d V=%u status=0x%02X mac=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+				         (unsigned)out->sensor_id, (unsigned)out->pressure_kpa_x100, (int)out->temperature_c,
+				         (unsigned)out->battery_v_x100, (unsigned)out->status_raw,
+				         out->bt_addr[5], out->bt_addr[4], out->bt_addr[3], out->bt_addr[2], out->bt_addr[1], out->bt_addr[0]);
+				return true;
+			}
+
+			if (name_tpmss && payload_len >= 17u && payload[0] == 0xFFu) {
 				out->header = payload[0];
-				out->status_raw = payload[1];
+				out->status_raw = payload[10];
 				out->batt_status = tpms_decode_batt((uint8_t)((out->status_raw >> 4) & 0x0F));
 				out->mode = tpms_decode_mode((uint8_t)(out->status_raw & 0x0F));
-				out->rolling_cnt = u32_le(&payload[2]);
-				out->sensor_id = u32_le(&payload[6]);
-				/* 文档：压力 raw，精度 3.14kPa，偏移 0 => pressure_kpa_x100 = raw * 314 */
-				out->pressure_kpa_x100 = (uint16_t)((uint16_t)payload[10] * 314u);
-				out->temperature_c = (int8_t)payload[11];
-				/* 文档：电池 raw，精度 0.01V，偏移 +1.22 => battery_v_x100 = raw + 122 */
-				out->battery_v_x100 = (uint16_t)((uint16_t)payload[12] + 122u);
-				memcpy(out->bt_addr, &payload[13], 6);
+				out->rolling_cnt = 0u;
+				out->sensor_id = u32_be(&payload[1]);
+				out->pressure_kpa_x100 = u16_be(&payload[5]);
+				out->temperature_c = (int8_t)payload[7];
+				out->battery_v_x100 = u16_be(&payload[8]);
+				memcpy(out->bt_addr, &payload[11], 6);
 				out->valid = true;
+				TPMS_LOG("[TPMS_PARSE] ok id=0x%08X P=%u T=%d V=%u status=0x%02X mac=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+				         (unsigned)out->sensor_id, (unsigned)out->pressure_kpa_x100, (int)out->temperature_c,
+				         (unsigned)out->battery_v_x100, (unsigned)out->status_raw,
+				         out->bt_addr[5], out->bt_addr[4], out->bt_addr[3], out->bt_addr[2], out->bt_addr[1], out->bt_addr[0]);
+				return true;
+			}
+
+			if (payload_len == 0x13 && p[0] == TPMS_PAYLOAD_HEADER) {
+				out->header = p[0];
+				out->status_raw = p[1];
+				out->batt_status = tpms_decode_batt((uint8_t)((out->status_raw >> 4) & 0x0F));
+				out->mode = tpms_decode_mode((uint8_t)(out->status_raw & 0x0F));
+				out->rolling_cnt = u32_le(&p[2]);
+				out->sensor_id = u32_le(&p[6]);
+				/* 文档：压力 raw，精度 3.14kPa，偏移 0 => pressure_kpa_x100 = raw * 314 */
+				out->pressure_kpa_x100 = (uint16_t)((uint16_t)p[10] * 314u);
+				out->temperature_c = (int8_t)p[11];
+				/* 文档：电池 raw，精度 0.01V，偏移 +1.22 => battery_v_x100 = raw + 122 */
+				out->battery_v_x100 = (uint16_t)((uint16_t)p[12] + 122u);
+				memcpy(out->bt_addr, &p[13], 6);
+				out->valid = true;
+				TPMS_LOG("[TPMS_PARSE] ok id=0x%08X P=%u T=%d V=%u status=0x%02X mac=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+				         (unsigned)out->sensor_id, (unsigned)out->pressure_kpa_x100, (int)out->temperature_c,
+				         (unsigned)out->battery_v_x100, (unsigned)out->status_raw,
+				         out->bt_addr[5], out->bt_addr[4], out->bt_addr[3], out->bt_addr[2], out->bt_addr[1], out->bt_addr[0]);
 				return true;
 			}
 		}
@@ -681,7 +804,8 @@ bool TPMS_Get_Sensor(uint8_t wheel_idx, TPMS_Frame *out_frame)
 	if (wheel_idx >= TPMS_SENSOR_MAX || out_frame == NULL) return false;
 	
 	TPMS_Sensor *s = &g_tpms.sensor[wheel_idx];
-	if (!s->valid || !s->frame.valid) return false;
+	if (!s->valid || !s->frame.valid) TPMS_LOG("[TPMS_PARSE] fail\r\n");
+		return false;
 
 	*out_frame = s->frame;
 	return true;

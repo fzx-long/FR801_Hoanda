@@ -200,8 +200,13 @@ def SocMcu_Frame_Build(sync, feature, cmd_id, data=None):
     
     # 计算校验和
     crc_offset = 8 + data_len
-    # 校验和覆盖范围：head(1B)+sync(1B)+len(2B)+feature(2B)+id(2B)+data(nB)
-    checksum_data = frame[0:8+data_len]
+    # 校验和覆盖范围：head(1B)+sync(1B)+feature(2B)+id(2B)+data(nB)（不包含len字段）
+    # 构建校验数据：head + sync + feature + id + data
+    checksum_data = bytearray()
+    checksum_data.extend(frame[0:2])  # head + sync
+    checksum_data.extend(frame[4:8])  # feature + id
+    if data_len > 0:
+        checksum_data.extend(frame[8:8+data_len])  # data
     checksum = bin_complement_check_sum(checksum_data)
     frame[crc_offset] = checksum
     
@@ -286,8 +291,13 @@ def SocMcu_Frame_Parse(frame):
         crc_valid = True
         crc_value = 0
         
-        # 计算校验和 - 包含head字段
-        checksum_data = frame[0:8+data_len]
+        # 计算校验和 - 不包含len字段
+        # 构建校验数据：head + sync + feature + id + data
+        checksum_data = bytearray()
+        checksum_data.extend(frame[0:2])  # head + sync
+        checksum_data.extend(frame[4:8])  # feature + id
+        if data_len > 0:
+            checksum_data.extend(frame[8:8+data_len])  # data
         expected_checksum = frame[crc_offset]
         actual_checksum = bin_complement_check_sum(checksum_data)
         crc_valid = (actual_checksum == expected_checksum)
